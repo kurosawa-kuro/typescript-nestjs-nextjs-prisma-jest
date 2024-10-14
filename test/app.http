@@ -1,27 +1,32 @@
+@baseUrl = http://localhost:3001
+@contentType = application/json
+
 ### Variables (環境設定)
-@baseUrl = http://localhost:3000
+@randomEmail = {{$datetime iso8601}}_{{$randomInt 1000 9999}}@example.com
 
 ### ユーザーを作成する
-POST http://localhost:3001/users
-Content-Type: application/json
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
 
 {
   "name": "John Doe",
-  "email": "{{$datetime iso8601}}_{{$randomInt 1000 9999}}@example.com",
+  "email": "{{randomEmail}}",
   "passwordHash": "securepassword123",
   "isAdmin": false
 }
 
-
 ### ユーザーを参照する
-GET http://localhost:3001/users
-Content-Type: application/json
+GET {{baseUrl}}/users
+Content-Type: {{contentType}}
 
 ### develop/reset_db
-POST http://localhost:3001/develop/reset_db
-Content-Type: application/json
+POST {{baseUrl}}/develop/reset_db
+Content-Type: {{contentType}}
 
 ### develop/demo_user_login
-POST http://localhost:3001/develop/demo_user_login
-Content-Type: application/json
+POST {{baseUrl}}/develop/demo_user_login
+Content-Type: {{contentType}}
 
+### 環境変数のテスト (オプション)
+GET {{baseUrl}}/test
+Content-Type: {{contentType}}
