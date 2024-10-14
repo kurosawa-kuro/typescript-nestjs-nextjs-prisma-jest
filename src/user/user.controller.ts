@@ -8,8 +8,6 @@ export class UserController {
 
   @Post()
   async createUser(@Body() userData: Omit<User, 'id'>): Promise<User> {
-    console.log(`createUser`);
-    console.log(`userData: ${userData}`);
     return this.userService.createUser(userData);
   }
 
