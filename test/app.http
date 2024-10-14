@@ -16,3 +16,13 @@ Content-Type: application/json
 ### ユーザーを参照する
 GET http://localhost:3001/users
 Content-Type: application/json
+
+
+### develop/reset_db
+POST http://localhost:3001/develop/reset_db
+Content-Type: application/json
+
+### develop/demo_user_login
+POST http://localhost:3001/develop/demo_user_login
+Content-Type: application/json
+

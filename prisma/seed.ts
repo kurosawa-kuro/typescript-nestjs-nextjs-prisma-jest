@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient()
 
-async function main() {
+export async function seed() {
   // Admin user
   await prisma.user.create({
     data: {
@@ -152,12 +152,3 @@ async function main() {
 
   console.log('Seed data inserted successfully')
 }
-
-main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
