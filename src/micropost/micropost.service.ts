@@ -36,7 +36,7 @@ export class MicropostService {
     }
   }
 
-  async delete(id: number): Promise<Micropost> {
+  async destroy(id: number): Promise<Micropost> {
     try {
       return await this.prisma.micropost.delete({
         where: { id },

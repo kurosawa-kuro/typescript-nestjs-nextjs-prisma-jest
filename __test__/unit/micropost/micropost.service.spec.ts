@@ -135,7 +135,7 @@ describe('MicropostService', () => {
 
       jest.spyOn(prismaService.micropost, 'delete').mockResolvedValue(expectedResult);
 
-      const result = await service.delete(id);
+      const result = await service.destroy(id);
       expect(result).toEqual(expectedResult);
       expect(prismaService.micropost.delete).toHaveBeenCalledWith({ where: { id } });
     });
@@ -145,7 +145,7 @@ describe('MicropostService', () => {
 
       jest.spyOn(prismaService.micropost, 'delete').mockRejectedValue({ code: 'P2025' });
 
-      await expect(service.delete(id)).rejects.toThrow(NotFoundException);
+      await expect(service.destroy(id)).rejects.toThrow(NotFoundException);
       expect(prismaService.micropost.delete).toHaveBeenCalledWith({ where: { id } });
     });
 
@@ -155,7 +155,7 @@ describe('MicropostService', () => {
       const originalError = new Error('Database connection error');
       jest.spyOn(prismaService.micropost, 'delete').mockRejectedValue(originalError);
 
-      await expect(service.delete(id)).rejects.toThrow(originalError);
+      await expect(service.destroy(id)).rejects.toThrow(originalError);
     });
   });
 
