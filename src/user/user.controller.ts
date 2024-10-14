@@ -7,12 +7,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async createUser(@Body() userData: Omit<User, 'id'>): Promise<User> {
-    return this.userService.createUser(userData);
+  async create(@Body() userData: Omit<User, 'id'>): Promise<User> {
+    return this.userService.create(userData);
   }
 
   @Get()
-  async getAllUsers(): Promise<User[]> {
-    return this.userService.getAllUsers();
+  async index(): Promise<User[]> {
+    return this.userService.all();
   }
 }
