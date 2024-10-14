@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MicropostController } from './micropost.controller';
-import { MicropostService } from './micropost.service';
+import { MicropostController } from '../../../src/micropost/micropost.controller';
+import { MicropostService } from '../../../src/micropost/micropost.service';
 import { Micropost } from '@prisma/client';
 
 describe('MicropostController', () => {
