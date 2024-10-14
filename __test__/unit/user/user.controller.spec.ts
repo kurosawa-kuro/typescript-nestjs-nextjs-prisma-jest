@@ -30,6 +30,8 @@ describe('UserController', () => {
         passwordHash: 'testHash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       const expectedResult: User = {
         id: 1,
@@ -53,6 +55,8 @@ describe('UserController', () => {
           passwordHash: 'mockedHash',
           isAdmin: false,
           avatarPath: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ];
 

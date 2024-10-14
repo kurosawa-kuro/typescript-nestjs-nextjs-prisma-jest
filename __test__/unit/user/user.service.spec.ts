@@ -41,6 +41,8 @@ describe('UserService', () => {
         passwordHash: 'hash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       const expectedUser: User = { id: 1, ...userData };
 
@@ -64,6 +66,8 @@ describe('UserService', () => {
           passwordHash: 'hash1',
           isAdmin: false,
           avatarPath: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         {
           id: 2,
@@ -72,6 +76,8 @@ describe('UserService', () => {
           passwordHash: 'hash2',
           isAdmin: true,
           avatarPath: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ];
 
@@ -92,6 +98,8 @@ describe('UserService', () => {
         passwordHash: 'hash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(expectedUser);
@@ -122,6 +130,8 @@ describe('UserService', () => {
         passwordHash: 'hash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(expectedUser);
@@ -152,6 +162,8 @@ describe('UserService', () => {
         passwordHash: 'hash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findFirst as jest.Mock).mockResolvedValue(expectedUser);
@@ -187,6 +199,8 @@ describe('UserService', () => {
         passwordHash: 'hash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.update as jest.Mock).mockResolvedValue(updatedUser);
@@ -225,6 +239,8 @@ describe('UserService', () => {
         passwordHash: 'hash',
         isAdmin: false,
         avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.delete as jest.Mock).mockResolvedValue(deletedUser);

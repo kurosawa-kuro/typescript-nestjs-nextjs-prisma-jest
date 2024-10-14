@@ -33,11 +33,18 @@ describe('MicropostController', () => {
   describe('create', () => {
     it('should create a micropost', async () => {
       const micropostData = {
-        userId: 1,
         title: 'Test Micropost',
         imagePath: 'path/to/image.jpg',
+        userId: 1,
+        user: { connect: { id: 1 } },
       };
-      const expectedResult = { id: 1, ...micropostData };
+      const expectedResult = {
+        id: 1,
+        ...micropostData,
+        userId: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
       
       jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
       
@@ -51,8 +58,8 @@ describe('MicropostController', () => {
   describe('findAll', () => {
     it('should return an array of microposts', async () => {
       const expectedResult = [
-        { id: 1, userId: 1, title: 'Micropost 1', imagePath: 'path1.jpg' },
-        { id: 2, userId: 2, title: 'Micropost 2', imagePath: 'path2.jpg' },
+        { id: 1, userId: 1, title: 'Micropost 1', imagePath: 'path1.jpg', createdAt: new Date(), updatedAt: new Date() },
+        { id: 2, userId: 2, title: 'Micropost 2', imagePath: 'path2.jpg', createdAt: new Date(), updatedAt: new Date() },
       ];
       
       jest.spyOn(service, 'all').mockResolvedValue(expectedResult);

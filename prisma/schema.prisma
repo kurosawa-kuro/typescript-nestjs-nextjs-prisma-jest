@@ -21,6 +21,8 @@ model User {
   isAdmin       Boolean     @default(false)
   avatarPath    String      @default("default_avatar.png")
   microposts    Micropost[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Micropost {
@@ -30,12 +32,16 @@ model Micropost {
   imagePath  String?
   user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   categories MicropostCategory[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Category {
   id         Int                @id @default(autoincrement())
   title      String
   microposts MicropostCategory[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MicropostCategory {
@@ -45,4 +51,6 @@ model MicropostCategory {
   category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([micropostId, categoryId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

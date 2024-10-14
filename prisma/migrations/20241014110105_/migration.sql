@@ -6,6 +6,8 @@ CREATE TABLE "User" (
     "passwordHash" TEXT NOT NULL,
     "isAdmin" BOOLEAN NOT NULL DEFAULT false,
     "avatarPath" TEXT NOT NULL DEFAULT 'default_avatar.png',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -16,6 +18,8 @@ CREATE TABLE "Micropost" (
     "userId" INTEGER NOT NULL,
     "title" TEXT NOT NULL,
     "imagePath" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Micropost_pkey" PRIMARY KEY ("id")
 );
@@ -24,6 +28,8 @@ CREATE TABLE "Micropost" (
 CREATE TABLE "Category" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
@@ -32,6 +38,8 @@ CREATE TABLE "Category" (
 CREATE TABLE "MicropostCategory" (
     "micropostId" INTEGER NOT NULL,
     "categoryId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "MicropostCategory_pkey" PRIMARY KEY ("micropostId","categoryId")
 );
