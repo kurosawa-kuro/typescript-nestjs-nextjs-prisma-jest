@@ -12,7 +12,7 @@ export class UserService extends BaseService<
   Prisma.UserWhereInput
 > {
   protected entityName = 'User';
-
+  
   constructor(protected prisma: PrismaService) {
     super(prisma);
   }
