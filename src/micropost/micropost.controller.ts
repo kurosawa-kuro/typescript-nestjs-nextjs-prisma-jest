@@ -7,14 +7,14 @@ export class MicropostController {
   constructor(private readonly micropostService: MicropostService) {}
 
   @Post()
-  async createMicropost(
+  async create(
     @Body() micropostData: Omit<Micropost, 'id'>,
   ): Promise<Micropost> {
-    return this.micropostService.createMicropost(micropostData);
+    return this.micropostService.create(micropostData);
   }
 
   @Get()
-  async getAllMicroposts(): Promise<Micropost[]> {
-    return this.micropostService.getAllMicroposts();
+  async index(): Promise<Micropost[]> {
+    return this.micropostService.all();
   }
 }

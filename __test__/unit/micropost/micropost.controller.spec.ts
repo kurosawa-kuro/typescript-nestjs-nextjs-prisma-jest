@@ -1,6 +1,7 @@
 import { MicropostController } from '../../../src/micropost/micropost.controller';
 import { MicropostService } from '../../../src/micropost/micropost.service';
 import { Micropost } from '@prisma/client';
+import { Test, TestingModule } from '@nestjs/testing';
 import { setupTestModule, createMockService } from '../test-utils';
 
 describe('MicropostController', () => {
@@ -8,14 +9,18 @@ describe('MicropostController', () => {
   let service: MicropostService;
 
   beforeEach(async () => {
-    const mockMicropostService = createMockService([
-      'createMicropost',
-      'getAllMicroposts',
-    ]);
-    const module = await setupTestModule(
-      [MicropostController],
-      [{ provide: MicropostService, useValue: mockMicropostService }],
-    );
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [MicropostController],
+      providers: [
+        {
+          provide: MicropostService,
+          useValue: {
+            create: jest.fn(),
+            all: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
 
     controller = module.get<MicropostController>(MicropostController);
     service = module.get<MicropostService>(MicropostService);
@@ -25,35 +30,36 @@ describe('MicropostController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('createMicropost', () => {
+  describe('create', () => {
     it('should create a micropost', async () => {
-      const micropostData: Omit<Micropost, 'id'> = {
+      const micropostData = {
         userId: 1,
-        title: 'Test Title',
+        title: 'Test Micropost',
         imagePath: 'path/to/image.jpg',
       };
-      const expectedResult: Micropost = { id: 1, ...micropostData };
-
-      jest.spyOn(service, 'createMicropost').mockResolvedValue(expectedResult);
-
-      const result = await controller.createMicropost(micropostData);
+      const expectedResult = { id: 1, ...micropostData };
+      
+      jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
+      
+      const result = await controller.create(micropostData);
+      
+      expect(service.create).toHaveBeenCalledWith(micropostData);
       expect(result).toEqual(expectedResult);
-      expect(service.createMicropost).toHaveBeenCalledWith(micropostData);
     });
   });
 
-  describe('getAllMicroposts', () => {
+  describe('findAll', () => {
     it('should return an array of microposts', async () => {
-      const expectedResult: Micropost[] = [
-        { id: 1, userId: 1, title: 'Title 1', imagePath: 'path1.jpg' },
-        { id: 2, userId: 2, title: 'Title 2', imagePath: 'path2.jpg' },
+      const expectedResult = [
+        { id: 1, userId: 1, title: 'Micropost 1', imagePath: 'path1.jpg' },
+        { id: 2, userId: 2, title: 'Micropost 2', imagePath: 'path2.jpg' },
       ];
-
-      jest.spyOn(service, 'getAllMicroposts').mockResolvedValue(expectedResult);
-
-      const result = await controller.getAllMicroposts();
+      
+      jest.spyOn(service, 'all').mockResolvedValue(expectedResult);
+      
+      const result = await controller.index();
+      
       expect(result).toEqual(expectedResult);
-      expect(service.getAllMicroposts).toHaveBeenCalled();
     });
   });
 });
