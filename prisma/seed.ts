@@ -6,10 +6,18 @@ const prisma = new PrismaClient()
 export async function seed() {
 
   // 既存のデータを削除
-  await prisma.$transaction([
-    prisma.micropost.deleteMany(),
-    prisma.user.deleteMany(),
-  ])
+  await prisma.$transaction(async (prisma) => {
+    // テーブル名のリスト
+    const tables = ['Micropost', 'User'];
+  
+    for (const table of tables) {
+      // データを削除
+      await prisma.$executeRawUnsafe(`DELETE FROM "${table}"`);
+      
+      // IDシーケンスをリセット
+      await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`);
+    }
+  });
 
   // Admin user
   await prisma.user.create({
