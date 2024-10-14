@@ -2,17 +2,17 @@
 @baseUrl = http://localhost:3000
 
 ### ユーザーを作成する
-POST http://localhost:3001
+POST http://localhost:3001/users
 Content-Type: application/json
 
 {
   "name": "John Doe",
-  "email": "john.doe@example.com",
+  "email": "{{$datetime iso8601}}_{{$randomInt 1000 9999}}@example.com",
   "passwordHash": "securepassword123",
   "isAdmin": false
 }
 
 
 ### ユーザーを参照する
-GET http://localhost:3001
+GET http://localhost:3001/users
 Content-Type: application/json

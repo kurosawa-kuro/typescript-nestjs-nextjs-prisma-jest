@@ -1,0 +1,8 @@
+{
+    "favorites.resources": [
+        {
+            "filePath": "test\\app.http",
+            "group": "Default"
+        }
+    ]
+}
