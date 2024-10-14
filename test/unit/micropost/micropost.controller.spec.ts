@@ -1,4 +1,3 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { MicropostController } from '../../../src/micropost/micropost.controller';
 import { MicropostService } from '../../../src/micropost/micropost.service';
 import { Micropost } from '@prisma/client';
