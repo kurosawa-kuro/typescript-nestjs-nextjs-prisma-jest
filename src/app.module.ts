@@ -4,6 +4,7 @@ import { PrismaService } from './database/prisma.service';
 import { UserModule } from './user/user.module';
 import { MicropostModule } from './micropost/micropost.module';
 import { DevelopModule } from './develop/develop.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { DevelopModule } from './develop/develop.module';
     UserModule,
     MicropostModule,
     DevelopModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [PrismaService],
