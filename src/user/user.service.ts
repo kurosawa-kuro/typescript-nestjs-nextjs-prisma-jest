@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/database/prisma.service';
-import { User } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -16,23 +16,46 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
-  // 以下、Active Recordスタイルの追加メソッド例
-  async find(id: number): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { id } });
+  async find(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
-  async findBy(params: Partial<User>): Promise<User | null> {
-    return this.prisma.user.findFirst({ where: params });
+  async findBy(params: Prisma.UserWhereUniqueInput): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: params });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async findFirst(params: Prisma.UserWhereInput): Promise<User | null> {
+    const user = await this.prisma.user.findFirst({ where: params });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
   async update(id: number, userData: Partial<User>): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data: userData,
-    });
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: userData,
+      });
+    } catch (error) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 
   async destroy(id: number): Promise<User> {
-    return this.prisma.user.delete({ where: { id } });
+    try {
+      return await this.prisma.user.delete({ where: { id } });
+    } catch (error) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
   }
 }

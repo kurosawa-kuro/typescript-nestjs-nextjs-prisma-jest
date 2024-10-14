@@ -1,13 +1,14 @@
 import { UserController } from '../../../src/user/user.controller';
 import { UserService } from '../../../src/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
+import { User } from '@prisma/client';
 
 describe('UserController', () => {
   let controller: UserController;
   let userService: UserService;
 
   beforeEach(async () => {
-    const mockUserService = createMockService(['createUser', 'getAllUsers']);
+    const mockUserService = createMockService(['create', 'all']);
     const module = await setupTestModule(
       [UserController],
       [{ provide: UserService, useValue: mockUserService }],
@@ -21,33 +22,30 @@ describe('UserController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('createUser', () => {
+  describe('create', () => {
     it('should create a user', async () => {
-      const userData = {
+      const userData: Omit<User, 'id'> = {
         name: 'Test User',
         email: 'test@example.com',
         passwordHash: 'testHash',
         isAdmin: false,
         avatarPath: '',
       };
-      const expectedResult = {
+      const expectedResult: User = {
         id: 1,
         ...userData,
-        passwordHash: 'mockedHash',
-        isAdmin: false,
-        avatarPath: '',
       };
 
-      jest.spyOn(userService, 'createUser').mockResolvedValue(expectedResult);
+      jest.spyOn(userService, 'create').mockResolvedValue(expectedResult);
 
-      expect(await controller.createUser(userData)).toBe(expectedResult);
-      expect(userService.createUser).toHaveBeenCalledWith(userData);
+      expect(await controller.create(userData)).toBe(expectedResult);
+      expect(userService.create).toHaveBeenCalledWith(userData);
     });
   });
 
-  describe('getAllUsers', () => {
+  describe('index', () => {
     it('should return an array of users', async () => {
-      const expectedResult = [
+      const expectedResult: User[] = [
         {
           id: 1,
           name: 'Test User',
@@ -58,10 +56,10 @@ describe('UserController', () => {
         },
       ];
 
-      jest.spyOn(userService, 'getAllUsers').mockResolvedValue(expectedResult);
+      jest.spyOn(userService, 'all').mockResolvedValue(expectedResult);
 
-      expect(await controller.getAllUsers()).toBe(expectedResult);
-      expect(userService.getAllUsers).toHaveBeenCalled();
+      expect(await controller.index()).toBe(expectedResult);
+      expect(userService.all).toHaveBeenCalled();
     });
   });
 });
