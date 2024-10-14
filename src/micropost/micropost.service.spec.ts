@@ -29,7 +29,6 @@ describe('MicropostService', () => {
   describe('createMicropost', () => {
     it('should create a micropost', async () => {
       const micropostData = { 
-        content: 'Test content', 
         userId: 1,
         title: 'Test Title',
         imagePath: 'path/to/image.jpg'
@@ -47,8 +46,8 @@ describe('MicropostService', () => {
   describe('getAllMicroposts', () => {
     it('should return all microposts', async () => {
       const expectedMicroposts = [
-        { id: 1, content: 'Micropost 1', userId: 1 },
-        { id: 2, content: 'Micropost 2', userId: 2 },
+        { id: 1, title: 'Micropost 1', userId: 1 },
+        { id: 2, title: 'Micropost 2', userId: 2 },
       ];
       
       (prismaService.micropost.findMany as jest.Mock).mockResolvedValue(expectedMicroposts);
