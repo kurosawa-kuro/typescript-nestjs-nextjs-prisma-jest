@@ -3,6 +3,10 @@
         {
             "filePath": "test\\app.http",
             "group": "Default"
+        },
+        {
+            "filePath": "__test__\\app.http",
+            "group": "Default"
         }
     ]
 }
