@@ -126,49 +126,21 @@ describe('UserService', () => {
 
   describe('findById', () => {
     it('should return a user if found', async () => {
-      const expectedUser: User = {
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        passwordHash: 'hash',
-        isAdmin: false,
-        avatarPath: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const id = 1;
+      const mockUser = { id, name: 'Test User' };
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(expectedUser);
-
-      const result = await userService.findById('1');
-      expect(result).toEqual(expectedUser);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
+      const result = await userService.findById(id);
+      expect(result).toEqual(mockUser);
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id } });
     });
 
     it('should throw NotFoundException if user not found', async () => {
+      const id = 999;
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(userService.findById('1')).rejects.toThrow(NotFoundException);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-    });
-
-    it('should call handleNotFound when user is not found', async () => {
-      const id = '999';
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
-      
-      const handleNotFoundSpy = jest.spyOn(BaseService.prototype as any, 'handleNotFound');
-      
       await expect(userService.findById(id)).rejects.toThrow(NotFoundException);
-      
-      expect(handleNotFoundSpy).toHaveBeenCalledWith(id);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { id: 999 },
-      });
-      
-      handleNotFoundSpy.mockRestore();
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id } });
     });
   });
 
@@ -205,87 +177,67 @@ describe('UserService', () => {
   });
 
   describe('update', () => {
-    it('should update and return the user if found', async () => {
-      const userId: UserId = '1';
-      const updateData: Partial<User> = {
-        name: 'Updated Name',
-        email: 'updated@example.com',
-      };
-      const updatedUser: User = {
-        id: Number(userId),
-        name: 'Updated Name',
-        email: 'updated@example.com',
-        passwordHash: 'hash',
-        isAdmin: false,
-        avatarPath: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
+    it('should update and return the user', async () => {
+      const id = 1;
+      const updateData = { name: 'Updated Name' };
+      const updatedUser = { id, ...updateData };
       (prismaService.user.update as jest.Mock).mockResolvedValue(updatedUser);
 
-      const result = await userService.update(userId, updateData);
+      const result = await userService.update(id, updateData);
       expect(result).toEqual(updatedUser);
       expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id },
         data: updateData,
       });
     });
 
-    it('should throw NotFoundException if user not found during update', async () => {
-      const userId: UserId = '1';
-      const updateData: Partial<User> = {
-        name: 'Updated Name',
-      };
-
+    it('should throw NotFoundException when user is not found', async () => {
+      const id = 999;
+      const updateData = { name: 'Updated Name' };
       (prismaService.user.update as jest.Mock).mockRejectedValue({ code: 'P2025' });
 
-      await expect(userService.update(userId, updateData)).rejects.toThrow(NotFoundException);
+      await expect(userService.update(id, updateData)).rejects.toThrow(NotFoundException);
       expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: 1 },
+        where: { id },
+        data: updateData,
+      });
+    });
+
+    it('should throw the original error for non-P2025 errors', async () => {
+      const id = 1;
+      const updateData = { name: 'Updated Name' };
+      const originalError = new Error('Database error');
+      (prismaService.user.update as jest.Mock).mockRejectedValue(originalError);
+
+      await expect(userService.update(id, updateData)).rejects.toThrow(originalError);
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id },
         data: updateData,
       });
     });
   });
 
   describe('destroy', () => {
-    it('should delete the user if found', async () => {
-      const userId = '1';
-      const deletedUser: User = {
-        id: 1,
-        name: 'Deleted User',
-        email: 'deleted@example.com',
-        passwordHash: 'hash',
-        isAdmin: false,
-        avatarPath: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+    it('should delete the user', async () => {
+      const id = 1;
+      (prismaService.user.delete as jest.Mock).mockResolvedValue(undefined);
 
-      (prismaService.user.delete as jest.Mock).mockResolvedValue(deletedUser);
-
-      const result = await userService.destroy(userId);
-      expect(result).toBeUndefined();
-      expect(prismaService.user.delete).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
+      await userService.destroy(id);
+      expect(prismaService.user.delete).toHaveBeenCalledWith({ where: { id } });
     });
 
-    it('should throw NotFoundException if user not found during delete', async () => {
-      const userId = '1';
+    it('should throw NotFoundException if user not found', async () => {
+      const id = 999;
+      (prismaService.user.delete as jest.Mock).mockRejectedValue(new Error());
 
-      (prismaService.user.delete as jest.Mock).mockRejectedValue(new Error('User not found'));
-
-      await expect(userService.destroy(userId)).rejects.toThrow(NotFoundException);
-      expect(prismaService.user.delete).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
+      await expect(userService.destroy(id)).rejects.toThrow(NotFoundException);
+      expect(prismaService.user.delete).toHaveBeenCalledWith({ where: { id } });
     });
   });
 
   describe('handleNotFound', () => {
     it('should throw NotFoundException with correct message', () => {
-      const id = '1';
+      const id = 1;
       expect(() => {
         (userService as any).handleNotFound(id);
       }).toThrow(NotFoundException);

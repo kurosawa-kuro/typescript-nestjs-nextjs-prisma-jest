@@ -19,18 +19,18 @@ export class UserService extends BaseService<User> {
     return this.prisma.user.findMany();
   }
 
-  async findById(id: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where: { id: parseInt(id, 10) } });
+  async findById(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
       this.handleNotFound(id);
     }
     return user;
   }
 
-  async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
+  async update(id: number, data: Prisma.UserUpdateInput): Promise<User> {
     try {
       return await this.prisma.user.update({
-        where: { id: parseInt(id, 10) },
+        where: { id },
         data,
       });
     } catch (error) {
@@ -41,20 +41,18 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async destroy(id: string | number): Promise<void> {
+  async destroy(id: number): Promise<void> {
     try {
-      await this.prisma.user.delete({
-        where: { id: typeof id === 'string' ? parseInt(id, 10) : id },
-      });
+      await this.prisma.user.delete({ where: { id } });
     } catch (error) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
     }
   }
 
   async find(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
     }
     return user;
   }

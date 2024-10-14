@@ -9,13 +9,13 @@ export abstract class BaseService<T> {
   
   abstract all(): Promise<T[]>;
   
-  abstract findById(id: string | number): Promise<T>;
+  abstract findById(id: number): Promise<T>;
   
-  abstract update(id: string | number, data: Partial<T>): Promise<T>;
+  abstract update(id: number, data: Partial<T>): Promise<T>;
   
-  abstract destroy(id: string | number): Promise<void>;
+  abstract destroy(id: number): Promise<void>;
 
-  protected handleNotFound(id: string | number): never {
+  protected handleNotFound(id: number): never {
     throw new NotFoundException(`${this.entityName} with id ${id} not found`);
   }
 }
