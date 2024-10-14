@@ -13,7 +13,7 @@ import { DevelopModule } from './develop/develop.module';
     }),
     UserModule,
     MicropostModule,
-    DevelopModule
+    DevelopModule,
   ],
   controllers: [],
   providers: [PrismaService],
