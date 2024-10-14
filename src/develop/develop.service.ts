@@ -10,7 +10,6 @@ export class DevelopService {
     await this.prisma.$transaction([
       this.prisma.micropost.deleteMany(),
       this.prisma.user.deleteMany(),
-      // 他のテーブルがある場合は、ここに追加します
     ]);
 
     // Call the seed function directly

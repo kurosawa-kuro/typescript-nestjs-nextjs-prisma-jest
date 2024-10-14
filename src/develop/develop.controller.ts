@@ -1,5 +1,23 @@
-import { Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { DevelopService } from './develop.service';
+
+// カスタムデコレータを作成
+function DevelopmentOrTestOnly() {
+  return UseGuards(DevelopmentOrTestGuard);
+}
+
+// カスタムガードを作成
+class DevelopmentOrTestGuard {
+  canActivate() {
+    /* istanbul ignore next */
+    if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
+      throw new Error('This operation can only be performed in the development or test environment.');
+    }
+
+    /* istanbul ignore next */
+    return true;
+  }
+}
 
 @Controller('develop')
 export class DevelopController {
@@ -7,13 +25,14 @@ export class DevelopController {
 
   @Post('reset_db')
   @HttpCode(HttpStatus.OK)
+  @DevelopmentOrTestOnly()
   async resetDb() {
-    // 注意: この操作は開発環境でのみ行うべきです
     return this.developService.resetDb();
   }
 
   @Post('demo_user_login')
   @HttpCode(HttpStatus.OK)
+  @DevelopmentOrTestOnly()
   async demoUserLogin() {
     return { message: 'demo_user_login.' };
   }
