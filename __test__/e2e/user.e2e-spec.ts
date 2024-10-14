@@ -53,9 +53,17 @@ describe('UserController (e2e)', () => {
     expect(response.body).toHaveLength(2);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        expect.objectContaining(user1),
-        expect.objectContaining(user2),
-      ]),
+        expect.objectContaining({
+          ...user1,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        }),
+        expect.objectContaining({
+          ...user2,
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        }),
+      ])
     );
   });
 });
