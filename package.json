@@ -79,6 +79,10 @@
       ".dto.ts",
       ".config.ts",
       "prisma.service.ts"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^@prisma-client$": "<rootDir>/../node_modules/.prisma/client/index"
+    }
   }
 }

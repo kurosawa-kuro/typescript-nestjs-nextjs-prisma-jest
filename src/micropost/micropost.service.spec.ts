@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MicropostService } from './micropost.service';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '@/database/prisma.service';
 
 describe('MicropostService', () => {
   let micropostService: MicropostService;
