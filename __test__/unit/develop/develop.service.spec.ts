@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DevelopService } from '@/develop//develop.service';
+import { DevelopService } from '@/develop/develop.service';
 import { PrismaService } from '@/database/prisma.service';
 import { seed } from '../../../prisma/seed';
 
@@ -19,13 +19,8 @@ describe('DevelopService', () => {
         {
           provide: PrismaService,
           useValue: {
-            $transaction: jest.fn(),
-            micropost: {
-              deleteMany: jest.fn(),
-            },
-            user: {
-              deleteMany: jest.fn(),
-            },
+            // PrismaServiceのモックは必要最小限に
+            $disconnect: jest.fn(),
           },
         },
       ],
@@ -40,35 +35,20 @@ describe('DevelopService', () => {
   });
 
   describe('resetDb', () => {
-    it('should delete all microposts and users, then seed the database', async () => {
+    it('should seed the database', async () => {
       // Arrange
-      prismaService.$transaction.mockResolvedValue(undefined);
       (seed as jest.Mock).mockResolvedValue(undefined);
 
       // Act
       const result = await service.resetDb();
 
       // Assert
-      expect(prismaService.$transaction).toHaveBeenCalledWith([
-        prismaService.micropost.deleteMany(),
-        prismaService.user.deleteMany(),
-      ]);
       expect(seed).toHaveBeenCalled();
       expect(result).toEqual({ message: 'Database has been reset.' });
     });
 
-    it('should throw an error if transaction fails', async () => {
-      // Arrange
-      const error = new Error('Transaction failed');
-      prismaService.$transaction.mockRejectedValue(error);
-
-      // Act & Assert
-      await expect(service.resetDb()).rejects.toThrow('Transaction failed');
-    });
-
     it('should throw an error if seeding fails', async () => {
       // Arrange
-      prismaService.$transaction.mockResolvedValue(undefined);
       const error = new Error('Seeding failed');
       (seed as jest.Mock).mockRejectedValue(error);
 

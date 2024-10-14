@@ -7,11 +7,6 @@ export class DevelopService {
   constructor(private prisma: PrismaService) {}
 
   async resetDb() {
-    await this.prisma.$transaction([
-      this.prisma.micropost.deleteMany(),
-      this.prisma.user.deleteMany(),
-    ]);
-
     // Call the seed function directly
     await seed();
     return { message: 'Database has been reset.' };

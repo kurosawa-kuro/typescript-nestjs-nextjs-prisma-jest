@@ -4,6 +4,13 @@ import * as bcrypt from 'bcrypt'
 const prisma = new PrismaClient()
 
 export async function seed() {
+
+  // 既存のデータを削除
+  await prisma.$transaction([
+    prisma.micropost.deleteMany(),
+    prisma.user.deleteMany(),
+  ])
+
   // Admin user
   await prisma.user.create({
     data: {
