@@ -1,8 +1,11 @@
+// user.e2e-spec.ts
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '@/app.module';
 import { PrismaService } from '@/database/prisma.service';
+import { User } from '@prisma/client';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -16,22 +19,43 @@ describe('UserController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    prismaService = app.get(PrismaService);
+    prismaService = app.get<PrismaService>(PrismaService);
+    await prismaService.$connect();
   });
 
   afterAll(async () => {
-    await prismaService.user.deleteMany();
+    await prismaService.$transaction([
+      prismaService.micropost.deleteMany(),
+      prismaService.user.deleteMany(),
+    ]);
+    await prismaService.$disconnect();
     await app.close();
   });
 
   beforeEach(async () => {
-    await prismaService.user.deleteMany();
+    await prismaService.$transaction([
+      prismaService.micropost.deleteMany(),
+      prismaService.user.deleteMany(),
+    ]);
   });
 
+  const createTestUser = async (email: string): Promise<User> => {
+    return prismaService.user.create({
+      data: {
+        name: 'Test User',
+        email: email,
+        passwordHash: 'hashedpassword',
+        isAdmin: false,
+        avatarPath: 'default_avatar.png'
+      }
+    });
+  };
+
   it('/users (POST)', async () => {
+    const randomEmail = `${Math.random().toString(36).substring(2, 15)}@example.com`;
     const newUser = {
       name: 'Test User',
-      email: 'test@example.com',
+      email: randomEmail,
       passwordHash: 'hashedpassword',
       isAdmin: false,
       avatarPath: 'default_avatar.png'
@@ -47,25 +71,11 @@ describe('UserController (e2e)', () => {
   });
 
   it('/users (GET)', async () => {
-    const user1 = await prismaService.user.create({
-      data: {
-        name: 'User 1',
-        email: 'user1@example.com',
-        passwordHash: 'hashedpassword1',
-        isAdmin: false,
-        avatarPath: 'avatar1.png'
-      }
-    });
-
-    const user2 = await prismaService.user.create({
-      data: {
-        name: 'User 2',
-        email: 'user2@example.com',
-        passwordHash: 'hashedpassword2',
-        isAdmin: true,
-        avatarPath: 'avatar2.png'
-      }
-    });
+    const randomEmail1 = `${Math.random().toString(36).substring(2, 15)}@example.com`;
+    const randomEmail2 = `${Math.random().toString(36).substring(2, 15)}@example.com`;
+    
+    const user1 = await createTestUser(randomEmail1);
+    const user2 = await createTestUser(randomEmail2);
 
     const response = await request(app.getHttpServer())
       .get('/users')

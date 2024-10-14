@@ -1,3 +1,5 @@
+// micropost.controller.e2e-spec.ts
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
@@ -18,23 +20,30 @@ describe('MicropostController (e2e)', () => {
     await app.init();
 
     prismaService = app.get<PrismaService>(PrismaService);
-  });
-
-  beforeEach(async () => {
-    await prismaService.micropost.deleteMany();
-    await prismaService.user.deleteMany();
+    await prismaService.$connect();
   });
 
   afterAll(async () => {
+    await prismaService.$transaction([
+      prismaService.micropost.deleteMany(),
+      prismaService.user.deleteMany(),
+    ]);
+    await prismaService.$disconnect();
     await app.close();
   });
 
+  beforeEach(async () => {
+    await prismaService.$transaction([
+      prismaService.micropost.deleteMany(),
+      prismaService.user.deleteMany(),
+    ]);
+  });
+
   const createTestUser = async (): Promise<User> => {
-    const randomEmail = `${Math.random().toString(36).substring(2, 15)}@example.com`;
     return prismaService.user.create({
       data: {
         name: 'Test User',
-        email: randomEmail,
+        email: `${Math.random().toString(36).substring(2, 15)}@example.com`,
         passwordHash: 'hashedPassword',
         isAdmin: false,
         avatarPath: 'path/to/avatar.jpg',
