@@ -16,6 +16,6 @@ export abstract class BaseService<T> {
   abstract destroy(id: number): Promise<void>;
 
   protected handleNotFound(id: number): never {
-    throw new NotFoundException(`${this.entityName} with id ${id} not found`);
+    throw new NotFoundException(`${this.entityName} with ID ${id} not found`);
   }
 }

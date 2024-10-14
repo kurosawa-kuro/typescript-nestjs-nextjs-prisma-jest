@@ -47,7 +47,6 @@ export class UserService extends BaseService<User> {
         where: { id },
       });
     } catch (error) {
-      // Always throw NotFoundException for any error during delete
       throw new NotFoundException(`User with ID ${id} not found`);
     }
   }
@@ -55,7 +54,7 @@ export class UserService extends BaseService<User> {
   async find(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
     return user;
   }

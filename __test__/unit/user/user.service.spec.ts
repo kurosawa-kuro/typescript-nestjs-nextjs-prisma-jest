@@ -247,7 +247,7 @@ describe('UserService', () => {
       }).toThrow(NotFoundException);
       expect(() => {
         (userService as any).handleNotFound(id);
-      }).toThrow(`User with id ${id} not found`);
+      }).toThrow(`User with ID ${id} not found`);
     });
   });
 });
