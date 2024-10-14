@@ -13,7 +13,7 @@ describe('MicropostService', () => {
       [
         MicropostService,
         { provide: PrismaService, useValue: createMockPrismaService() },
-      ]
+      ],
     );
 
     micropostService = module.get<MicropostService>(MicropostService);
@@ -22,18 +22,22 @@ describe('MicropostService', () => {
 
   describe('createMicropost', () => {
     it('should create a micropost', async () => {
-      const micropostData = { 
+      const micropostData = {
         userId: 1,
         title: 'Test Title',
-        imagePath: 'path/to/image.jpg'
+        imagePath: 'path/to/image.jpg',
       };
       const expectedMicropost = { id: 1, ...micropostData };
-      
-      (prismaService.micropost.create as jest.Mock).mockResolvedValue(expectedMicropost);
+
+      (prismaService.micropost.create as jest.Mock).mockResolvedValue(
+        expectedMicropost,
+      );
 
       const result = await micropostService.createMicropost(micropostData);
       expect(result).toEqual(expectedMicropost);
-      expect(prismaService.micropost.create).toHaveBeenCalledWith({ data: micropostData });
+      expect(prismaService.micropost.create).toHaveBeenCalledWith({
+        data: micropostData,
+      });
     });
   });
 
@@ -43,8 +47,10 @@ describe('MicropostService', () => {
         { id: 1, title: 'Micropost 1', userId: 1 },
         { id: 2, title: 'Micropost 2', userId: 2 },
       ];
-      
-      (prismaService.micropost.findMany as jest.Mock).mockResolvedValue(expectedMicroposts);
+
+      (prismaService.micropost.findMany as jest.Mock).mockResolvedValue(
+        expectedMicroposts,
+      );
 
       const result = await micropostService.getAllMicroposts();
       expect(result).toEqual(expectedMicroposts);

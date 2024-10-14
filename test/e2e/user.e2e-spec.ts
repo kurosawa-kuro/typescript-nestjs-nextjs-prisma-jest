@@ -30,7 +30,7 @@ describe('UserController (e2e)', () => {
       email: randomEmail,
       passwordHash: 'hashedpassword',
       isAdmin: false,
-      avatarPath: 'default_avatar.png'
+      avatarPath: 'default_avatar.png',
     };
 
     const response = await request(app.getHttpServer())
@@ -51,9 +51,11 @@ describe('UserController (e2e)', () => {
       .expect(200);
 
     expect(response.body).toHaveLength(2);
-    expect(response.body).toEqual(expect.arrayContaining([
-      expect.objectContaining(user1),
-      expect.objectContaining(user2)
-    ]));
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining(user1),
+        expect.objectContaining(user2),
+      ]),
+    );
   });
 });

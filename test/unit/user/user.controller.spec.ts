@@ -11,7 +11,7 @@ describe('UserController', () => {
     const mockUserService = createMockService(['createUser', 'getAllUsers']);
     const module = await setupTestModule(
       [UserController],
-      [{ provide: UserService, useValue: mockUserService }]
+      [{ provide: UserService, useValue: mockUserService }],
     );
 
     controller = module.get<UserController>(UserController);
@@ -38,7 +38,7 @@ describe('UserController', () => {
         isAdmin: false,
         avatarPath: '',
       };
-      
+
       jest.spyOn(userService, 'createUser').mockResolvedValue(expectedResult);
 
       expect(await controller.createUser(userData)).toBe(expectedResult);
@@ -48,15 +48,17 @@ describe('UserController', () => {
 
   describe('getAllUsers', () => {
     it('should return an array of users', async () => {
-      const expectedResult = [{
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        passwordHash: 'mockedHash',
-        isAdmin: false,
-        avatarPath: '',
-      }];
-      
+      const expectedResult = [
+        {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com',
+          passwordHash: 'mockedHash',
+          isAdmin: false,
+          avatarPath: '',
+        },
+      ];
+
       jest.spyOn(userService, 'getAllUsers').mockResolvedValue(expectedResult);
 
       expect(await controller.getAllUsers()).toBe(expectedResult);

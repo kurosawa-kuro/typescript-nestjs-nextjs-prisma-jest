@@ -23,7 +23,7 @@ export const setupTestModule = async (controllers: any[], providers: any[]) => {
 
 export const createMockService = (serviceMethods: string[]) => {
   const mockService = {};
-  serviceMethods.forEach(method => {
+  serviceMethods.forEach((method) => {
     mockService[method] = jest.fn();
   });
   return mockService;

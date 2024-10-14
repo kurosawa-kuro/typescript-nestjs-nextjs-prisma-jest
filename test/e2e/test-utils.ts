@@ -21,14 +21,18 @@ export const setupTestApp = async (): Promise<{
   return { app, prismaService };
 };
 
-export const cleanupDatabase = async (prismaService: PrismaService): Promise<void> => {
+export const cleanupDatabase = async (
+  prismaService: PrismaService,
+): Promise<void> => {
   await prismaService.$transaction([
     prismaService.micropost.deleteMany(),
     prismaService.user.deleteMany(),
   ]);
 };
 
-export const createTestUser = async (prismaService: PrismaService): Promise<User> => {
+export const createTestUser = async (
+  prismaService: PrismaService,
+): Promise<User> => {
   return prismaService.user.create({
     data: {
       name: 'Test User',
@@ -40,7 +44,10 @@ export const createTestUser = async (prismaService: PrismaService): Promise<User
   });
 };
 
-export const createTestMicropost = async (prismaService: PrismaService, userId: number): Promise<Micropost> => {
+export const createTestMicropost = async (
+  prismaService: PrismaService,
+  userId: number,
+): Promise<Micropost> => {
   return prismaService.micropost.create({
     data: {
       userId,

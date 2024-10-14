@@ -9,10 +9,13 @@ describe('MicropostController', () => {
   let service: MicropostService;
 
   beforeEach(async () => {
-    const mockMicropostService = createMockService(['createMicropost', 'getAllMicroposts']);
+    const mockMicropostService = createMockService([
+      'createMicropost',
+      'getAllMicroposts',
+    ]);
     const module = await setupTestModule(
       [MicropostController],
-      [{ provide: MicropostService, useValue: mockMicropostService }]
+      [{ provide: MicropostService, useValue: mockMicropostService }],
     );
 
     controller = module.get<MicropostController>(MicropostController);
@@ -43,8 +46,8 @@ describe('MicropostController', () => {
   describe('getAllMicroposts', () => {
     it('should return an array of microposts', async () => {
       const expectedResult: Micropost[] = [
-        { id: 1,   userId: 1, title: 'Title 1', imagePath: 'path1.jpg' },
-        { id: 2,   userId: 2, title: 'Title 2', imagePath: 'path2.jpg' },
+        { id: 1, userId: 1, title: 'Title 1', imagePath: 'path1.jpg' },
+        { id: 2, userId: 2, title: 'Title 2', imagePath: 'path2.jpg' },
       ];
 
       jest.spyOn(service, 'getAllMicroposts').mockResolvedValue(expectedResult);

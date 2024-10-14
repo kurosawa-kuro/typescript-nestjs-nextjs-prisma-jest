@@ -7,7 +7,9 @@ export class MicropostController {
   constructor(private readonly micropostService: MicropostService) {}
 
   @Post()
-  async createMicropost(@Body() micropostData: Omit<Micropost, 'id'>): Promise<Micropost> {
+  async createMicropost(
+    @Body() micropostData: Omit<Micropost, 'id'>,
+  ): Promise<Micropost> {
     return this.micropostService.createMicropost(micropostData);
   }
 

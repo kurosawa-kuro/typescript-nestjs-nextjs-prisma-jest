@@ -3,7 +3,12 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaService } from '@/database/prisma.service';
-import { setupTestApp, cleanupDatabase, createTestUser, createTestMicropost } from './test-utils';
+import {
+  setupTestApp,
+  cleanupDatabase,
+  createTestUser,
+  createTestMicropost,
+} from './test-utils';
 
 describe('MicropostController (e2e)', () => {
   let app: INestApplication;
