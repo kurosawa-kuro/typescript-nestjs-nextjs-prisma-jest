@@ -2,24 +2,18 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MicropostController } from '../../../src/micropost/micropost.controller';
 import { MicropostService } from '../../../src/micropost/micropost.service';
 import { Micropost } from '@prisma/client';
+import { setupTestModule, createMockService } from '../test-utils';
 
 describe('MicropostController', () => {
   let controller: MicropostController;
   let service: MicropostService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [MicropostController],
-      providers: [
-        {
-          provide: MicropostService,
-          useValue: {
-            createMicropost: jest.fn(),
-            getAllMicroposts: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
+    const mockMicropostService = createMockService(['createMicropost', 'getAllMicroposts']);
+    const module = await setupTestModule(
+      [MicropostController],
+      [{ provide: MicropostService, useValue: mockMicropostService }]
+    );
 
     controller = module.get<MicropostController>(MicropostController);
     service = module.get<MicropostService>(MicropostService);
@@ -61,4 +55,3 @@ describe('MicropostController', () => {
     });
   });
 });
-
