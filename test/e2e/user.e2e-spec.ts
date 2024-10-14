@@ -1,55 +1,27 @@
 // user.e2e-spec.ts
 
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '@/app.module';
 import { PrismaService } from '@/database/prisma.service';
-import { User } from '@prisma/client';
+import { setupTestApp, cleanupDatabase, createTestUser } from './test-utils';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let prismaService: PrismaService;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-
-    prismaService = app.get<PrismaService>(PrismaService);
-    await prismaService.$connect();
+    ({ app, prismaService } = await setupTestApp());
   });
 
   afterAll(async () => {
-    await prismaService.$transaction([
-      prismaService.micropost.deleteMany(),
-      prismaService.user.deleteMany(),
-    ]);
+    await cleanupDatabase(prismaService);
     await prismaService.$disconnect();
     await app.close();
   });
 
   beforeEach(async () => {
-    await prismaService.$transaction([
-      prismaService.micropost.deleteMany(),
-      prismaService.user.deleteMany(),
-    ]);
+    await cleanupDatabase(prismaService);
   });
-
-  const createTestUser = async (email: string): Promise<User> => {
-    return prismaService.user.create({
-      data: {
-        name: 'Test User',
-        email: email,
-        passwordHash: 'hashedpassword',
-        isAdmin: false,
-        avatarPath: 'default_avatar.png'
-      }
-    });
-  };
 
   it('/users (POST)', async () => {
     const randomEmail = `${Math.random().toString(36).substring(2, 15)}@example.com`;
@@ -71,11 +43,8 @@ describe('UserController (e2e)', () => {
   });
 
   it('/users (GET)', async () => {
-    const randomEmail1 = `${Math.random().toString(36).substring(2, 15)}@example.com`;
-    const randomEmail2 = `${Math.random().toString(36).substring(2, 15)}@example.com`;
-    
-    const user1 = await createTestUser(randomEmail1);
-    const user2 = await createTestUser(randomEmail2);
+    const user1 = await createTestUser(prismaService);
+    const user2 = await createTestUser(prismaService);
 
     const response = await request(app.getHttpServer())
       .get('/users')

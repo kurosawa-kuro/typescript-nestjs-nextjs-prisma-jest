@@ -1,68 +1,30 @@
 // micropost.controller.e2e-spec.ts
 
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '@/app.module';
 import { PrismaService } from '@/database/prisma.service';
-import { Micropost, User } from '@prisma/client';
+import { setupTestApp, cleanupDatabase, createTestUser, createTestMicropost } from './test-utils';
 
 describe('MicropostController (e2e)', () => {
   let app: INestApplication;
   let prismaService: PrismaService;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-
-    prismaService = app.get<PrismaService>(PrismaService);
-    await prismaService.$connect();
+    ({ app, prismaService } = await setupTestApp());
   });
 
   afterAll(async () => {
-    await prismaService.$transaction([
-      prismaService.micropost.deleteMany(),
-      prismaService.user.deleteMany(),
-    ]);
+    await cleanupDatabase(prismaService);
     await prismaService.$disconnect();
     await app.close();
   });
 
   beforeEach(async () => {
-    await prismaService.$transaction([
-      prismaService.micropost.deleteMany(),
-      prismaService.user.deleteMany(),
-    ]);
+    await cleanupDatabase(prismaService);
   });
 
-  const createTestUser = async (): Promise<User> => {
-    return prismaService.user.create({
-      data: {
-        name: 'Test User',
-        email: `${Math.random().toString(36).substring(2, 15)}@example.com`,
-        passwordHash: 'hashedPassword',
-        isAdmin: false,
-        avatarPath: 'path/to/avatar.jpg',
-      },
-    });
-  };
-
-  const createTestMicropost = async (userId: number): Promise<Micropost> => {
-    return prismaService.micropost.create({
-      data: {
-        userId,
-        title: 'Test Title',
-        imagePath: 'test.jpg',
-      },
-    });
-  };
-
   it('/POST microposts', async () => {
-    const user = await createTestUser();
+    const user = await createTestUser(prismaService);
     const newMicropost = {
       userId: user.id,
       title: 'Test Title',
@@ -79,9 +41,9 @@ describe('MicropostController (e2e)', () => {
   });
 
   it('/GET microposts', async () => {
-    const user = await createTestUser();
-    await createTestMicropost(user.id);
-    await createTestMicropost(user.id);
+    const user = await createTestUser(prismaService);
+    await createTestMicropost(prismaService, user.id);
+    await createTestMicropost(prismaService, user.id);
 
     const response = await request(app.getHttpServer())
       .get('/microposts')
