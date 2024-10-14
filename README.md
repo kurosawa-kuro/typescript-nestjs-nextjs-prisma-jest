@@ -4,13 +4,11 @@
 
 npx prisma migrate dev
 
+npm run start:dev
+npm run test:cov
+npm run test:e2e
 
-User Micropost
-Unit
-E2E
-
+課題
+認証、認可
+管理画面
 Zod
-
-Develop DB
-Test DB
-Product DB

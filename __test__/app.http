@@ -26,7 +26,3 @@ Content-Type: {{contentType}}
 ### develop/demo_user_login
 POST {{baseUrl}}/develop/demo_user_login
 Content-Type: {{contentType}}
-
-### 環境変数のテスト (オプション)
-GET {{baseUrl}}/test
-Content-Type: {{contentType}}
