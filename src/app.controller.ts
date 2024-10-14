@@ -1,17 +1,33 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { User } from './user.model';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('add')
-  async addSample(): Promise<string> {
-    return this.appService.addSample('add');
+  // id            Int         @id @default(autoincrement())
+  // name          String
+  // email         String      @unique
+  // passwordHash  String
+  // isAdmin       Boolean     @default(false)
+  // avatarPath    String      @default("default_avatar.png")
+
+  // ユーザー追加のAPIを作成してください。
+  // パラメータはname, email, passwordHash, isAdmin, avatarPath
+  // 返り値はUser
+  @Post()
+  async createUser(@Body() userData: Omit<User, 'id'>): Promise<User> {
+    return this.appService.createUser(userData);
   }
 
-  @Get('all')
-  async getAllSample(): Promise<string[]> {
-    return this.appService.getAllSample();
+  // ユーザー全取得のAPIを作成してください。
+  // パラメータなし
+  // 返り値はUserの配列
+  @Get()
+  async getAllUsers(): Promise<User[]> {
+    return this.appService.getAllUsers();
   }
+
+
 }

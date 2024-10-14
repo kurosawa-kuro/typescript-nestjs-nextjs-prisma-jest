@@ -1,23 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AppService {
   constructor(private prisma: PrismaService) {}
 
-  // sampleテーブルのデータを追加するサンプルを教えてください。
-  async addSample(title: string): Promise<string> {
-    const sample = await this.prisma.sample.create({
+  // model User {
+  //   id            Int         @id @default(autoincrement())
+  //   name          String
+  //   email         String      @unique
+  //   passwordHash  String
+  //   isAdmin       Boolean     @default(false)
+  //   avatarPath    String      @default("default_avatar.png")
+  //   microposts    Micropost[]
+  // }
+  // Userテーブルにデータを追加するサンプルを教えてください。
+  async createUser(userData: Omit<User, 'id'>): Promise<User> {
+    // Implement user creation logic here
+    return this.prisma.user.create({
       data: {
-        title: title,
+        name: userData.name,
+        email: userData.email,
+        passwordHash: userData.passwordHash,
+        isAdmin: userData.isAdmin,
+        avatarPath: userData.avatarPath,
       },
     });
-    return sample.title;
   }
 
-  // sampleテーブルのデータを全て取得するサンプルを教えてください。
-  async getAllSample(): Promise<string[]> {
-    const samples = await this.prisma.sample.findMany();
-    return samples.map((sample) => sample.title);
+  // Userテーブルのデータを全て取得するサンプルを教えてください。
+  async getAllUsers() {
+    return this.prisma.user.findMany();
   }
 }

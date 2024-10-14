@@ -1,20 +1,18 @@
 ### Variables (環境設定)
 @baseUrl = http://localhost:3000
 
-### Get Hello
-GET {{baseUrl}}
-Accept: application/json
+### ユーザーを作成する
+POST http://localhost:3001
+Content-Type: application/json
 
-### Add Hello
-# この呼び出しは 'add' という文字列をサンプルに追加します
-GET {{baseUrl}}/add
-Accept: application/json
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "passwordHash": "securepassword123",
+  "isAdmin": false
+}
 
-### Get All Hello
-# この呼び出しは全てのサンプルを配列として返します
-GET {{baseUrl}}/all
-Accept: application/json
 
-### Get Hello (変数使用例)
-GET {{baseUrl}}
-Accept: application/json
+### ユーザーを参照する
+GET http://localhost:3001
+Content-Type: application/json
