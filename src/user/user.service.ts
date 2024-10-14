@@ -43,9 +43,12 @@ export class UserService extends BaseService<User> {
 
   async destroy(id: number): Promise<void> {
     try {
-      await this.prisma.user.delete({ where: { id } });
+      await this.prisma.user.delete({
+        where: { id },
+      });
     } catch (error) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      // Always throw NotFoundException for any error during delete
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
   }
 

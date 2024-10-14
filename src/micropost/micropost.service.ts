@@ -22,7 +22,10 @@ export class MicropostService {
     return micropost;
   }
 
-  async update(id: number, data: Prisma.MicropostUpdateInput): Promise<Micropost> {
+  async update(
+    id: number,
+    data: Prisma.MicropostUpdateInput,
+  ): Promise<Micropost> {
     try {
       return await this.prisma.micropost.update({
         where: { id },

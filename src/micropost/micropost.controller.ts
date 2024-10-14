@@ -8,7 +8,10 @@ export class MicropostController {
 
   @Post()
   async create(
-    @Body() micropostData: Omit<Micropost, 'id' | 'createdAt' | 'updatedAt'> & { user: { connect: { id: number } } },
+    @Body()
+    micropostData: Omit<Micropost, 'id' | 'createdAt' | 'updatedAt'> & {
+      user: { connect: { id: number } };
+    },
   ): Promise<Micropost> {
     return this.micropostService.create(micropostData);
   }

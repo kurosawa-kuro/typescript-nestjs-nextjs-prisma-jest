@@ -1,4 +1,10 @@
-import { Controller, Post, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { DevelopService } from './develop.service';
 
 // カスタムデコレータを作成
@@ -10,8 +16,13 @@ function DevelopmentOrTestOnly() {
 class DevelopmentOrTestGuard {
   canActivate() {
     /* istanbul ignore next */
-    if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
-      throw new Error('This operation can only be performed in the development or test environment.');
+    if (
+      process.env.NODE_ENV !== 'development' &&
+      process.env.NODE_ENV !== 'test'
+    ) {
+      throw new Error(
+        'This operation can only be performed in the development or test environment.',
+      );
     }
 
     /* istanbul ignore next */

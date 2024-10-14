@@ -228,7 +228,11 @@ describe('UserService', () => {
 
     it('should throw NotFoundException if user not found', async () => {
       const id = 999;
-      (prismaService.user.delete as jest.Mock).mockRejectedValue(new Error());
+      // Change this line
+      (prismaService.user.delete as jest.Mock).mockRejectedValue({
+        code: 'P2025',
+        message: 'User not found'
+      });
 
       await expect(userService.destroy(id)).rejects.toThrow(NotFoundException);
       expect(prismaService.user.delete).toHaveBeenCalledWith({ where: { id } });
