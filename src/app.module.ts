@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { PrismaService } from './database/prisma.service';
+import { PrismaModule } from './database/prisma.module';
 import { UserModule } from './user/user.module';
 import { MicropostModule } from './micropost/micropost.module';
 import { DevelopModule } from './develop/develop.module';
@@ -21,6 +21,7 @@ import { UserInterceptor } from './auth/interceptors/user.interceptor';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
+    PrismaModule,
     UserModule,
     MicropostModule,
     DevelopModule,
@@ -28,7 +29,6 @@ import { UserInterceptor } from './auth/interceptors/user.interceptor';
   ],
   controllers: [TestController],
   providers: [
-    PrismaService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
