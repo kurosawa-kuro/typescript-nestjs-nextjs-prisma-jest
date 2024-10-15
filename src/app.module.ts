@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { TestController } from './test/test.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { UserInterceptor } from './auth/interceptors/user.interceptor';
 
 @Module({
   imports: [
@@ -17,8 +18,8 @@ import { JwtModule } from '@nestjs/jwt';
       isGlobal: true,
     }),
     JwtModule.register({
-      secret: 'your-secret-key', // Replace with your actual secret key
-      signOptions: { expiresIn: '60m' }, // Adjust as needed
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
     }),
     UserModule,
     MicropostModule,
@@ -31,6 +32,10 @@ import { JwtModule } from '@nestjs/jwt';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: 'APP_INTERCEPTOR',
+      useClass: UserInterceptor,
     },
   ],
 })
