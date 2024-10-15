@@ -15,17 +15,6 @@ Content-Type: {{contentType}}
   "isAdmin": false
 }
 
-### ユーザーを作成する
-POST {{baseUrl}}/users
-Content-Type: {{contentType}}
-
-{
-  "name": "User {{randomEmail}}",
-  "email": "{{randomEmail}}",
-  "passwordHash": "securepassword123",
-  "isAdmin": true
-}
-
 ### ユーザーを参照する
 GET {{baseUrl}}/users
 Content-Type: {{contentType}}

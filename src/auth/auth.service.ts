@@ -1,7 +1,7 @@
 import { Injectable,  HttpException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import { JwtService } from '@nestjs/jwt';
+import { JwtAuthService } from './jwt-auth.service';
 
 interface SigninParams {
     email: string;
@@ -18,7 +18,7 @@ export class AuthService {
     
   constructor(
     private readonly prismaService: PrismaService,
-    private jwtService: JwtService
+    private jwtAuthService: JwtAuthService
   ) {}
 
   async register({ email, passwordHash }: SignupParams) {
@@ -65,15 +65,11 @@ export class AuthService {
   }
 
   private generateJWT(name: string, id: number) {
-    return this.jwtService.signAsync(
-      {
-        name,
-        id,
-      },
-      {
-        secret: 'secretKey',
-        expiresIn: '1h',
-      },
-    );
+    return this.jwtAuthService.signToken({
+      name,
+      id,
+      secret: 'secretKey',
+      expiresIn: '1h',
+    });
   }
 }

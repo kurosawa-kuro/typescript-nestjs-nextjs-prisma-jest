@@ -14,8 +14,8 @@ import { UserInterceptor } from './auth/interceptors/user.interceptor';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
       isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
