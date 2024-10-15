@@ -19,17 +19,14 @@ export class JwtAuthService {
   }
 
   async verifyToken(token: string): Promise<JwtPayload> {
-    try {
-      return await this.jwtService.verifyAsync<JwtPayload>(token, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-      });
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token');
-    }
+    return await this.jwtService.verifyAsync<JwtPayload>(token, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+    });
   }
 
   extractTokenFromRequest(request: Request): string | undefined {
-    const token = request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
+    const token =
+      request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
     return token;
   }
 

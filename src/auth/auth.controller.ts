@@ -17,7 +17,10 @@ export class AuthController {
 
   @Post('register')
   @Public()
-  async register(@Body() signupDto: SignupDto, @Res({ passthrough: true }) res: Response) {
+  async register(
+    @Body() signupDto: SignupDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = await this.authService.register(signupDto);
     this.jwtAuthService.setTokenCookie(res, token);
     return { message: 'Registration successful' };
@@ -25,7 +28,10 @@ export class AuthController {
 
   @Post('login')
   @Public()
-  async login(@Body() signinDto: SigninDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() signinDto: SigninDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = await this.authService.signin(signinDto);
     this.jwtAuthService.setTokenCookie(res, token);
     return { message: 'Login successful' };

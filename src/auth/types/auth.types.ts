@@ -14,7 +14,7 @@ export interface JwtPayload {
 
 export interface SigninDto {
   email: string;
-  password: string;  // Changed from passwordHash to password
+  password: string; // Changed from passwordHash to password
 }
 
 export interface SignupDto extends SigninDto {

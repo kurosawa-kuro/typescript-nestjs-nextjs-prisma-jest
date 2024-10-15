@@ -1,4 +1,8 @@
-import { Injectable, HttpException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtAuthService } from './jwt-auth.service';
@@ -45,7 +49,10 @@ export class AuthService {
       throw new InternalServerErrorException('User password hash is missing');
     }
 
-    const isPasswordValid = await bcrypt.compare(signinDto.password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      signinDto.password,
+      user.passwordHash,
+    );
 
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid credentials');
