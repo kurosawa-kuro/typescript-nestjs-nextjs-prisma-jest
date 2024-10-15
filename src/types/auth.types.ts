@@ -10,6 +10,6 @@ export interface SigninDto {
   password: string;
 }
 
-export interface SignupDto extends SigninDto {
+export interface RegisterDto extends SigninDto {
   name: string;
 }

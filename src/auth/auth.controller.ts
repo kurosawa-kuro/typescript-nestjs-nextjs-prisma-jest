@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { User } from './decorators/user.decorator';
 import { Response } from 'express';
-import { SigninDto, SignupDto, UserInfo } from '../types/auth.types';
+import { SigninDto, RegisterDto, UserInfo } from '../types/auth.types';
 import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
@@ -15,8 +15,8 @@ export class AuthController {
 
   @Post('register')
   @Public()
-  async register(@Body() signupDto: SignupDto, @Res({ passthrough: true }) res: Response) {
-    const token = await this.authService.register(signupDto);
+  async register(@Body() RegisterDto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+    const token = await this.authService.register(RegisterDto);
     this.authService.setTokenCookie(res, token);
     return { message: 'Registration successful' };
   }
