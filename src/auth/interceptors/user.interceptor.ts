@@ -1,6 +1,6 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { JwtService } from '@nestjs/jwt';
+import { JwtAuthService } from '../jwt-auth.service';
 
 interface UserPayload {
   id: number;
@@ -11,17 +11,15 @@ interface UserPayload {
 
 @Injectable()
 export class UserInterceptor implements NestInterceptor {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtAuthService: JwtAuthService) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    console.log('UserInterceptor');
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromRequest(request);
+    const token = this.jwtAuthService.extractTokenFromRequest(request);
 
     if (token) {
       try {
-        const payload = await this.jwtService.verifyAsync(token, { secret: 'secretKey' });
-        console.log('payload', payload);
+        const payload = await this.jwtAuthService.verifyToken(token);
         request.user = payload;
       } catch (error) {
         // トークンが無効な場合はユーザー情報を設定しない
@@ -30,13 +28,5 @@ export class UserInterceptor implements NestInterceptor {
     }
 
     return next.handle();
-  }
-
-  private extractTokenFromRequest(request: any): string | undefined {
-    const authHeader = request.headers.authorization;
-    if (authHeader && authHeader.split(' ')[0] === 'Bearer') {
-      return authHeader.split(' ')[1];
-    }
-    return request.cookies?.jwt;
   }
 }
