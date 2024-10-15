@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
-import { JwtPayload, UserInfo } from '../types/auth.types';
+import { UserInfo } from '../types/auth.types';
 
 @Injectable()
 export class JwtAuthService {
@@ -11,23 +11,21 @@ export class JwtAuthService {
     private configService: ConfigService,
   ) {}
 
-  async signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promise<string> {
+  async signToken(payload: UserInfo): Promise<string> {
     return this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: '1d',
     });
   }
 
-  async verifyToken(token: string): Promise<JwtPayload> {
-    return await this.jwtService.verifyAsync<JwtPayload>(token, {
+  async verifyToken(token: string): Promise<UserInfo> {
+    return await this.jwtService.verifyAsync<UserInfo>(token, {
       secret: this.configService.get<string>('JWT_SECRET'),
     });
   }
 
   extractTokenFromRequest(request: Request): string | undefined {
-    const token =
-      request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
-    return token;
+    return request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
   }
 
   async getUserFromToken(request: Request): Promise<UserInfo> {
@@ -36,8 +34,7 @@ export class JwtAuthService {
       throw new UnauthorizedException('No token provided');
     }
 
-    const payload = await this.verifyToken(token);
-    return this.mapJwtPayloadToUserInfo(payload);
+    return await this.verifyToken(token);
   }
 
   setTokenCookie(res: Response, token: string) {
@@ -51,14 +48,5 @@ export class JwtAuthService {
 
   clearTokenCookie(res: Response) {
     res.clearCookie('jwt');
-  }
-
-  private mapJwtPayloadToUserInfo(payload: JwtPayload): UserInfo {
-    return {
-      id: payload.sub,
-      name: payload.name,
-      email: payload.email,
-      isAdmin: payload.isAdmin,
-    };
   }
 }

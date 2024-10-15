@@ -63,7 +63,7 @@ export class AuthService {
 
   private mapUserToJwtPayload(user: UserInfo) {
     return {
-      sub: user.id,
+      id: user.id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
