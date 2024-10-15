@@ -62,6 +62,7 @@ export class AuthService {
   }
 
   private generateJWT(name: string, id: number) {
+    console.log('generateJWT name', name);
     const secretKey = process.env.JSON_TOKEN_KEY || 'fallback_secret_key';
     return jwt.sign(
       {

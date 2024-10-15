@@ -28,7 +28,7 @@ export class AuthGuard {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.decode(token);
       // Add user information to the request object
       request['user'] = payload;
     } catch {
