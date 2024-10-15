@@ -3,6 +3,12 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
+export interface UserPayload {
+  id: number;
+  name: string;
+  isAdmin: boolean;
+}
+
 @Injectable()
 export class JwtAuthService {
   constructor(
@@ -17,8 +23,8 @@ export class JwtAuthService {
     });
   }
 
-  async verifyToken(token: string): Promise<any> {
-    return this.jwtService.verifyAsync(token, {
+  async verifyToken(token: string): Promise<UserPayload> {
+    return this.jwtService.verifyAsync<UserPayload>(token, {
       secret: this.configService.get<string>('JWT_SECRET') || 'secretKey',
     });
   }
@@ -32,5 +38,13 @@ export class JwtAuthService {
       return authHeader.split(' ')[1];
     }
     return undefined;
+  }
+
+  extractUserInfo(payload: any): UserPayload {
+    return { 
+      id: payload.id, 
+      name: payload.name,
+      isAdmin: payload.isAdmin || false
+    };
   }
 }

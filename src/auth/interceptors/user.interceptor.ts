@@ -2,13 +2,6 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nes
 import { Observable } from 'rxjs';
 import { JwtAuthService } from '../jwt-auth.service';
 
-interface UserPayload {
-  id: number;
-  name: string;
-  isAdmin: boolean;
-  // 他の必要なユーザー情報フィールド
-}
-
 @Injectable()
 export class UserInterceptor implements NestInterceptor {
   constructor(private jwtAuthService: JwtAuthService) {}
@@ -20,9 +13,8 @@ export class UserInterceptor implements NestInterceptor {
     if (token) {
       try {
         const payload = await this.jwtAuthService.verifyToken(token);
-        request.user = payload;
+        request['user'] = this.jwtAuthService.extractUserInfo(payload);
       } catch (error) {
-        // トークンが無効な場合はユーザー情報を設定しない
         console.error('Invalid token:', error.message);
       }
     }
