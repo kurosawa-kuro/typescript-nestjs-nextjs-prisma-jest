@@ -30,13 +30,9 @@ export class AuthGuard {
     }
 
     try {
-  //     console.log('token:', token);
-  //     const decoded = this.jwtService.decode(token, { complete: true });
-  // console.log('Decoded Token:', decoded);
-      const payload = await this.jwtService.decode(token, { complete: true });
-      console.log('Decoded Token:', payload.payload.id);
-      // payloadのsubをuserIdとする
-      const userId = payload.payload.id;
+      const payload = await this.jwtService.verifyAsync(token, { secret: 'secretKey' });
+      // Use payload.id as userId
+      const userId = payload.id;
       // userIdをもとにDBからuserを取得
       const user = await this.prismaService.user.findUnique({
         where: {
