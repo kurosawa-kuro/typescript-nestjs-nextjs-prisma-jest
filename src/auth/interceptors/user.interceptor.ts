@@ -8,17 +8,10 @@ export class UserInterceptor implements NestInterceptor {
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
-    const token = this.jwtAuthService.extractTokenFromRequest(request);
-
-    if (token) {
-      try {
-        const payload = await this.jwtAuthService.verifyToken(token);
-        request['user'] = this.jwtAuthService.extractUserInfo(payload);
-      } catch (error) {
-        console.error('Invalid token:', error.message);
-      }
+    const user = await this.jwtAuthService.getUserFromToken(request);
+    if (user) {
+      request['user'] = user;
     }
-
     return next.handle();
   }
 }

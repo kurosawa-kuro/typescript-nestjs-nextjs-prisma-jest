@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -46,5 +46,20 @@ export class JwtAuthService {
       name: payload.name,
       isAdmin: payload.isAdmin || false
     };
+  }
+
+  async getUserFromToken(request: Request): Promise<UserPayload | null> {
+    const token = this.extractTokenFromRequest(request);
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const payload = await this.verifyToken(token);
+      return this.extractUserInfo(payload);
+    } catch (error) {
+      console.error('Invalid token:', error.message);
+      return null;
+    }
   }
 }

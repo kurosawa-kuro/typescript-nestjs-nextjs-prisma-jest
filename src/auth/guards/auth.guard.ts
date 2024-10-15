@@ -20,25 +20,22 @@ export class AuthGuard {
     }
 
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.jwtAuthService.extractTokenFromRequest(request);
+    const user = await this.jwtAuthService.getUserFromToken(request);
 
-    if (!token) {
-      throw new UnauthorizedException('Access token not found');
+    if (!user) {
+      throw new UnauthorizedException('Access token not found or invalid');
     }
 
-    try {
-      const payload = await this.jwtAuthService.verifyToken(token);
-      const user = await this.getUserFromPayload(payload);
-      request['user'] = this.jwtAuthService.extractUserInfo(payload);
+    request['user'] = user;
 
-      if (this.isAdminRoute(context) && !user.isAdmin) {
+    if (this.isAdminRoute(context)) {
+      const dbUser = await this.prismaService.user.findUnique({ where: { id: user.id } });
+      if (!dbUser?.isAdmin) {
         throw new UnauthorizedException('Admin access required');
       }
-
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token or insufficient permissions');
     }
+
+    return true;
   }
 
   private isPublicRoute(context: ExecutionContext): boolean {
@@ -53,9 +50,5 @@ export class AuthGuard {
       context.getHandler(),
       context.getClass(),
     ]);
-  }
-
-  private async getUserFromPayload(payload: UserPayload) {
-    return this.prismaService.user.findUnique({ where: { id: payload.id } });
   }
 }
