@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { JwtAuthService } from './jwt-auth.service';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 import { Public } from './decorators/public.decorator';
 import { Response } from 'express';
 
@@ -24,13 +25,16 @@ export class SigninDto {
   
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtAuthService: JwtAuthService
+  ) {}
 
   @Post('register')
   @Public()
   async register(@Body() body: SignupDto, @Res({ passthrough: true }) res: Response) {
     const token = await this.authService.register(body);
-    this.setTokenCookie(res, token);
+    this.jwtAuthService.setTokenCookie(res, token);
     return { message: 'Registration successful' };
   }
 
@@ -38,26 +42,18 @@ export class AuthController {
   @Public()
   async login(@Body() body: SigninDto, @Res({ passthrough: true }) res: Response) {
     const token = await this.authService.signin(body);
-    this.setTokenCookie(res, token);
+    this.jwtAuthService.setTokenCookie(res, token);
     return { message: 'Login successful' };
   }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('jwt');
+    this.jwtAuthService.clearTokenCookie(res);
     return this.authService.logout();
   }
 
   @Get('me')
   async me() {
     return this.authService.me();
-  }
-
-  private setTokenCookie(res: Response, token: string) {
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
   }
 }

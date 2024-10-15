@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 export interface UserPayload {
   id: number;
@@ -61,5 +61,17 @@ export class JwtAuthService {
       console.error('Invalid token:', error.message);
       return null;
     }
+  }
+
+  setTokenCookie(res: Response, token: string) {
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+  }
+
+  clearTokenCookie(res: Response) {
+    res.clearCookie('jwt');
   }
 }
