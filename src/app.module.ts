@@ -6,7 +6,7 @@ import { UserModule } from './user/user.module';
 import { MicropostModule } from './micropost/micropost.module';
 import { DevelopModule } from './develop/develop.module';
 import { AuthModule } from './auth/auth.module';
-import { AuthGuard } from './auth/auth.guard';
+import { AuthGuard } from './auth/guards/auth.guard';
 import { TestController } from './test/test.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { UserInterceptor } from './auth/interceptors/user.interceptor';

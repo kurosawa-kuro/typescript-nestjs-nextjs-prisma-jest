@@ -1,10 +1,10 @@
 import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { IS_PUBLIC_KEY } from './decorators/public.decorator';
-import { IS_ADMIN_KEY } from './decorators/admin.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
 import { Request } from 'express';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class AuthGuard {

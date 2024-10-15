@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { Public } from '../auth/decorators/public.decorator';
 import { Admin } from '../auth/decorators/admin.decorator';
 import { User } from '@/auth/decorators/user.decorator';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 // Define a custom UserInfo interface
 interface UserInfo {
