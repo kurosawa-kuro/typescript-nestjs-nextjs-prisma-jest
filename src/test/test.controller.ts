@@ -5,6 +5,7 @@ import { User } from '@/auth/decorators/user.decorator';
 // Define a custom UserInfo interface
 interface UserInfo {
   email: string;
+  name: string;
   // Add other user properties as needed
 }
 
@@ -24,6 +25,6 @@ export class TestController {
   @Get('profile')
   getProfile(@User() user: UserInfo) {
     console.log(user);
-    return { message: `Welcome ${user.email}!` };
+    return { message: `Welcome ${user.name}!` };
   }
 }

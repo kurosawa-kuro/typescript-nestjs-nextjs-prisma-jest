@@ -55,7 +55,12 @@ Content-Type: {{contentType}}
 
 ### test/profile
 GET {{baseUrl}}/test/profile
-Content-Type: {{contentType}} 
+Content-Type: {{contentType}}
+
+### test/profile with Bearer
+GET {{baseUrl}}/test/profile
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMjAyNC0xMC0xNVQxMjowNzoxNy4zMzBaXzI3MzkiLCJpZCI6MTIsImlhdCI6MTcyODk5Njg1MCwiZXhwIjoxNzI5MDAwNDUwfQ.w6v_HMo3HZPXDqjvc9Gt_wzgr_crEtsjGXinIKEDwW8
 
 ### ユーザーログイン
 POST {{baseUrl}}/auth/login

@@ -30,21 +30,9 @@ export class AuthGuard {
     }
 
     try {
+      console.log('token', token);
       const payload = await this.jwtService.verifyAsync(token, { secret: 'secretKey' });
-      // Use payload.id as userId
-      const userId = payload.id;
-      // userIdをもとにDBからuserを取得
-      const user = await this.prismaService.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-      // Add user information to the request object
-      request['user'] = user;
+      request['user'] = { id: payload.id, name: payload.name };
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
@@ -53,13 +41,14 @@ export class AuthGuard {
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
-
-    if (request.cookies) {
+    console.log('request.cookies', request.cookies);
+    console.log('request.headers.authorization', request.headers.authorization);
+    if (request.cookies && Object.keys(request.cookies).length > 0) {
       console.log('extractTokenFromCookie request.cookies', request.cookies);
-      // Try to get the token from either 'jwt' or 'token' cookie
-      return request.cookies['jwt'] || request.cookies['token'];
+      // Get the token from 'jwt' cookie
+      return request.cookies['jwt'];
     }
-    // If cookies are not available, try to extract from headers
+    // If cookies are not available or empty, try to extract from headers
     const authHeader = request.headers.authorization;
     if (authHeader && authHeader.split(' ')[0] === 'Bearer') {
       return authHeader.split(' ')[1];
