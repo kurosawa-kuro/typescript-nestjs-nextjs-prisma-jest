@@ -6,6 +6,12 @@ import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
 import { Request } from 'express';
 import { PrismaService } from '../../database/prisma.service';
 
+interface JwtPayload {
+  id: number;
+  name: string;
+  isAdmin?: boolean;
+}
+
 @Injectable()
 export class AuthGuard {
   constructor(
@@ -15,36 +21,23 @@ export class AuthGuard {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (isPublic) {
+    if (this.isPublicRoute(context)) {
       return true;
     }
 
-    const isAdmin = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromCookie(request);
+    const token = this.extractTokenFromRequest(request);
 
     if (!token) {
       throw new UnauthorizedException('Access token not found');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, { secret: 'secretKey' });
-      console.log('admin payload', payload);
-      // userからpayload.idをUser IDとして取得
-      const user = await this.prismaService.user.findUnique({ where: { id: payload.id } });
-      
-      console.log('user.isAdmin', user.isAdmin);
+      const payload = await this.verifyToken(token);
+      const user = await this.getUserFromPayload(payload);
       request['user'] = this.extractUserInfo(payload);
 
-      if (isAdmin && !user.isAdmin) {
+      if (this.isAdminRoute(context) && !user.isAdmin) {
         throw new UnauthorizedException('Admin access required');
       }
 
@@ -54,15 +47,24 @@ export class AuthGuard {
     }
   }
 
-  private extractTokenFromCookie(request: Request): string | undefined {
-    console.log('request.cookies', request.cookies);
-    console.log('request.headers.authorization', request.headers.authorization);
-    if (request.cookies && Object.keys(request.cookies).length > 0) {
-      console.log('extractTokenFromCookie request.cookies', request.cookies);
-      // Get the token from 'jwt' cookie
+  private isPublicRoute(context: ExecutionContext): boolean {
+    return this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+  }
+
+  private isAdminRoute(context: ExecutionContext): boolean {
+    return this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+  }
+
+  private extractTokenFromRequest(request: Request): string | undefined {
+    if (request.cookies && request.cookies['jwt']) {
       return request.cookies['jwt'];
     }
-    // If cookies are not available or empty, try to extract from headers
     const authHeader = request.headers.authorization;
     if (authHeader && authHeader.split(' ')[0] === 'Bearer') {
       return authHeader.split(' ')[1];
@@ -70,11 +72,19 @@ export class AuthGuard {
     return undefined;
   }
 
-  private extractUserInfo(payload: any) {
+  private async verifyToken(token: string): Promise<JwtPayload> {
+    return this.jwtService.verifyAsync<JwtPayload>(token, { secret: 'secretKey' });
+  }
+
+  private async getUserFromPayload(payload: JwtPayload) {
+    return this.prismaService.user.findUnique({ where: { id: payload.id } });
+  }
+
+  private extractUserInfo(payload: JwtPayload): JwtPayload {
     return { 
       id: payload.id, 
       name: payload.name,
-      isAdmin: payload.isAdmin || false // Adminフラグを追加
+      isAdmin: payload.isAdmin || false
     };
   }
 }
