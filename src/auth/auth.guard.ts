@@ -31,7 +31,7 @@ export class AuthGuard {
       const payload = await this.jwtService.decode(token);
       // Add user information to the request object
       request['user'] = payload;
-    } catch {
+    } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
 
