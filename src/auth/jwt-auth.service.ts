@@ -1,14 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
-import { UserInfo } from './decorators/user.decorator';
-
-export interface UserPayload {
-  id: number;
-  name: string;
-  isAdmin: boolean;
-}
+import { JwtPayload, UserInfo } from './types/auth.types';
 
 @Injectable()
 export class JwtAuthService {
@@ -17,62 +11,57 @@ export class JwtAuthService {
     private configService: ConfigService,
   ) {}
 
-  async signToken(payload: any): Promise<string> {
+  async signToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): Promise<string> {
     return this.jwtService.signAsync(payload, {
-      secret: this.configService.get<string>('JWT_SECRET') || 'secretKey',
-      expiresIn: '1h',
+      secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: '1d',
     });
   }
 
-  async verifyToken(token: string): Promise<UserPayload> {
-    return this.jwtService.verifyAsync<UserPayload>(token, {
-      secret: this.configService.get<string>('JWT_SECRET') || 'secretKey',
-    });
+  async verifyToken(token: string): Promise<JwtPayload> {
+    try {
+      return await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      });
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   extractTokenFromRequest(request: Request): string | undefined {
-    if (request.cookies && request.cookies['jwt']) {
-      return request.cookies['jwt'];
-    }
-    const authHeader = request.headers.authorization;
-    if (authHeader && authHeader.split(' ')[0] === 'Bearer') {
-      return authHeader.split(' ')[1];
-    }
-    return undefined;
+    const token = request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
+    return token;
   }
 
-  extractUserInfo(payload: any): UserInfo {
-    return {
-      id: payload.id,
-      name: payload.name,
-      isAdmin: payload.isAdmin || false,
-    };
-  }
-
-  async getUserFromToken(request: Request): Promise<UserInfo | null> {
+  async getUserFromToken(request: Request): Promise<UserInfo> {
     const token = this.extractTokenFromRequest(request);
     if (!token) {
-      return null;
+      throw new UnauthorizedException('No token provided');
     }
 
-    try {
-      const payload = await this.verifyToken(token);
-      return this.extractUserInfo(payload);
-    } catch (error) {
-      console.error('Invalid token:', error.message);
-      return null;
-    }
+    const payload = await this.verifyToken(token);
+    return this.mapJwtPayloadToUserInfo(payload);
   }
 
   setTokenCookie(res: Response, token: string) {
     res.cookie('jwt', token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
   }
 
   clearTokenCookie(res: Response) {
     res.clearCookie('jwt');
+  }
+
+  private mapJwtPayloadToUserInfo(payload: JwtPayload): UserInfo {
+    return {
+      id: payload.sub,
+      name: payload.name,
+      email: payload.email,
+      isAdmin: payload.isAdmin,
+    };
   }
 }

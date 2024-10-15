@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/guards/auth.guard';
 import { TestController } from './test/test.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { UserInterceptor } from './auth/interceptors/user.interceptor';
 
 @Module({
   imports: [
@@ -32,10 +31,6 @@ import { UserInterceptor } from './auth/interceptors/user.interceptor';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
-    },
-    {
-      provide: 'APP_INTERCEPTOR',
-      useClass: UserInterceptor,
     },
   ],
 })

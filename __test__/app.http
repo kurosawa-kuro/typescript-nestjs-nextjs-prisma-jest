@@ -22,7 +22,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "{{randomEmail}}",
-  "passwordHash": "password"
+  "password": "password"
 }
 
 ###  ユーザーログイン
@@ -31,7 +31,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "alice@example.com",
-  "passwordHash": "password"
+  "password": "password"
 }
 
 ###  ユーザーログアウト
@@ -44,7 +44,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "admin@example.com",
-  "passwordHash": "password"
+  "password": "password"
 }
 
 ### ユーザー管理エンドポイント
@@ -56,7 +56,7 @@ Content-Type: {{contentType}}
 {
   "name": "John Doe",
   "email": "{{randomEmail}}",
-  "passwordHash": "securepassword123",
+  "password": "password"
   "isAdmin": false
 }
 

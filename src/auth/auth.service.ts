@@ -1,17 +1,8 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtAuthService } from './jwt-auth.service';
-
-interface SigninParams {
-  email: string;
-  passwordHash: string;
-}
-
-interface SignupParams {
-  email: string;
-  passwordHash: string;
-}
+import { SigninDto, SignupDto, UserInfo } from './types/auth.types';
 
 @Injectable()
 export class AuthService {
@@ -20,55 +11,55 @@ export class AuthService {
     private jwtAuthService: JwtAuthService,
   ) {}
 
-  async register({ email, passwordHash }: SignupParams) {
-    const hashedPassword = await bcrypt.hash(passwordHash, 10);
+  async register(signupDto: SignupDto): Promise<string> {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { email: signupDto.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('Email already in use');
+    }
+
+    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
     const user = await this.prismaService.user.create({
       data: {
-        email,
+        email: signupDto.email,
+        name: signupDto.name,
         passwordHash: hashedPassword,
-        name: email.split('@')[0], // Use part of email as default name
       },
     });
 
-    return this.generateJWT(user.name, user.id);
+    return this.jwtAuthService.signToken(this.mapUserToJwtPayload(user));
   }
 
-  async signin({ email, passwordHash }: SigninParams) {
+  async signin(signinDto: SigninDto): Promise<string> {
     const user = await this.prismaService.user.findUnique({
-      where: {
-        email,
-      },
+      where: { email: signinDto.email },
     });
 
     if (!user) {
-      throw new HttpException('Invalid credentials', 400);
+      throw new BadRequestException('Invalid credentials');
     }
 
-    const hashedPassword = user.passwordHash;
-
-    const isValidPassword = await bcrypt.compare(passwordHash, hashedPassword);
-
-    if (!isValidPassword) {
-      throw new HttpException('Invalid credentials', 400);
+    if (!user.passwordHash) {
+      throw new InternalServerErrorException('User password hash is missing');
     }
 
-    return this.generateJWT(user.name, user.id);
+    const isPasswordValid = await bcrypt.compare(signinDto.password, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid credentials');
+    }
+
+    return this.jwtAuthService.signToken(this.mapUserToJwtPayload(user));
   }
 
-  async logout() {
-    return { message: 'User logged out successfully' };
-  }
-
-  async me() {
-    return { message: 'User information retrieved successfully' };
-  }
-
-  private generateJWT(name: string, id: number) {
-    return this.jwtAuthService.signToken({
-      name,
-      id,
-      secret: 'secretKey',
-      expiresIn: '1h',
-    });
+  private mapUserToJwtPayload(user: UserInfo) {
+    return {
+      sub: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+    };
   }
 }

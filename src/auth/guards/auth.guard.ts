@@ -6,17 +6,13 @@ import {
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
-import { Request } from 'express';
-import { PrismaService } from '../../database/prisma.service';
 import { JwtAuthService } from '../jwt-auth.service';
-import { UserInfo } from '../decorators/user.decorator';
 
 @Injectable()
 export class AuthGuard {
   constructor(
     private reflector: Reflector,
     private jwtAuthService: JwtAuthService,
-    private prismaService: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,25 +20,19 @@ export class AuthGuard {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<Request>();
-    const user = await this.jwtAuthService.getUserFromToken(request);
+    const request = context.switchToHttp().getRequest();
+    try {
+      const user = await this.jwtAuthService.getUserFromToken(request);
+      request['user'] = user;
 
-    if (!user) {
-      throw new UnauthorizedException('Access token not found or invalid');
-    }
-
-    request['user'] = user as UserInfo;
-
-    if (this.isAdminRoute(context)) {
-      const dbUser = await this.prismaService.user.findUnique({
-        where: { id: user.id },
-      });
-      if (!dbUser?.isAdmin) {
+      if (this.isAdminRoute(context) && !user.isAdmin) {
         throw new UnauthorizedException('Admin access required');
       }
-    }
 
-    return true;
+      return true;
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
   }
 
   private isPublicRoute(context: ExecutionContext): boolean {
