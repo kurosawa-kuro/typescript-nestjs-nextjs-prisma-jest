@@ -53,3 +53,7 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/test/protected
 Content-Type: {{contentType}}
 
+### test/profile
+GET {{baseUrl}}/test/profile
+Content-Type: {{contentType}} 
+

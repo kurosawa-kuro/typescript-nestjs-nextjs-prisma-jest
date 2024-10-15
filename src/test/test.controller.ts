@@ -1,5 +1,12 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { Public } from '../auth/public.decorator';
+import { Public } from '../auth/decorators/public.decorator';
+import { User } from '@/auth/decorators/user.decorator';
+
+// Define a custom UserInfo interface
+interface UserInfo {
+  email: string;
+  // Add other user properties as needed
+}
 
 @Controller('test')
 export class TestController {
@@ -12,5 +19,11 @@ export class TestController {
   @Get('protected')
   protected() {
     return 'This is a protected route';
+  }
+
+  @Get('profile')
+  getProfile(@User() user: UserInfo) {
+    console.log(user);
+    return { message: `Welcome ${user.email}!` };
   }
 }
