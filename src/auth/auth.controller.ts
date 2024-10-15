@@ -1,11 +1,10 @@
-import { Controller, Post, Get, Body, Res } from '@nestjs/common';
+import { Controller, Post, Get, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 import { Public } from './decorators/public.decorator';
-import { Response } from 'express';
 
 export class SigninDto {
-    // @IsEmail()
+    @IsEmail()
     email: string;
   
     @IsString()
@@ -14,7 +13,7 @@ export class SigninDto {
   }
 
   export class SignupDto {
-    // @IsEmail()
+    @IsEmail()
     email: string;
   
     @IsString()
@@ -27,7 +26,6 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @Public()
   async register(@Body() body: SignupDto) {
     return this.authService.register(body);
   }
@@ -39,9 +37,8 @@ export class AuthController {
   }
 
   @Post('logout')
-  @Public()
-  async logout(@Res({ passthrough: true }) res: Response) {
-    return this.authService.logout(res);
+  async logout() {
+    return this.authService.logout();
   }
 
   @Get('me')
