@@ -4,7 +4,7 @@ import { JwtAuthService } from './jwt-auth.service';
 import { Public } from './decorators/public.decorator';
 import { User } from './decorators/user.decorator';
 import { Response } from 'express';
-import { SigninDto, SignupDto, UserInfo } from './types/auth.types';
+import { SigninDto, SignupDto, UserInfo } from '../types/auth.types';
 import { AuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
