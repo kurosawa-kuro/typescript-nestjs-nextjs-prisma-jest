@@ -51,7 +51,10 @@ export class UserService extends BaseService<
       return null;
     }
 
-    const isPasswordValid = await this.verifyPassword(password, user.passwordHash);
+    const isPasswordValid = await this.verifyPassword(
+      password,
+      user.passwordHash,
+    );
 
     if (!isPasswordValid) {
       return null;
@@ -73,7 +76,10 @@ export class UserService extends BaseService<
     return bcrypt.hash(password, 10);
   }
 
-  private async verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  private async verifyPassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
 }

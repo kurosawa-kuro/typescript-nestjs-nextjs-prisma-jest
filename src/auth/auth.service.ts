@@ -18,7 +18,8 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
   ) {
-    this.jwtSecret = this.configService.get<string>('JWT_SECRET') || 'JWT_SECRET';
+    this.jwtSecret =
+      this.configService.get<string>('JWT_SECRET') || 'JWT_SECRET';
   }
 
   // Authentication methods
@@ -28,7 +29,10 @@ export class AuthService {
   }
 
   async signin(signinDto: SigninDto): Promise<string> {
-    const user = await this.userService.validateUser(signinDto.email, signinDto.password);
+    const user = await this.userService.validateUser(
+      signinDto.email,
+      signinDto.password,
+    );
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
@@ -58,7 +62,9 @@ export class AuthService {
   }
 
   private extractTokenFromRequest(request: Request): string | undefined {
-    return request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
+    return (
+      request.cookies['jwt'] || request.headers.authorization?.split(' ')[1]
+    );
   }
 
   setTokenCookie(res: Response, token: string): void {

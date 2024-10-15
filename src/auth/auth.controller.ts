@@ -9,24 +9,28 @@ import { AuthGuard } from './guards/auth.guard';
 @Controller('auth')
 @UseGuards(AuthGuard)
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @Public()
-  async register(@Body() RegisterDto: RegisterDto, @Res({ passthrough: true }) res: Response) {
+  async register(
+    @Body() RegisterDto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = await this.authService.register(RegisterDto);
     this.authService.setTokenCookie(res, token);
-    return { message: 'Registration successful' };
+    return { message: 'Registration successful', token };
   }
 
   @Post('login')
   @Public()
-  async login(@Body() signinDto: SigninDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() signinDto: SigninDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = await this.authService.signin(signinDto);
     this.authService.setTokenCookie(res, token);
-    return { message: 'Login successful' };
+    return { message: 'Login successful', token };
   }
 
   @Post('logout')
