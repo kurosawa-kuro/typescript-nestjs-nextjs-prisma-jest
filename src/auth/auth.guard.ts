@@ -3,12 +3,14 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
 import { Request } from 'express';
+import { PrismaService } from '../database/prisma.service';
 
 @Injectable()
 export class AuthGuard {
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
+    private prismaService: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,8 +31,20 @@ export class AuthGuard {
 
     try {
       const payload = await this.jwtService.decode(token);
+      // payloadのsubをuserIdとする
+      const userId = payload.sub;
+      // userIdをもとにDBからuserを取得
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+      
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
       // Add user information to the request object
-      request['user'] = payload;
+      request['user'] = user;
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
