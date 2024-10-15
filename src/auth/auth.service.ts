@@ -2,18 +2,26 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
-import { JwtAuthService } from './jwt-auth.service';
 import { SigninDto, SignupDto, UserInfo } from '../types/auth.types';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
+  private readonly jwtSecret: string;
+
   constructor(
     private readonly prismaService: PrismaService,
-    private jwtAuthService: JwtAuthService,
-  ) {}
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) {
+    this.jwtSecret = this.configService.get<string>('JWT_SECRET') || 'JWT_SECRET';
+  }
 
   async register(signupDto: SignupDto): Promise<string> {
     const existingUser = await this.prismaService.user.findUnique({
@@ -33,7 +41,7 @@ export class AuthService {
       },
     });
 
-    return this.jwtAuthService.signToken(this.mapUserToJwtPayload(user));
+    return this.signToken(this.mapUserToUserInfo(user));
   }
 
   async signin(signinDto: SigninDto): Promise<string> {
@@ -58,15 +66,54 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    return this.jwtAuthService.signToken(this.mapUserToJwtPayload(user));
+    return this.signToken(this.mapUserToUserInfo(user));
   }
 
-  private mapUserToJwtPayload(user: UserInfo) {
+  async signToken(payload: UserInfo): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: this.jwtSecret,
+      expiresIn: '1d',
+    });
+  }
+
+  async verifyToken(token: string): Promise<UserInfo> {
+    return await this.jwtService.verifyAsync<UserInfo>(token, {
+      secret: this.jwtSecret,
+    });
+  }
+
+  extractTokenFromRequest(request: Request): string | undefined {
+    return request.cookies['jwt'] || request.headers.authorization?.split(' ')[1];
+  }
+
+  async getUserFromToken(request: Request): Promise<UserInfo> {
+    const token = this.extractTokenFromRequest(request);
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
+    }
+
+    return await this.verifyToken(token);
+  }
+
+  setTokenCookie(res: Response, token: string) {
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+  }
+
+  clearTokenCookie(res: Response) {
+    res.clearCookie('jwt');
+  }
+
+  private mapUserToUserInfo(user: any): UserInfo {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
+      isAdmin: user.isAdmin || false,
     };
   }
 }

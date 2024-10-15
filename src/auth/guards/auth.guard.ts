@@ -6,13 +6,13 @@ import {
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
-import { JwtAuthService } from '../jwt-auth.service';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class AuthGuard {
   constructor(
     private reflector: Reflector,
-    private jwtAuthService: JwtAuthService,
+    private authService: AuthService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -21,18 +21,19 @@ export class AuthGuard {
     }
 
     const request = context.switchToHttp().getRequest();
-    try {
-      const user = await this.jwtAuthService.getUserFromToken(request);
-      request['user'] = user;
+    const user = await this.authService.getUserFromToken(request);
 
-      if (this.isAdminRoute(context) && !user.isAdmin) {
-        throw new UnauthorizedException('Admin access required');
-      }
-
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
+    if (!user) {
+      throw new UnauthorizedException('Access token not found or invalid');
     }
+
+    request['user'] = user;
+
+    if (this.isAdminRoute(context) && !user.isAdmin) {
+      throw new UnauthorizedException('Admin access required');
+    }
+
+    return true;
   }
 
   private isPublicRoute(context: ExecutionContext): boolean {

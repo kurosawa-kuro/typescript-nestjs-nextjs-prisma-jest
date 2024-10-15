@@ -1,6 +1,5 @@
 import { Controller, Post, Get, Body, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtAuthService } from './jwt-auth.service';
 import { Public } from './decorators/public.decorator';
 import { User } from './decorators/user.decorator';
 import { Response } from 'express';
@@ -12,34 +11,27 @@ import { AuthGuard } from './guards/auth.guard';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtAuthService: JwtAuthService,
   ) {}
 
   @Post('register')
   @Public()
-  async register(
-    @Body() signupDto: SignupDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async register(@Body() signupDto: SignupDto, @Res({ passthrough: true }) res: Response) {
     const token = await this.authService.register(signupDto);
-    this.jwtAuthService.setTokenCookie(res, token);
+    this.authService.setTokenCookie(res, token);
     return { message: 'Registration successful' };
   }
 
   @Post('login')
   @Public()
-  async login(
-    @Body() signinDto: SigninDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async login(@Body() signinDto: SigninDto, @Res({ passthrough: true }) res: Response) {
     const token = await this.authService.signin(signinDto);
-    this.jwtAuthService.setTokenCookie(res, token);
+    this.authService.setTokenCookie(res, token);
     return { message: 'Login successful' };
   }
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
-    this.jwtAuthService.clearTokenCookie(res);
+    this.authService.clearTokenCookie(res);
     return { message: 'Logout successful' };
   }
 
