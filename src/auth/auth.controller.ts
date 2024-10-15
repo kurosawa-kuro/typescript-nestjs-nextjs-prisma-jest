@@ -7,33 +7,36 @@ import { Response } from 'express';
 import { User, UserInfo } from './decorators/user.decorator';
 
 export class SigninDto {
-    @IsEmail()
-    email: string;
-  
-    @IsString()
-    @MinLength(6)
-    passwordHash: string;
-  }
+  @IsEmail()
+  email: string;
 
-  export class SignupDto {
-    @IsEmail()
-    email: string;
-  
-    @IsString()
-    @MinLength(6)
-    passwordHash: string;
-  }
-  
+  @IsString()
+  @MinLength(6)
+  passwordHash: string;
+}
+
+export class SignupDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(6)
+  passwordHash: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtAuthService: JwtAuthService
+    private readonly jwtAuthService: JwtAuthService,
   ) {}
 
   @Post('register')
   @Public()
-  async register(@Body() body: SignupDto, @Res({ passthrough: true }) res: Response) {
+  async register(
+    @Body() body: SignupDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = await this.authService.register(body);
     this.jwtAuthService.setTokenCookie(res, token);
     return { message: 'Registration successful' };
@@ -41,7 +44,10 @@ export class AuthController {
 
   @Post('login')
   @Public()
-  async login(@Body() body: SigninDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() body: SigninDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const token = await this.authService.signin(body);
     this.jwtAuthService.setTokenCookie(res, token);
     return { message: 'Login successful' };

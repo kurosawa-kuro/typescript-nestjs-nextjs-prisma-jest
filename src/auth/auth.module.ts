@@ -6,10 +6,7 @@ import { JwtAuthModule } from './jwt-auth.module';
 import { PrismaModule } from '../database/prisma.module';
 
 @Module({
-  imports: [
-    JwtAuthModule,
-    PrismaModule,
-  ],
+  imports: [JwtAuthModule, PrismaModule],
   providers: [AuthService, AuthGuard],
   controllers: [AuthController],
   exports: [AuthService, JwtAuthModule],

@@ -1,24 +1,23 @@
-import { Injectable,  HttpException } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { JwtAuthService } from './jwt-auth.service';
 
 interface SigninParams {
-    email: string;
-    passwordHash: string;
-  }
+  email: string;
+  passwordHash: string;
+}
 
-  interface SignupParams {
-    email: string;
-    passwordHash: string;
-  }
+interface SignupParams {
+  email: string;
+  passwordHash: string;
+}
 
 @Injectable()
 export class AuthService {
-    
   constructor(
     private readonly prismaService: PrismaService,
-    private jwtAuthService: JwtAuthService
+    private jwtAuthService: JwtAuthService,
   ) {}
 
   async register({ email, passwordHash }: SignupParams) {

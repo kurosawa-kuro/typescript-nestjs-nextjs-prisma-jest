@@ -34,6 +34,9 @@ export class TestController {
   @Get('admin')
   @Admin()
   adminOnly(@User() user: UserInfo) {
-    return { message: `Welcome Admin ${user.name}!`, secretData: 'This is confidential information.' };
+    return {
+      message: `Welcome Admin ${user.name}!`,
+      secretData: 'This is confidential information.',
+    };
   }
 }

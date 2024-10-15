@@ -1,4 +1,8 @@
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
@@ -30,7 +34,9 @@ export class AuthGuard {
     request['user'] = user as UserInfo;
 
     if (this.isAdminRoute(context)) {
-      const dbUser = await this.prismaService.user.findUnique({ where: { id: user.id } });
+      const dbUser = await this.prismaService.user.findUnique({
+        where: { id: user.id },
+      });
       if (!dbUser?.isAdmin) {
         throw new UnauthorizedException('Admin access required');
       }

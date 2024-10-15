@@ -14,7 +14,7 @@ export interface UserPayload {
 export class JwtAuthService {
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   async signToken(payload: any): Promise<string> {
@@ -42,10 +42,10 @@ export class JwtAuthService {
   }
 
   extractUserInfo(payload: any): UserInfo {
-    return { 
-      id: payload.id, 
+    return {
+      id: payload.id,
       name: payload.name,
-      isAdmin: payload.isAdmin || false
+      isAdmin: payload.isAdmin || false,
     };
   }
 

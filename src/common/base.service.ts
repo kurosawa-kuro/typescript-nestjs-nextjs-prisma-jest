@@ -1,7 +1,13 @@
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 
-export abstract class BaseService<T, CreateInput, UpdateInput, WhereUniqueInput, WhereInput> {
+export abstract class BaseService<
+  T,
+  CreateInput,
+  UpdateInput,
+  WhereUniqueInput,
+  WhereInput,
+> {
   protected abstract entityName: string;
 
   constructor(protected prisma: PrismaService) {}
@@ -15,7 +21,9 @@ export abstract class BaseService<T, CreateInput, UpdateInput, WhereUniqueInput,
   }
 
   async findById(id: number): Promise<T> {
-    const entity = await this.getRepository().findUnique({ where: { id } as WhereUniqueInput }) as T | null;
+    const entity = (await this.getRepository().findUnique({
+      where: { id } as WhereUniqueInput,
+    })) as T | null;
     if (!entity) {
       this.handleNotFound(id);
     }
@@ -24,10 +32,10 @@ export abstract class BaseService<T, CreateInput, UpdateInput, WhereUniqueInput,
 
   async update(id: number, data: UpdateInput): Promise<T> {
     try {
-      return await this.getRepository().update({
+      return (await this.getRepository().update({
         where: { id } as WhereUniqueInput,
         data,
-      }) as Promise<T>;
+      })) as Promise<T>;
     } catch (error) {
       if (error.code === 'P2025') {
         this.handleNotFound(id);
@@ -48,9 +56,13 @@ export abstract class BaseService<T, CreateInput, UpdateInput, WhereUniqueInput,
   }
 
   async findFirst(where: WhereInput): Promise<T> {
-    const entity = await this.getRepository().findFirst({ where }) as T | null;
+    const entity = (await this.getRepository().findFirst({
+      where,
+    })) as T | null;
     if (!entity) {
-      throw new NotFoundException(`${this.entityName} not found with criteria: ${JSON.stringify(where)}`);
+      throw new NotFoundException(
+        `${this.entityName} not found with criteria: ${JSON.stringify(where)}`,
+      );
     }
     return entity;
   }
