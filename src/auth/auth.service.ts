@@ -3,6 +3,9 @@ import { PrismaService } from '../database/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { User } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { SignupDto, SigninDto } from './auth.controller';
+import { Response } from 'express';
 
 interface SigninParams {
     email: string;
@@ -17,7 +20,7 @@ interface SigninParams {
 @Injectable()
 export class AuthService {
     
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService, private jwtService: JwtService) {}
   async register({ email, passwordHash }: SignupParams) {
     const hashedPassword = await bcrypt.hash(passwordHash, 10);
     const user = await this.prismaService.user.create({
@@ -53,8 +56,11 @@ export class AuthService {
     return this.generateJWT(user.name, user.id);
   }
 
-  async logout() {
-    return { message: 'User logged out successfully' };
+  async logout(res: Response) {
+    //       return request.cookies['jwt'] || request.cookies['token'];
+
+    res.clearCookie('token');
+    return { message: 'Logged out successfully' };
   }
 
   async me() {
