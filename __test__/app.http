@@ -4,7 +4,52 @@
 ### Variables (環境設定)
 @randomEmail = {{$datetime iso8601}}_{{$randomInt 1000 9999}}@example.com
 
-### ユーザーを作成する
+### 開発者向けエンドポイント
+
+###  データベースをリセット
+POST {{baseUrl}}/develop/reset_db
+Content-Type: {{contentType}}
+
+# デモユーザーでログイン
+POST {{baseUrl}}/develop/demo_user_login
+Content-Type: {{contentType}}
+
+### 認証関連エンドポイント
+
+###  ユーザー登録
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "{{randomEmail}}",
+  "passwordHash": "password"
+}
+
+###  ユーザーログイン
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "alice@example.com",
+  "passwordHash": "password"
+}
+
+###  ユーザーログアウト
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
+
+###  管理者ログイン
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@example.com",
+  "passwordHash": "password"
+}
+
+### ユーザー管理エンドポイント
+
+###  ユーザーを作成
 POST {{baseUrl}}/users
 Content-Type: {{contentType}}
 
@@ -15,80 +60,29 @@ Content-Type: {{contentType}}
   "isAdmin": false
 }
 
-### ユーザーを参照する
+###  ユーザー一覧を取得
 GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
-### develop/reset_db
-POST {{baseUrl}}/develop/reset_db
-Content-Type: {{contentType}}
+### テストエンドポイント
 
-### develop/demo_user_login
-POST {{baseUrl}}/develop/demo_user_login
-Content-Type: {{contentType}}
-
-### ユーザーログイン
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "email": "alice@example.com",
-  "passwordHash": "password"
-}
-
-### ユーザーregister
-POST {{baseUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "email": "{{randomEmail}}",
-  "passwordHash": "password"
-}
-
-
-### test/public
+###  公開テスト
 GET {{baseUrl}}/test/public
 Content-Type: {{contentType}}
 
-### test/protected
+###  保護されたテスト
 GET {{baseUrl}}/test/protected
 Content-Type: {{contentType}}
 
-### test/profile
+###  プロフィールテスト（認証なし）
 GET {{baseUrl}}/test/profile
 Content-Type: {{contentType}}
 
-### test/profile with Bearer
+###  プロフィールテスト（Bearerトークン付き）
 GET {{baseUrl}}/test/profile
 Content-Type: {{contentType}}
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMjAyNC0xMC0xNVQxMjowNzoxNy4zMzBaXzI3MzkiLCJpZCI6MTIsImlhdCI6MTcyODk5Njg1MCwiZXhwIjoxNzI5MDAwNDUwfQ.w6v_HMo3HZPXDqjvc9Gt_wzgr_crEtsjGXinIKEDwW8
 
-### ユーザーログイン
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "email": "alice@example.com",
-  "passwordHash": "password"
-}
-
-### ユーザーログアウト
-POST {{baseUrl}}/auth/logout
-Content-Type: {{contentType}}
-
-### test/admin
+### 管理者テスト
 GET {{baseUrl}}/test/admin
-Content-Type: {{contentType}}
-
-### アドミン ログイン
-POST {{baseUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "email": "admin@example.com",
-  "passwordHash": "password"
-}
-
-### ユーザーログアウト
-POST {{baseUrl}}/auth/logout
 Content-Type: {{contentType}}

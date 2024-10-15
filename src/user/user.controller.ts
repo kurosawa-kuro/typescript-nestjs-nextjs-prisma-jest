@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
@@ -10,9 +10,9 @@ export class UserController extends BaseController<User> {
     super(userService);
   }
 
-  // @Public()
-  // @Get()
-  // async index() {
-  //   return super.index();
-  // }
+  @Public()
+  @Get()
+  async index() {
+    return super.index();
+  }
 }

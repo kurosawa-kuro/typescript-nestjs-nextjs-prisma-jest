@@ -8,7 +8,7 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
 import { Request } from 'express';
 import { PrismaService } from '../../database/prisma.service';
-import { JwtAuthService, UserPayload } from '../jwt-auth.service';
+import { JwtAuthService } from '../jwt-auth.service';
 import { UserInfo } from '../decorators/user.decorator';
 
 @Injectable()
