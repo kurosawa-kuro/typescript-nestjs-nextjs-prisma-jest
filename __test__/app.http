@@ -66,3 +66,6 @@ Content-Type: {{contentType}}
   "passwordHash": "securepassword123"
 }
 
+### ユーザーログアウト
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
