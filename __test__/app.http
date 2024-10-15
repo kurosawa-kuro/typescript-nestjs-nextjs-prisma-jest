@@ -26,3 +26,30 @@ Content-Type: {{contentType}}
 ### develop/demo_user_login
 POST {{baseUrl}}/develop/demo_user_login
 Content-Type: {{contentType}}
+
+### ユーザーログイン
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "2024-10-15T08:55:45.292Z_6442@example.com",
+  "passwordHash": "securepassword123"
+}
+
+### ユーザーregister
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "{{randomEmail}}",
+  "passwordHash": "securepassword123"
+}
+
+### test/public
+GET {{baseUrl}}/test/public
+Content-Type: {{contentType}}
+
+### test/protected
+GET {{baseUrl}}/test/protected
+Content-Type: {{contentType}}
+
