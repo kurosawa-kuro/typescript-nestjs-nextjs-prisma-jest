@@ -49,7 +49,7 @@ export class JwtAuthService {
     };
   }
 
-  async getUserFromToken(request: Request): Promise<UserPayload | null> {
+  async getUserFromToken(request: Request): Promise<UserInfo | null> {
     const token = this.extractTokenFromRequest(request);
     if (!token) {
       return null;

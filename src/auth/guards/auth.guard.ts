@@ -5,6 +5,7 @@ import { IS_ADMIN_KEY } from '../decorators/admin.decorator';
 import { Request } from 'express';
 import { PrismaService } from '../../database/prisma.service';
 import { JwtAuthService, UserPayload } from '../jwt-auth.service';
+import { UserInfo } from '../decorators/user.decorator';
 
 @Injectable()
 export class AuthGuard {
@@ -26,7 +27,7 @@ export class AuthGuard {
       throw new UnauthorizedException('Access token not found or invalid');
     }
 
-    request['user'] = user;
+    request['user'] = user as UserInfo;
 
     if (this.isAdminRoute(context)) {
       const dbUser = await this.prismaService.user.findUnique({ where: { id: user.id } });
