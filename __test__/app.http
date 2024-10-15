@@ -20,8 +20,8 @@ POST {{baseUrl}}/users
 Content-Type: {{contentType}}
 
 {
-  "name": "Admin",
-  "email": "Admin_{{randomEmail}}",
+  "name": "User {{randomEmail}}",
+  "email": "{{randomEmail}}",
   "passwordHash": "securepassword123",
   "isAdmin": true
 }
@@ -43,8 +43,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "2024-10-15T08:55:45.292Z_6442@example.com",
-  "passwordHash": "securepassword123"
+  "email": "alice@example.com",
+  "passwordHash": "password"
 }
 
 ### ユーザーregister
@@ -53,17 +53,9 @@ Content-Type: {{contentType}}
 
 {
   "email": "{{randomEmail}}",
-  "passwordHash": "securepassword123"
+  "passwordHash": "password"
 }
 
-### ユーザーregister
-POST {{baseUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "email": "Admin_{{randomEmail}}",
-  "passwordHash": "securepassword123"
-}
 
 ### test/public
 GET {{baseUrl}}/test/public
@@ -88,7 +80,7 @@ Content-Type: {{contentType}}
 
 {
   "email": "2024-10-15T12:07:17.330Z_2739@example.com",
-  "passwordHash": "securepassword123"
+  "passwordHash": "password"
 }
 
 ### ユーザーログアウト
@@ -104,8 +96,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "Admin_2024-10-15T13:30:18.139Z_9110@example.com",
-  "passwordHash": "securepassword123"
+  "email": "admin@example.com",
+  "passwordHash": "password"
 }
 
 ### ユーザーログアウト

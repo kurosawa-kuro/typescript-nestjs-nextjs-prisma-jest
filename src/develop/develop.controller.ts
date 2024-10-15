@@ -6,6 +6,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DevelopService } from './develop.service';
+import { Public } from '@/auth/decorators/public.decorator';
 
 // カスタムデコレータを作成
 function DevelopmentOrTestOnly() {
@@ -35,6 +36,7 @@ export class DevelopController {
   constructor(private developService: DevelopService) {}
 
   @Post('reset_db')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @DevelopmentOrTestOnly()
   async resetDb() {
@@ -42,6 +44,7 @@ export class DevelopController {
   }
 
   @Post('demo_user_login')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @DevelopmentOrTestOnly()
   async demoUserLogin() {
