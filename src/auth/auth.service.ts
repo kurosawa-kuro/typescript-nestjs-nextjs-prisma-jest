@@ -67,7 +67,7 @@ export class AuthService {
   }
 
   private generateJWT(name: string, id: number) {
-    return this.jwtService.sign(
+    return this.jwtService.signAsync(
       {
         name,
         id,

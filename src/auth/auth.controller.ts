@@ -1,7 +1,8 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
 import { Public } from './decorators/public.decorator';
+import { Response } from 'express';
 
 export class SigninDto {
     @IsEmail()
@@ -26,14 +27,19 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() body: SignupDto) {
-    return this.authService.register(body);
+  @Public()
+  async register(@Body() body: SignupDto, @Res({ passthrough: true }) res: Response) {
+    const token = await this.authService.register(body);
+    this.setTokenCookie(res, token);
+    return { message: 'Registration successful' };
   }
 
   @Post('login')
   @Public()
-  async login(@Body() body: SigninDto) {
-    return this.authService.signin(body);
+  async login(@Body() body: SigninDto, @Res({ passthrough: true }) res: Response) {
+    const token = await this.authService.signin(body);
+    this.setTokenCookie(res, token);
+    return { message: 'Login successful' };
   }
 
   @Post('logout')
@@ -44,5 +50,13 @@ export class AuthController {
   @Get('me')
   async me() {
     return this.authService.me();
+  }
+
+  private setTokenCookie(res: Response, token: string) {
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
   }
 }

@@ -57,3 +57,12 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/test/profile
 Content-Type: {{contentType}} 
 
+### ユーザーログイン
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "2024-10-15T12:07:17.330Z_2739@example.com",
+  "passwordHash": "securepassword123"
+}
+

@@ -30,16 +30,20 @@ export class AuthGuard {
     }
 
     try {
-      const payload = await this.jwtService.decode(token);
+  //     console.log('token:', token);
+  //     const decoded = this.jwtService.decode(token, { complete: true });
+  // console.log('Decoded Token:', decoded);
+      const payload = await this.jwtService.decode(token, { complete: true });
+      console.log('Decoded Token:', payload.payload.id);
       // payloadのsubをuserIdとする
-      const userId = payload.sub;
+      const userId = payload.payload.id;
       // userIdをもとにDBからuserを取得
       const user = await this.prismaService.user.findUnique({
         where: {
           id: userId,
         },
       });
-      
+
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
@@ -53,8 +57,9 @@ export class AuthGuard {
   }
 
   private extractTokenFromCookie(request: Request): string | undefined {
+
     if (request.cookies) {
-      console.log('request.cookies', request.cookies);
+      console.log('extractTokenFromCookie request.cookies', request.cookies);
       // Try to get the token from either 'jwt' or 'token' cookie
       return request.cookies['jwt'] || request.cookies['token'];
     }
