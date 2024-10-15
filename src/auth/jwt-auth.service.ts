@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
+import { UserInfo } from './decorators/user.decorator';
 
 export interface UserPayload {
   id: number;
@@ -40,7 +41,7 @@ export class JwtAuthService {
     return undefined;
   }
 
-  extractUserInfo(payload: any): UserPayload {
+  extractUserInfo(payload: any): UserInfo {
     return { 
       id: payload.id, 
       name: payload.name,

@@ -4,6 +4,7 @@ import { JwtAuthService } from './jwt-auth.service';
 import { IsEmail, IsString, MinLength } from 'class-validator';
 import { Public } from './decorators/public.decorator';
 import { Response } from 'express';
+import { User, UserInfo } from './decorators/user.decorator';
 
 export class SigninDto {
     @IsEmail()
@@ -53,7 +54,7 @@ export class AuthController {
   }
 
   @Get('me')
-  async me() {
-    return this.authService.me();
+  async me(@User() user: UserInfo) {
+    return user;
   }
 }

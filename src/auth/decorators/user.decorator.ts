@@ -1,11 +1,9 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export interface UserInfo {
-  sub: number;
-  email: string;
+  id: number;
+  name: string;
   isAdmin: boolean;
-  iat: number;
-  exp: number;
 }
 
 export const User = createParamDecorator(
