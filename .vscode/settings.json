@@ -7,6 +7,10 @@
         {
             "filePath": "__test__\\app.http",
             "group": "Default"
+        },
+        {
+            "filePath": "backend\\__test__\\app.http",
+            "group": "Default"
         }
     ]
 }
