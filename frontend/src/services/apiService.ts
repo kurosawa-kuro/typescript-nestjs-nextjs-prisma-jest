@@ -11,6 +11,12 @@ export const ApiService = {
   },
 
   getUserProfile: async (): Promise<User> => {
-    return ApiClient.get<User>('/auth/profile');
+    console.log("ApiService getUserProfile");
+    return ApiClient.get<User>('/auth/me', {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'), // Adjust as needed
+        'Content-Type': 'application/json'
+      }
+    });
   }
 };

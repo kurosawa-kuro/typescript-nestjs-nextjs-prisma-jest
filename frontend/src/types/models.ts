@@ -26,7 +26,7 @@ export interface User {
     user: User | null;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
-    initializeAuth: () => Promise<void>;
+    // initializeAuth: () => Promise<void>;
   }
   
   // 追加された ApiError インターフェース

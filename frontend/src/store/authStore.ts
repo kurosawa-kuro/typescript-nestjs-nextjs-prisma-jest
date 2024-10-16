@@ -32,14 +32,15 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      initializeAuth: async () => {
-        try {
-          const user = await ApiService.getUserProfile();
-          set({ isLoggedIn: true, user });
-        } catch (error) {
-          set({ isLoggedIn: false, user: null });
-        }
-      },
+    //   initializeAuth: async () => {
+    //     console.log("initializeAuth");
+    //     try {
+    //       const user = await ApiService.getUserProfile();
+    //       set({ isLoggedIn: true, user });
+    //     } catch (error) {
+    //       set({ isLoggedIn: false, user: null });
+    //     }
+    //   },
     }),
     {
       name: 'auth-storage',

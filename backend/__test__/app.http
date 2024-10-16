@@ -38,6 +38,11 @@ Content-Type: {{contentType}}
 POST {{baseUrl}}/auth/logout
 Content-Type: {{contentType}}
 
+###  me
+GET {{baseUrl}}/auth/me
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IkFsaWNlIiwiZW1haWwiOiJhbGljZUBleGFtcGxlLmNvbSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3MjkwNzUyMDgsImV4cCI6MTcyOTE2MTYwOH0.3iC55bvAgcUHOhLUGWhaHX-6C3GYnptkDBGYw6XzBnI
+
 ###  管理者ログイン
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}

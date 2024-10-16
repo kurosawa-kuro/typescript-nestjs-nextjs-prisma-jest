@@ -19,6 +19,6 @@ export const ApiClient = {
     return response.json();
   },
 
-  get: <T>(endpoint: string) => ApiClient.request<T>('GET', endpoint),
+  get: <T>(endpoint: string, p0: { headers: { Authorization: string; 'Content-Type': string; }; }) => ApiClient.request<T>('GET', endpoint),
   post: <T>(endpoint: string, body: unknown) => ApiClient.request<T>('POST', endpoint, body),
 };

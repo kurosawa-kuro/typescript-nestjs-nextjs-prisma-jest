@@ -14,8 +14,10 @@ export async function getUserProfile(): Promise<User | null> {
     const user = await ApiClient.get<User>('/auth/me', {
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
     });
+
     console.log("getUserProfile user", user);
     return user;
   } catch (error) {
