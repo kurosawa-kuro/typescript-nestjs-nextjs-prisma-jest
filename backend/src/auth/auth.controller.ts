@@ -28,9 +28,9 @@ export class AuthController {
     @Body() signinDto: SigninDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const token = await this.authService.signin(signinDto);
+    const { token, user } = await this.authService.signin(signinDto);
     this.authService.setTokenCookie(res, token);
-    return { message: 'Login successful', token };
+    return { message: 'Login successful', token, user };
   }
 
   @Post('logout')

@@ -28,7 +28,7 @@ export class AuthService {
     return this.signToken(this.userService.mapUserToUserInfo(user));
   }
 
-  async signin(signinDto: SigninDto): Promise<string> {
+  async signin(signinDto: SigninDto): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.validateUser(
       signinDto.email,
       signinDto.password,
@@ -36,7 +36,9 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
-    return this.signToken(this.userService.mapUserToUserInfo(user));
+    const userInfo = this.userService.mapUserToUserInfo(user);
+    const token = await this.signToken(userInfo);
+    return { token, user: userInfo };
   }
 
   async getUserFromToken(request: Request): Promise<UserInfo> {
