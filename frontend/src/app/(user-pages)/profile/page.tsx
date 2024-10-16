@@ -2,17 +2,31 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { useEffect, useLayoutEffect } from 'react';
 
 export default function UserPages() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
+
+  // useEffect(() => {
+  //   console.log("userEffect");
+  //   console.log("user", user);
+  //   console.log("user?.isAdmin", user?.isAdmin);
+  // }, [user]);
+
+  useLayoutEffect(() => {
+    console.log("useLayoutEffect");
+    console.log("user", user);
+    console.log("user?.isAdmin", user?.isAdmin);
+  }, []);
+
+
 
   const handleLogout = async () => {
     await logout();
     router.push('/');
   };
 
-  console.log("isLoading", isLoading);
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-bold mb-4 text-black">User Profile</h1>
@@ -29,3 +43,4 @@ export default function UserPages() {
     </div>
   );
 }
+
