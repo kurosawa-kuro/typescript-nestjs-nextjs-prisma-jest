@@ -24,12 +24,10 @@ export interface User {
   export interface AuthState extends AsyncOperationState {
     isLoggedIn: boolean;
     user: User | null;
-    loginStatus: string | null;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
     initializeAuth: () => Promise<void>;
   }
-  
   
   // 追加された ApiError インターフェース
   export interface ApiError extends Error {

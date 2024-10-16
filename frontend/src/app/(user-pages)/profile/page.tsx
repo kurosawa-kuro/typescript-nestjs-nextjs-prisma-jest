@@ -1,34 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 export default function UserPages() {
   const router = useRouter();
-  const [error, setError] = useState('');
   const { user, logout } = useAuthStore();
 
   const handleLogout = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-
-      // Call the logout function from the store
-      logout();
-
-      // Redirect to home page after successful logout
-      router.push('/');
-    } catch (err) {
-      setError('Logout failed. Please try again.');
-      console.error('Logout error:', err);
-    }
+    await logout();
+    router.push('/');
   };
 
   return (
@@ -46,9 +27,6 @@ export default function UserPages() {
       >
         Logout
       </button>
-      {error && (
-        <p className="mt-2 text-center text-sm text-red-600">{error}</p>
-      )}
     </div>
   );
 }
