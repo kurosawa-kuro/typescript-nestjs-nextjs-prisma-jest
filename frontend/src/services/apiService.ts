@@ -10,13 +10,13 @@ export const ApiService = {
     return ApiClient.post('/auth/logout', {});
   },
 
-  getUserProfile: async (): Promise<User> => {
-    console.log("ApiService getUserProfile");
-    return ApiClient.get<User>('/auth/me', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token'), // Adjust as needed
-        'Content-Type': 'application/json'
-      }
-    });
-  }
+  // getUserProfile: async (): Promise<User> => {
+  //   console.log("ApiService getUserProfile");
+  //   return ApiClient.get<User>('/auth/me', {
+  //     headers: {
+  //       Authorization: 'Bearer ' + localStorage.getItem('token'), // Adjust as needed
+  //       'Content-Type': 'application/json'
+  //     }
+  //   });
+  // }
 };
