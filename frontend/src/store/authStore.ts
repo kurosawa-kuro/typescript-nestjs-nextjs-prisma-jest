@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { AuthState, User, LoginResponse } from '../types/models';
+import { AuthState, LoginResponse } from '../types/models';
 import { ApiService } from '../services/apiService';
 
 

@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 export default function PublicPages() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white text-black">

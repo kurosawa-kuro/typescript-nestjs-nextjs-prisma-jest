@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function UserPages() {
   const router = useRouter();
-  const { user, logout, isLoading, flashMessage, setFlashMessage } = useAuthStore();
+  const { user,  isLoading, flashMessage, setFlashMessage } = useAuthStore();
 
   if (isLoading) {
     return <LoadingSpinner />;
