@@ -2,8 +2,9 @@ import { UserService } from '../../../src/user/user.service';
 import { PrismaService } from '../../../src/database/prisma.service';
 import { createMockPrismaService, setupTestModule } from '../test-utils';
 import { User, Prisma } from '@prisma/client';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { BaseService } from '../../../src/common/base.service';
+import * as bcrypt from 'bcryptjs';
 
 type UserId = string | number;
 
@@ -248,6 +249,144 @@ describe('UserService', () => {
       expect(() => {
         (userService as any).handleNotFound(id);
       }).toThrow(`User with ID ${id} not found`);
+    });
+  });
+
+  describe('createUser', () => {
+    it('should create a new user', async () => {
+      const registerDto = {
+        email: 'new@example.com',
+        name: 'New User',
+        password: 'password123',
+      };
+      const hashedPassword = 'hashedPassword123';
+      const createdUser = { ...registerDto, id: 1, passwordHash: hashedPassword };
+
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prismaService.user.create as jest.Mock).mockResolvedValue(createdUser);
+
+      const result = await userService.createUser(registerDto);
+
+      expect(result).toEqual(createdUser);
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { email: registerDto.email },
+      });
+      expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
+      expect(prismaService.user.create).toHaveBeenCalledWith({
+        data: {
+          email: registerDto.email,
+          name: registerDto.name,
+          passwordHash: hashedPassword,
+        },
+      });
+    });
+
+    it('should throw BadRequestException if email is already in use', async () => {
+      const registerDto = {
+        email: 'existing@example.com',
+        name: 'Existing User',
+        password: 'password123',
+      };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
+
+      await expect(userService.createUser(registerDto)).rejects.toThrow(BadRequestException);
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { email: registerDto.email },
+      });
+    });
+  });
+
+  describe('validateUser', () => {
+    it('should return user if credentials are valid', async () => {
+      const email = 'test@example.com';
+      const password = 'password123';
+      const hashedPassword = 'hashedPassword123';
+      const user = { id: 1, email, passwordHash: hashedPassword };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+
+      const result = await userService.validateUser(email, password);
+
+      expect(result).toEqual(user);
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { email } });
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
+    });
+
+    it('should return null if user is not found', async () => {
+      const email = 'nonexistent@example.com';
+      const password = 'password123';
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const result = await userService.validateUser(email, password);
+
+      expect(result).toBeNull();
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { email } });
+    });
+
+    it('should return null if password is invalid', async () => {
+      const email = 'test@example.com';
+      const password = 'wrongpassword';
+      const hashedPassword = 'hashedPassword123';
+      const user = { id: 1, email, passwordHash: hashedPassword };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
+
+      const result = await userService.validateUser(email, password);
+
+      expect(result).toBeNull();
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { email } });
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
+    });
+  });
+
+  describe('mapUserToUserInfo', () => {
+    it('should map User to UserInfo', () => {
+      const user: User = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        passwordHash: 'hash',
+        isAdmin: true,
+        avatarPath: 'path/to/avatar',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const result = userService.mapUserToUserInfo(user);
+
+      expect(result).toEqual({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      });
+    });
+
+    it('should set isAdmin to false if not provided', () => {
+      const user: User = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        passwordHash: 'hash',
+        isAdmin: false,
+        avatarPath: 'path/to/avatar',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const result = userService.mapUserToUserInfo(user);
+
+      expect(result).toEqual({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        isAdmin: false,
+      });
     });
   });
 });
