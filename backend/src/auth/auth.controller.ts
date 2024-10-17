@@ -15,11 +15,10 @@ export class AuthController {
   @Post('register')
   @Public()
   async register(
-    @Body() registerDto: Prisma.UserCreateInput,
+    @Body() data: Prisma.UserCreateInput,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log(registerDto);
-    const { token, user } = await this.authService.register(registerDto);
+    const { token, user } = await this.authService.register(data);
     this.authService.setTokenCookie(res, token);
     return { message: 'Registration successful', token, user };
   }

@@ -34,6 +34,17 @@ Content-Type: {{contentType}}
   "password": "password"
 }
 
+###  ユーザー登録
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Alice",
+  "email": "{{randomEmail}}",
+  "password": "password"
+}
+
+
 ###  ユーザーログアウト
 POST {{baseUrl}}/auth/logout
 Content-Type: {{contentType}}
