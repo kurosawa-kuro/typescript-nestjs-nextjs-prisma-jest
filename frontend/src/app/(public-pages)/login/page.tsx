@@ -11,10 +11,10 @@ export default function LoginPage() {
   const { login, isLoggedIn, isLoading, error, user } = useAuthStore();
 
   useEffect(() => {
-    if (isLoggedIn && user) {
+    if (!isLoading && isLoggedIn && user) {
       redirectUser(user.isAdmin);
     }
-  }, [isLoggedIn, user, router]);
+  }, [isLoggedIn, user, isLoading, router]);
 
   const redirectUser = (isAdmin: boolean) => {
     if (isAdmin) {
@@ -26,10 +26,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await login(email, password);
-    if (response) {
-      redirectUser(response.user.isAdmin);
-    }
+    await login(email, password);
+    // リダイレクトは useEffect で処理されるため、ここでは行わない
   };
 
   if (isLoading) {
