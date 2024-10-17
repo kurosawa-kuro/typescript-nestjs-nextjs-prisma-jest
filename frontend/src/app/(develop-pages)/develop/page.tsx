@@ -9,20 +9,21 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function DevelopPage() {
   const router = useRouter();
-  const { login, logout, isLoading, error } = useAuthStore();
+  const { login, logout, isLoading, error, user, flashMessage } = useAuthStore();
   const [loginStatus, setLoginStatus] = useState<string | null>(null);
   const [storageInfo, setStorageInfo] = useState<string>('');
+  const [zustandInfo, setZustandInfo] = useState<string>('');
 
   useEffect(() => {
     updateStorageInfo();
-  }, []);
+    updateZustandInfo();
+  }, [user, isLoading, error, flashMessage]);
 
   const updateStorageInfo = () => {
     const authStorage = localStorage.getItem('auth-storage');
     if (authStorage) {
       try {
         const parsedAuthStorage = JSON.parse(authStorage);
-        // version を除外
         const { version, ...relevantData } = parsedAuthStorage;
         setStorageInfo(JSON.stringify(relevantData, null, 2));
       } catch (error) {
@@ -31,6 +32,16 @@ export default function DevelopPage() {
     } else {
       setStorageInfo('auth-storage not found');
     }
+  };
+
+  const updateZustandInfo = () => {
+    const zustandState = {
+      user,
+      isLoading,
+      error,
+      flashMessage
+    };
+    setZustandInfo(JSON.stringify(zustandState, null, 2));
   };
 
   const handleDemoLogin = async (isAdmin: boolean) => {
@@ -65,40 +76,52 @@ export default function DevelopPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <div className="flex-grow p-8">
-        <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold mb-4 text-center">開発ツール</h1>
-          <button
-            onClick={() => handleDemoLogin(false)}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200 mb-4"
-            disabled={isLoading}
-          >
-            デモユーザーでログイン
-          </button>
-          <button
-            onClick={() => handleDemoLogin(true)}
-            className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200 mb-4"
-            disabled={isLoading}
-          >
-            デモ管理者でログイン
-          </button>
-          <button
-            onClick={handleClearAllData}
-            className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200"
-          >
-            全データを削除
-          </button>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <h1 className="text-3xl font-bold p-6 bg-gray-800 text-white text-center">開発ツール</h1>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <button
+              onClick={() => handleDemoLogin(false)}
+              className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
+              disabled={isLoading}
+            >
+              デモユーザーでログイン
+            </button>
+            <button
+              onClick={() => handleDemoLogin(true)}
+              className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200"
+              disabled={isLoading}
+            >
+              デモ管理者でログイン
+            </button>
+            <button
+              onClick={handleClearAllData}
+              className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200"
+            >
+              全データを削除
+            </button>
+          </div>
           {loginStatus && (
-            <p className="mt-4 text-center text-sm text-gray-600">{loginStatus}</p>
+            <p className="text-center text-sm text-gray-600 mb-4">{loginStatus}</p>
           )}
           {error && (
-            <p className="mt-4 text-center text-sm text-red-600">{error}</p>
+            <p className="text-center text-sm text-red-600 mb-4">{error}</p>
           )}
-          <h2 className="text-xl font-bold mt-8 mb-2">ローカルストレージ情報</h2>
-          <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-60 text-sm whitespace-pre-wrap break-words">
-            {storageInfo}
-          </pre>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-xl font-bold mb-2">Zustand 状態</h2>
+              <pre className="bg-gray-100 p-4 rounded overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+                {zustandInfo}
+              </pre>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold mb-2">ローカルストレージ情報</h2>
+              <pre className="bg-gray-100 p-4 rounded overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+                {storageInfo}
+              </pre>
+            </div>
+          </div>
         </div>
       </div>
     </div>
