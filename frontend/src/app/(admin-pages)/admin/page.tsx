@@ -18,11 +18,6 @@ export default function AdminPages() {
     }
   }, [user, isLoading, router]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -39,12 +34,6 @@ export default function AdminPages() {
         <p>Email: <span className="inline-block w-32">{user.email}</span></p>
         <p>Role: <span className="inline-block w-32">Administrator</span></p>
       </div>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-      >
-        Logout
-      </button>
     </div>
   );
 }
