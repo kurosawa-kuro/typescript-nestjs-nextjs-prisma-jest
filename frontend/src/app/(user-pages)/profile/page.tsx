@@ -20,8 +20,8 @@ export default function UserPages() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold mb-4 text-black">User Profile</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <h1 className="text-3xl font-bold mb-4 text-black">User Profile</h1>
       <div className="mb-4 text-black">
         <p>Name: <span className="inline-block w-32">{isLoading ? '\u00A0' : user?.name}</span></p>
         <p>Email: <span className="inline-block w-32">{isLoading ? '\u00A0' : user?.email}</span></p>

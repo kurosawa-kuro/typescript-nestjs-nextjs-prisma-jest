@@ -6,7 +6,7 @@ export default function UserPagesLayout({
   children: React.ReactNode
 }) {
   return (
-    <div>
+    <div className="bg-white text-black">
       <Navigation />
       <main>{children}</main>
     </div>
