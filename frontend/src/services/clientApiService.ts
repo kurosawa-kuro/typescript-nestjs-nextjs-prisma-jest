@@ -1,7 +1,7 @@
 import { LoginResponse, User } from '../types/models';
 import { ApiClient } from './apiClient';
 
-export const ClientApiService = {
+export const ClientSideApiService = {
   login: (email: string, password: string) => 
     ApiClient.post<LoginResponse>('/auth/login', { email, password }),
 

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { ClientApiService } from '@/services/clientApiService';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,7 +28,7 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await login(email, password);
+      await login(email, password);
       // The login function from useAuthStore should handle setting the user
     } catch (error) {
       setError('Login failed. Please check your credentials.');

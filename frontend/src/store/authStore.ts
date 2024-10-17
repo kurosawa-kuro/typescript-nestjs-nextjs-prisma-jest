@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { AuthState, LoginResponse } from '../types/models';
-import { ClientApiService } from '../services/clientApiService';
+import { ClientSideApiService } from '../services/clientApiService';
 
 
 
@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState & {
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await ClientApiService.login(email, password);
+          const response = await ClientSideApiService.login(email, password);
           set({ user: response.user, isLoading: false, flashMessage: 'Login successful!' });
           return response;
         } catch (error) {
@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState & {
 
       logout: async () => {
         try {
-          await ClientApiService.logout();
+          await ClientSideApiService.logout();
           set({ user: null });
         } catch (error) {
           console.error('Logout error:', error);
