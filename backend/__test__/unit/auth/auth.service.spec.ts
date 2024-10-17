@@ -4,6 +4,7 @@ import { UserService } from '../../../src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
+import { Request } from 'express';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -114,6 +115,13 @@ describe('AuthService', () => {
       expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
       expect(jwtService.signAsync).toHaveBeenCalledWith(mockUserInfo, expect.any(Object));
     });
+
+    it('should throw BadRequestException for invalid credentials', async () => {
+      const mockCredentials = { email: 'invalid@example.com', password: 'wrongpassword' };
+      userService.validateUser.mockResolvedValue(null);
+
+      await expect(service.login(mockCredentials)).rejects.toThrow('Invalid credentials');
+    });
   });
 
   describe('logout', () => {
@@ -124,6 +132,100 @@ describe('AuthService', () => {
 
       expect(result).toEqual({ message: 'Logout successful' });
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('jwt');
+    });
+  });
+
+  describe('getUserFromToken', () => {
+    it('should return user info from a valid token', async () => {
+      const mockRequest = {
+        cookies: { jwt: 'valid_token' },
+        headers: {},
+      } as Request;
+
+      jwtService.verifyAsync.mockResolvedValue(mockUserInfo);
+
+      const result = await service.getUserFromToken(mockRequest);
+
+      expect(result).toEqual(mockUserInfo);
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid_token', { secret: 'JWT_SECRET' });
+    });
+
+    it('should throw UnauthorizedException when no token is provided', async () => {
+      const mockRequest = {
+        cookies: {},
+        headers: {},
+      } as unknown as Request;
+
+      await expect(service.getUserFromToken(mockRequest)).rejects.toThrow('No token provided');
+    });
+  });
+
+  describe('setTokenCookie', () => {
+    it('should set a JWT cookie', () => {
+      const mockResponse = {
+        cookie: jest.fn(),
+      } as unknown as Response;
+
+      service.setTokenCookie(mockResponse, mockToken);
+
+      expect(mockResponse.cookie).toHaveBeenCalledWith('jwt', mockToken, {
+        httpOnly: true,
+        secure: false, // Because NODE_ENV is not 'production' in test environment
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+    });
+  });
+
+  describe('verifyToken', () => {
+    it('should verify a valid token', async () => {
+      jwtService.verifyAsync.mockResolvedValue(mockUserInfo);
+
+      const result = await service['verifyToken'](mockToken);
+
+      expect(result).toEqual(mockUserInfo);
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith(mockToken, { secret: 'JWT_SECRET' });
+    });
+
+    it('should throw an error for an invalid token', async () => {
+      jwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
+
+      await expect(service['verifyToken']('invalid_token')).rejects.toThrow('Invalid token');
+    });
+  });
+
+  describe('extractTokenFromRequest', () => {
+    it('should extract token from cookies', () => {
+      const mockRequest = {
+        cookies: { jwt: 'cookie_token' },
+        headers: {},
+      } as unknown as Request;
+
+      const result = service['extractTokenFromRequest'](mockRequest);
+
+      expect(result).toBe('cookie_token');
+    });
+
+    it('should extract token from Authorization header', () => {
+      const mockRequest = {
+        cookies: {},
+        headers: { authorization: 'Bearer header_token' },
+      } as unknown as Request;
+
+      const result = service['extractTokenFromRequest'](mockRequest);
+
+      expect(result).toBe('header_token');
+    });
+
+    it('should return undefined if no token is found', () => {
+      const mockRequest = {
+        cookies: {},
+        headers: {},
+      } as unknown as Request;
+
+      const result = service['extractTokenFromRequest'](mockRequest);
+
+      expect(result).toBeUndefined();
     });
   });
 });
