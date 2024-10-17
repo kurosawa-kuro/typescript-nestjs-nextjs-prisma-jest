@@ -5,6 +5,7 @@ import { User } from './decorators/user.decorator';
 import { Response } from 'express';
 import { SigninDto, RegisterDto, UserInfo } from '../types/auth.types';
 import { AuthGuard } from './guards/auth.guard';
+import { Request } from 'express';
 
 @Controller('auth')
 @UseGuards(AuthGuard)
@@ -35,8 +36,8 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Res({ passthrough: true }) res: Response) {
-    this.authService.clearTokenCookie(res);
-    return { message: 'Logout successful' };
+    const result = await this.authService.logout(res);
+    return result;
   }
 
   @Get('me')

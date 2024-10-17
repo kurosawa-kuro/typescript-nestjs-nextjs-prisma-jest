@@ -23,9 +23,14 @@ export class AuthService {
   }
 
   // Authentication methods
-  async register(registerDto: RegisterDto): Promise<string> {
+  async register(registerDto: RegisterDto): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.createUser(registerDto);
-    return this.signToken(this.userService.mapUserToUserInfo(user));
+    const userInfo = this.userService.mapUserToUserInfo(user);
+    const token = await this.jwtService.signAsync(userInfo, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: '1d'
+    });
+    return { token, user: userInfo };
   }
 
   async signin(signinDto: SigninDto): Promise<{ token: string; user: UserInfo }> {
@@ -39,6 +44,11 @@ export class AuthService {
     const userInfo = this.userService.mapUserToUserInfo(user);
     const token = await this.signToken(userInfo);
     return { token, user: userInfo };
+  }
+
+  async logout(res: Response) {
+    this.clearTokenCookie(res);
+    return { message: 'Logout successful' };
   }
 
   async getUserFromToken(request: Request): Promise<UserInfo> {

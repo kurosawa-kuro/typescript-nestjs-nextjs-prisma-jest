@@ -41,7 +41,7 @@ Content-Type: {{contentType}}
 ###  me
 GET {{baseUrl}}/auth/me
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IkFsaWNlIiwiZW1haWwiOiJhbGljZUBleGFtcGxlLmNvbSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3MjkwNzUyMDgsImV4cCI6MTcyOTE2MTYwOH0.3iC55bvAgcUHOhLUGWhaHX-6C3GYnptkDBGYw6XzBnI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IkFsaWNlIiwiZW1haWwiOiJhbGljZUBleGFtcGxlLmNvbSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3MjkxNzI0NjQsImV4cCI6MTcyOTI1ODg2NH0.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
 
 ###  管理者ログイン
 POST {{baseUrl}}/auth/login
