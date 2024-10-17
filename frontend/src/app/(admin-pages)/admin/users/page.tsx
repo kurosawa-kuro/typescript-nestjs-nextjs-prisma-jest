@@ -1,8 +1,8 @@
-import { ServerApiService } from '@/services/serverApiService';
+import { getUsers } from '@/app/actions/users';
 import { User } from '@/types/models';
 
 export default async function UsersPage() {
-  const users: User[] = await ServerApiService.getUsers();
+  const users: User[] = await getUsers();
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
