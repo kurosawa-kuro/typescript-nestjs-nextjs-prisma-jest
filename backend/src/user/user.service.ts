@@ -98,23 +98,16 @@ export class UserService extends BaseService<
   //   });
   // }
 
-  override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
-    const { password, ...userData } = data as { password: string } & Prisma.UserCreateInput;
-    const passwordHash = await this.hashPassword(password);
-    
+  override async create(data: Prisma.UserCreateInput & { password: string }): Promise<Partial<User>> {
+    const { password, ...userData } = data;
     const user = await this.prisma.user.create({
       data: {
         ...userData,
-        passwordHash,
+        passwordHash: await this.hashPassword(password),
         isAdmin: false,
       },
     });
 
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin || false,
-    };
+    return this.mapUserToUserInfo(user);
   }
 }

@@ -15,7 +15,7 @@ export class AuthController {
   @Post('register')
   @Public()
   async register(
-    @Body() data: Prisma.UserCreateInput,
+    @Body() data: Prisma.UserCreateInput & { password: string },
     @Res({ passthrough: true }) res: Response,
   ) {
     const { token, user } = await this.authService.register(data);
