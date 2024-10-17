@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthState & {
         try {
           await ClientSideApiService.logout();
           set({ user: null });
+          window.location.href = '/';
         } catch (error) {
           console.error('Logout error:', error);
         }
