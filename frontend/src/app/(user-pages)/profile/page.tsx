@@ -7,12 +7,8 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function UserPages() {
   const router = useRouter();
-  const { user,  isLoading, flashMessage, setFlashMessage } = useAuthStore();
+  const { user, isLoading, flashMessage, setFlashMessage } = useAuthStore();
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-  
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
@@ -32,6 +28,10 @@ export default function UserPages() {
     }
   }, [flashMessage, setFlashMessage]);
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       {flashMessage && (
@@ -41,8 +41,8 @@ export default function UserPages() {
       )}
       <h1 className="text-3xl font-bold mb-4 text-black">User Profile</h1>
       <div className="mb-4 text-black">
-        <p>Name: <span className="inline-block w-32">{isLoading ? '\u00A0' : user?.name}</span></p>
-        <p>Email: <span className="inline-block w-32">{isLoading ? '\u00A0' : user?.email}</span></p>
+        <p>Name: <span className="inline-block w-32">{user?.name || '\u00A0'}</span></p>
+        <p>Email: <span className="inline-block w-32">{user?.email || '\u00A0'}</span></p>
       </div>
     </div>
   );
