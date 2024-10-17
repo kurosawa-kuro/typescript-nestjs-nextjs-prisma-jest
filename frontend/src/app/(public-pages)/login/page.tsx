@@ -9,28 +9,24 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const { login, user, isLoading, error } = useAuthStore();
+  const { login, isLoading, error, user } = useAuthStore();
 
   useEffect(() => {
-    if (!isLoading && user) {
-      redirectUser(user.isAdmin);
+    if (user) {
+      if (user.isAdmin) {
+        router.replace('/admin');
+      } else {
+        router.replace('/profile');
+      }
     }
-  }, [user, isLoading, router]);
-
-  const redirectUser = (isAdmin: boolean) => {
-    if (isAdmin) {
-      router.push('/admin');
-    } else {
-      router.push('/profile');
-    }
-  };
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await login(email, password);
   };
 
-  if (isLoading) {
+  if (isLoading || user) {
     return <LoadingSpinner />;
   }
 

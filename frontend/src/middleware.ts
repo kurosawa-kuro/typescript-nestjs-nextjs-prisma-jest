@@ -5,6 +5,11 @@ import { ApiService } from './services/apiService'
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt')?.value;
 
+  // ログインページへのアクセスの場合は、処理をスキップ
+  if (request.nextUrl.pathname === '/login') {
+    return NextResponse.next();
+  }
+
   if (!token) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -23,10 +28,13 @@ export async function middleware(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error in middleware:', error);
-    return NextResponse.redirect(new URL('/login', request.url));
+    // エラーが発生した場合、クッキーを削除してからログインページにリダイレクト
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('jwt');
+    return response;
   }
 }
 
 export const config = {
-  matcher: ['/profile/:path*', '/admin/:path*'],
+  matcher: ['/login', '/profile/:path*', '/admin/:path*'],
 };
