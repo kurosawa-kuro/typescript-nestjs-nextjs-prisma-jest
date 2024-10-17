@@ -18,9 +18,7 @@ export const useAuthStore = create<AuthState & {
         set({ isLoading: true, error: null });
         try {
           const response = await ApiService.login(email, password);
-          const { user, token } = response;
-          localStorage.setItem('token', token);
-          set({ isLoggedIn: true, user, isLoading: false });
+          set({ isLoggedIn: true, user: response.user, isLoading: false });
           return response;
         } catch (error) {
           set({ isLoading: false, error: 'Login failed' });
@@ -31,7 +29,6 @@ export const useAuthStore = create<AuthState & {
       logout: async () => {
         try {
           await ApiService.logout();
-          localStorage.removeItem('token');
           set({ isLoggedIn: false, user: null });
         } catch (error) {
           console.error('Logout error:', error);
