@@ -18,8 +18,8 @@ const DevelopSidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link href="/admin" className="block py-2 px-4 hover:bg-gray-700 rounded">
-              Admin
+            <Link href="/" className="block py-2 px-4 hover:bg-gray-700 rounded">
+              Public
             </Link>
           </li>
           <li>
@@ -28,18 +28,8 @@ const DevelopSidebar: React.FC = () => {
             </Link>
           </li>
           <li>
-            <Link href="/develop/api-test" className="block py-2 px-4 hover:bg-gray-700 rounded">
-              API テスト
-            </Link>
-          </li>
-          <li>
-            <Link href="/develop/database" className="block py-2 px-4 hover:bg-gray-700 rounded">
-              データベース管理
-            </Link>
-          </li>
-          <li>
-            <Link href="/develop/logs" className="block py-2 px-4 hover:bg-gray-700 rounded">
-              ログ表示
+            <Link href="/admin" className="block py-2 px-4 hover:bg-gray-700 rounded">
+              Admin
             </Link>
           </li>
         </ul>
