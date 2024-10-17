@@ -1,22 +1,29 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AuthState, LoginResponse } from '../types/models';
+import { AuthState, LoginResponse, TokenUser } from '../types/models';
 import { ClientSideApiService } from '../services/ClientSideApiService';
 import { useFlashMessageStore } from './flashMessageStore';
 
-export const useAuthStore = create<AuthState & {
+interface AuthActions {
   login: (email: string, password: string) => Promise<LoginResponse | null>;
   logout: () => Promise<void>;
-  clearStorage?: () => void;
   resetStore: () => void;
-}>()(
+  setUser: (user: TokenUser | null) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
+}
+
+const initialState: Omit<AuthState, 'resetStore' | 'login' | 'logout'> = {
+  user: null,
+  isLoading: false,
+  error: null,
+};
+
+export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
-      user: null,
-      isLoading: false,
-      error: null,
-      flashMessage: null,
-      setFlashMessage: () => {},
+    (set, get) => ({
+      ...initialState,
+      resetStore: () => set(initialState),
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
@@ -29,28 +36,20 @@ export const useAuthStore = create<AuthState & {
           return null;
         }
       },
-
       logout: async () => {
         try {
           await ClientSideApiService.logout();
-          set({ user: null, error: null });
-          
-          localStorage.removeItem('auth-storage');
-          
-          document.cookie.split(";").forEach((c) => {
-            document.cookie = c
-              .replace(/^ +/, "")
-              .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-          });
-          
-          useAuthStore.persist.clearStorage();
+          get().resetStore();
+          clearAuthData();
           useFlashMessageStore.getState().setFlashMessage('Logged out successfully');
           window.location.href = '/';
         } catch (error) {
           console.error('Logout error:', error);
         }
       },
-      resetStore: () => set({ user: null, isLoading: false, error: null }),
+      setUser: (user: TokenUser | null) => set({ user }),
+      setLoading: (isLoading: boolean) => set({ isLoading }),
+      setError: (error: string | null) => set({ error }),
     }),
     {
       name: 'auth-storage',
@@ -59,3 +58,13 @@ export const useAuthStore = create<AuthState & {
     }
   )
 );
+
+function clearAuthData() {
+  localStorage.removeItem('auth-storage');
+  document.cookie.split(";").forEach((c) => {
+    document.cookie = c
+      .replace(/^ +/, "")
+      .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+  });
+  useAuthStore.persist.clearStorage();
+}
