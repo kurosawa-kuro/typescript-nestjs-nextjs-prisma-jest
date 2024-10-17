@@ -7,15 +7,15 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
-export default function DemoLoginPage() {
+export default function DevelopPage() {
   const router = useRouter();
-  const { login, isLoading, error } = useAuthStore();
+  const { login, logout, isLoading, error } = useAuthStore();
   const [loginStatus, setLoginStatus] = useState<string | null>(null);
 
-  const handleDemoLogin = async () => {
+  const handleDemoLogin = async (isAdmin: boolean) => {
     setLoginStatus('ログイン中...');
-    const email = 'alice@example.com'; // デモユーザーのメールアドレス
-    const password = 'password'; // デモユーザーのパスワード
+    const email = isAdmin ? 'admin@example.com' : 'alice@example.com';
+    const password = 'password';
 
     const success = await login(email, password);
 
@@ -32,6 +32,18 @@ export default function DemoLoginPage() {
     }
   };
 
+  const handleClearAllData = () => {
+    logout();
+    localStorage.clear();
+    sessionStorage.clear();
+    document.cookie.split(";").forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    setLoginStatus('全てのデータがクリアされました。');
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -39,13 +51,26 @@ export default function DemoLoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-4 text-center">デモログイン</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">開発ツール</h1>
         <button
-          onClick={handleDemoLogin}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
+          onClick={() => handleDemoLogin(false)}
+          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200 mb-4"
           disabled={isLoading}
         >
           デモユーザーでログイン
+        </button>
+        <button
+          onClick={() => handleDemoLogin(true)}
+          className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-200 mb-4"
+          disabled={isLoading}
+        >
+          デモ管理者でログイン
+        </button>
+        <button
+          onClick={handleClearAllData}
+          className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200"
+        >
+          全データを削除
         </button>
         {loginStatus && (
           <p className="mt-4 text-center text-sm text-gray-600">{loginStatus}</p>
