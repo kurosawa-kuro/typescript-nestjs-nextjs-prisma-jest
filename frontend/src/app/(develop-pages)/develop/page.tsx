@@ -5,11 +5,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { useFlashMessageStore } from '@/store/flashMessageStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function DevelopPage() {
   const router = useRouter();
-  const { login, logout, isLoading, error, user } = useAuthStore();
+  const { login, logout, isLoading, error, user, resetStore } = useAuthStore();
+  const { message: flashMessage,   clearFlashMessage } = useFlashMessageStore();
   const [loginStatus, setLoginStatus] = useState<string | null>(null);
   const [storageInfo, setStorageInfo] = useState<string>('');
   const [zustandInfo, setZustandInfo] = useState<string>('');
@@ -31,17 +33,22 @@ export default function DevelopPage() {
 
   const updateZustandInfo = useCallback(() => {
     const zustandState = {
-      user,
-      isLoading,
-      error
+      auth: {
+        user,
+        isLoading,
+        error
+      },
+      flashMessage: {
+        message: flashMessage
+      }
     };
     setZustandInfo(JSON.stringify(zustandState, null, 2));
-  }, [user, isLoading, error]);
+  }, [user, isLoading, error, flashMessage]);
 
   useEffect(() => {
     updateStorageInfo();
     updateZustandInfo();
-  }, [user, isLoading, error, updateStorageInfo, updateZustandInfo]);
+  }, [user, isLoading, error, flashMessage, updateStorageInfo, updateZustandInfo]);
 
   const handleDemoLogin = async (isAdmin: boolean) => {
     setLoginStatus('ログイン中...');
@@ -51,11 +58,12 @@ export default function DevelopPage() {
     const success = await login(email, password);
 
     if (success) {
-      setLoginStatus('ログイン成功！リダイレクトします...');
+      setLoginStatus('ログイン成功！新しいタブで開きます...');
       updateStorageInfo(); // ログイン後にストレージ情報を更新
       const { user } = useAuthStore.getState();
       if (user) {
-        router.push(user.isAdmin ? '/admin' : '/profile');
+        const url = user.isAdmin ? '/admin' : '/profile';
+        window.open(url, '_blank');
       }
     } else {
       setLoginStatus('ログインに失敗しました。');
@@ -65,7 +73,10 @@ export default function DevelopPage() {
   const handleClearAllData = () => {
     localStorage.clear();
     sessionStorage.clear();
+    resetStore(); // AuthStore をリセット
+    clearFlashMessage(); // FlashMessageStore をリセット
     updateStorageInfo();
+    updateZustandInfo();
     setLoginStatus('全てのデータがクリアされました。');
   };
 

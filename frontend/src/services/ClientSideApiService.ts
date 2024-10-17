@@ -1,4 +1,4 @@
-import { LoginResponse, User } from '../types/models';
+import { LoginResponse, TokenUser } from '../types/models';
 import { ApiClient } from './apiClient';
 
 export const ClientSideApiService = {
@@ -7,7 +7,7 @@ export const ClientSideApiService = {
 
   logout: () => ApiClient.post('/auth/logout', {}),
 
-  me: (token: string) => ApiClient.get<User>('/auth/me', {
+  me: (token: string) => ApiClient.get<TokenUser>('/auth/me', {
     headers: { Authorization: `Bearer ${token}` }
   }),
 };

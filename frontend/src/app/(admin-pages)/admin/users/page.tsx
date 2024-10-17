@@ -1,8 +1,8 @@
 import { getUsers } from '@/app/actions/users';
-import { User } from '@/types/models';
+import { TokenUser } from '@/types/models';
 
 export default async function UsersPage() {
-  const users: User[] = await getUsers();
+  const users: TokenUser[] = await getUsers();
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">

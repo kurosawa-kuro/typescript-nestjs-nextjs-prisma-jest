@@ -1,4 +1,5 @@
-export interface User {
+// TokenUserに変更したい
+export interface TokenUser {
   id: string;
   name: string;
   email: string;
@@ -8,16 +9,16 @@ export interface User {
 
 export interface LoginResponse {
   token: string;
-  user: User;
+  user: TokenUser;
 }
 
 export interface AuthState {
-  user: User | null;
+  user: TokenUser | null;
   isLoading: boolean;
   error: string | null;
+  resetStore: () => void;
   login: (email: string, password: string) => Promise<LoginResponse | null>;
   logout: () => Promise<void>;
-
 }
 
 export interface ApiError extends Error {

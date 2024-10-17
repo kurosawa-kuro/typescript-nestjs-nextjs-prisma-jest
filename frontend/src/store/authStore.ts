@@ -8,6 +8,7 @@ export const useAuthStore = create<AuthState & {
   login: (email: string, password: string) => Promise<LoginResponse | null>;
   logout: () => Promise<void>;
   clearStorage?: () => void;
+  resetStore: () => void;
 }>()(
   persist(
     (set) => ({
@@ -49,6 +50,7 @@ export const useAuthStore = create<AuthState & {
           console.error('Logout error:', error);
         }
       },
+      resetStore: () => set({ user: null, isLoading: false, error: null }),
     }),
     {
       name: 'auth-storage',
