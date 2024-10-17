@@ -78,7 +78,7 @@ export default function DevelopPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        <h1 className="text-3xl font-bold p-6 bg-gray-800 text-white text-center">開発ツール</h1>
+        <h1 className=" font-bold p-6 bg-gray-800 text-white text-center">開発ツール</h1>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <button
@@ -109,15 +109,15 @@ export default function DevelopPage() {
             <p className="text-center text-sm text-red-600 mb-4">{error}</p>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h2 className="text-xl font-bold mb-2">Zustand 状態</h2>
-              <pre className="bg-gray-100 p-4 rounded overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <h2 className="text-xl font-bold mb-2 p-3 bg-blue-100 border-b border-gray-300">Zustand 状態</h2>
+              <pre className="bg-white p-4 overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
                 {zustandInfo}
               </pre>
             </div>
-            <div>
-              <h2 className="text-xl font-bold mb-2">ローカルストレージ情報</h2>
-              <pre className="bg-gray-100 p-4 rounded overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+            <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <h2 className="text-xl font-bold mb-2 p-3 bg-green-100 border-b border-gray-300">ローカルストレージ情報</h2>
+              <pre className="bg-white p-4 overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
                 {storageInfo}
               </pre>
             </div>
