@@ -11,6 +11,7 @@ export default function LoginPage() {
   const { login, isLoggedIn, isLoading, error } = useAuthStore();
 
   useEffect(() => {
+    console.log("isLoggedIn", isLoggedIn);
     if (isLoggedIn) {
       router.push('/profile');
     }

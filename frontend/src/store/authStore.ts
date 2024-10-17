@@ -3,7 +3,10 @@ import { persist } from 'zustand/middleware';
 import { AuthState, User } from '../types/models';
 import { ApiService } from '../services/apiService';
 
-export const useAuthStore = create<AuthState>()(
+export const useAuthStore = create<AuthState & {
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+}>()(
   persist(
     (set) => ({
       isLoggedIn: false,
@@ -11,10 +14,11 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
 
-      login: async (email: string, password: string) => {
+      login: async (email, password) => {
         set({ isLoading: true, error: null });
         try {
-          const { user } = await ApiService.login(email, password);
+          const { user, token } = await ApiService.login(email, password);
+          localStorage.setItem('token', token);
           set({ isLoggedIn: true, user, isLoading: false });
           return true;
         } catch (error) {
@@ -26,6 +30,7 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           await ApiService.logout();
+          localStorage.removeItem('token');
           set({ isLoggedIn: false, user: null });
         } catch (error) {
           console.error('Logout error:', error);
