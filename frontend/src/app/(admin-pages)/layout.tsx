@@ -6,9 +6,9 @@ export default function AdminPagesLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-white text-black">
+    <div className="flex bg-white text-black">
       <Navigation />
-      <main>{children}</main>
+      <main className="flex-grow p-8">{children}</main>
     </div>
   );
 }
