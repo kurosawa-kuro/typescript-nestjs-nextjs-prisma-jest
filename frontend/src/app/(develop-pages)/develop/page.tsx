@@ -9,7 +9,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function DevelopPage() {
   const router = useRouter();
-  const { login, logout, isLoading, error, user, flashMessage } = useAuthStore();
+  const { login, logout, isLoading, error, user } = useAuthStore();
   const [loginStatus, setLoginStatus] = useState<string | null>(null);
   const [storageInfo, setStorageInfo] = useState<string>('');
   const [zustandInfo, setZustandInfo] = useState<string>('');
@@ -33,16 +33,15 @@ export default function DevelopPage() {
     const zustandState = {
       user,
       isLoading,
-      error,
-      flashMessage
+      error
     };
     setZustandInfo(JSON.stringify(zustandState, null, 2));
-  }, [user, isLoading, error, flashMessage]);
+  }, [user, isLoading, error]);
 
   useEffect(() => {
     updateStorageInfo();
     updateZustandInfo();
-  }, [user, isLoading, error, flashMessage, updateStorageInfo, updateZustandInfo]);
+  }, [user, isLoading, error, updateStorageInfo, updateZustandInfo]);
 
   const handleDemoLogin = async (isAdmin: boolean) => {
     setLoginStatus('ログイン中...');
@@ -64,11 +63,17 @@ export default function DevelopPage() {
   };
 
   const handleClearAllData = () => {
-    logout();
     localStorage.clear();
     sessionStorage.clear();
     updateStorageInfo();
     setLoginStatus('全てのデータがクリアされました。');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setLoginStatus('ログアウトしました。');
+    updateStorageInfo();
+    updateZustandInfo();
   };
 
   if (isLoading) {
@@ -78,9 +83,9 @@ export default function DevelopPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        <h1 className=" font-bold py-2 bg-gray-800 text-white text-center">開発ツール</h1>
+        <h1 className="font-bold py-2 bg-gray-800 text-white text-center">開発ツール</h1>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <button
               onClick={() => handleDemoLogin(false)}
               className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
@@ -94,6 +99,13 @@ export default function DevelopPage() {
               disabled={isLoading}
             >
               デモ管理者でログイン
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition duration-200"
+              disabled={isLoading}
+            >
+              ログアウト
             </button>
             <button
               onClick={handleClearAllData}

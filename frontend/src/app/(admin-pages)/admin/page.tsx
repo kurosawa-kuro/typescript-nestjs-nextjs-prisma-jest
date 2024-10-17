@@ -3,11 +3,13 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { useFlashMessageStore } from '@/store/flashMessageStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function AdminPages() {
   const router = useRouter();
-  const { user,  isLoading, flashMessage, setFlashMessage } = useAuthStore();
+  const { user, isLoading } = useAuthStore();
+  const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
 
   useEffect(() => {
     if (!isLoading) {
@@ -15,9 +17,12 @@ export default function AdminPages() {
         router.push('/login');
       } else if (!user.isAdmin) {
         router.push('/profile');
+      } else {
+        // 管理者ログイン成功時にフラッシュメッセージを設定
+        setFlashMessage('管理者としてログインしました');
       }
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, setFlashMessage]);
 
   useEffect(() => {
     if (flashMessage) {
