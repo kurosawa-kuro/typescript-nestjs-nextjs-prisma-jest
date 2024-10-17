@@ -32,24 +32,17 @@ export const useAuthStore = create<AuthState & {
       logout: async () => {
         try {
           await ClientSideApiService.logout();
-          
-          // Zustandの状態をリセット
           set({ user: null, error: null, flashMessage: null });
           
-          // ローカルストレージをクリア
           localStorage.removeItem('auth-storage');
           
-          // クッキーをクリア（必要に応じて）
           document.cookie.split(";").forEach((c) => {
             document.cookie = c
               .replace(/^ +/, "")
               .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
           });
           
-          // Zustandのストレージをクリア
           useAuthStore.persist.clearStorage();
-          
-          // ページをリロード（オプション）
           window.location.href = '/';
         } catch (error) {
           console.error('Logout error:', error);
