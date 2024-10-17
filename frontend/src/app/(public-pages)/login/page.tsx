@@ -8,21 +8,27 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  const { login, isLoggedIn, isLoading, error } = useAuthStore();
+  const { login, isLoggedIn, isLoading, error, user } = useAuthStore();
 
   useEffect(() => {
-    console.log("isLoggedIn", isLoggedIn);
-    if (isLoggedIn) {
+    if (isLoggedIn && user) {
+      redirectUser(user.isAdmin);
+    }
+  }, [isLoggedIn, user, router]);
+
+  const redirectUser = (isAdmin: boolean) => {
+    if (isAdmin) {
+      router.push('/admin');
+    } else {
       router.push('/profile');
     }
-  }, [isLoggedIn, router]);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const success = await login(email, password);
-    console.log("success",success);
-    if (success) {
-      router.push('/profile');
+    const response = await login(email, password);
+    if (response) {
+      redirectUser(response.user.isAdmin);
     }
   };
 

@@ -8,19 +8,11 @@ export default function UserPages() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
 
-  // useEffect(() => {
-  //   console.log("userEffect");
-  //   console.log("user", user);
-  //   console.log("user?.isAdmin", user?.isAdmin);
-  // }, [user]);
-
   useLayoutEffect(() => {
     console.log("useLayoutEffect");
     console.log("user", user);
     console.log("user?.isAdmin", user?.isAdmin);
   }, []);
-
-
 
   const handleLogout = async () => {
     await logout();
