@@ -1,3 +1,4 @@
+// Todo: TokenUserに変更
 export interface UserInfo {
   id: number;
   name: string;

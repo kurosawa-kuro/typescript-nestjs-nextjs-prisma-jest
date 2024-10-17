@@ -14,8 +14,8 @@ export abstract class BaseService<
 
   protected abstract getRepository(): any;
 
-  async create(data: CreateInput): Promise<T> {
-    return this.getRepository().create({ data }) as Promise<T>;
+  async create(data: CreateInput): Promise<Partial<T>> {
+    return this.getRepository().create({ data }) as Promise<Partial<T>>;
   }
 
   async all(): Promise<T[]> {

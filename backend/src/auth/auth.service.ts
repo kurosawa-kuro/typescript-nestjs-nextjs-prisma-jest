@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { LoginDto, RegisterDto, UserInfo } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
+import { Prisma, User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -24,10 +25,10 @@ export class AuthService {
 
   // Authentication methods
   async register(
-    registerDto: RegisterDto,
+    data: Prisma.UserCreateInput,
   ): Promise<{ token: string; user: UserInfo }> {
-    const user = await this.userService.createUser(registerDto);
-    const userInfo = this.userService.mapUserToUserInfo(user);
+    const user = await this.userService.create(data);
+    const userInfo = this.userService.mapUserToUserInfo(user as User);
     const token = await this.jwtService.signAsync(userInfo, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: '1d',

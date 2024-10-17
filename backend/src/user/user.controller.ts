@@ -12,7 +12,8 @@ export class UserController extends BaseController<User> {
 
   @Public()
   @Get()
-  async index() {
-    return super.index();
+  override async index(): Promise<User[]> {
+    const usersWithoutPassword = await this.userService.getAllWithoutPassword();
+    return usersWithoutPassword as User[];
   }
 }

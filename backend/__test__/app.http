@@ -61,7 +61,7 @@ Content-Type: {{contentType}}
 {
   "name": "John Doe",
   "email": "{{randomEmail}}",
-  "password": "password"
+  "password": "password",
   "isAdmin": false
 }
 

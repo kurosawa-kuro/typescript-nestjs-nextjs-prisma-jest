@@ -23,24 +23,14 @@ export class UserService extends BaseService<
     return this.prisma.user;
   }
 
-  async createUser(registerDto: RegisterDto): Promise<User> {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: registerDto.email },
-    });
+  // base.serviceのcreateをオーバーライドする
+  // 引数はRegisterDtoを受け取る
+  // passwordHashを生成して、dataにpasswordHashを追加する
+  // ユーザーを作成する
+  // パスワードを除いたユーザーデータを返す
 
-    if (existingUser) {
-      throw new BadRequestException('Email already in use');
-    }
 
-    const hashedPassword = await this.hashPassword(registerDto.password);
-    return await this.prisma.user.create({
-      data: {
-        email: registerDto.email,
-        name: registerDto.name,
-        passwordHash: hashedPassword,
-      },
-    });
-  }
+
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
@@ -72,6 +62,22 @@ export class UserService extends BaseService<
     };
   }
 
+    // Todo: allをオーバーライドする
+  async getAllWithoutPassword(): Promise<Omit<User, 'passwordHash'>[]> {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isAdmin: true,
+        avatarPath: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return users;
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
@@ -81,5 +87,34 @@ export class UserService extends BaseService<
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
+  }
+
+  // Add this method to handle registration
+  // async register(registerDto: RegisterDto): Promise<User> {
+  //   return this.create({
+  //     email: registerDto.email,
+  //     name: registerDto.name,
+  //     password: registerDto.password,
+  //   });
+  // }
+
+  override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
+    const { password, ...userData } = data as { password: string } & Prisma.UserCreateInput;
+    const passwordHash = await this.hashPassword(password);
+    
+    const user = await this.prisma.user.create({
+      data: {
+        ...userData,
+        passwordHash,
+        isAdmin: false,
+      },
+    });
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin || false,
+    };
   }
 }
