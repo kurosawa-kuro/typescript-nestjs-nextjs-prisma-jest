@@ -103,36 +103,25 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return a token and user info', async () => {
-      const mockCredentials = { email: 'testuser@example.com', password: 'password123' };
-      const mockUser = {
-        id: 1,
-        email: 'testuser@example.com',
-        name: 'Test User',
-        passwordHash: 'hashedpassword123',
-        isAdmin: false,
-        avatarPath: '',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      const mockUserInfo = {
-        id: 1,
-        email: 'testuser@example.com',
-        name: 'Test User',
-        isAdmin: false
-      };
+      const mockCredentials = { email: 'test@example.com', password: 'password123' };
+
       userService.validateUser.mockResolvedValue(mockUser);
-      userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
-      jwtService.signAsync.mockResolvedValue('mock_token');
 
       const result = await service.login(mockCredentials);
-      expect(result).toEqual({ token: 'mock_token', user: mockUserInfo });
+
+      expect(result).toEqual({ token: mockToken, user: mockUserInfo });
+      expect(userService.validateUser).toHaveBeenCalledWith(mockCredentials.email, mockCredentials.password);
+      expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
+      expect(jwtService.signAsync).toHaveBeenCalledWith(mockUserInfo, expect.any(Object));
     });
   });
 
   describe('logout', () => {
-    it('should return a success message', async () => {
+    it('should clear the jwt cookie and return a success message', async () => {
       const mockResponse = { clearCookie: jest.fn() } as unknown as Response;
+
       const result = await service.logout(mockResponse);
+
       expect(result).toEqual({ message: 'Logout successful' });
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('jwt');
     });
