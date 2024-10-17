@@ -3,11 +3,16 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function UserPages() {
   const router = useRouter();
   const { user, logout, isLoading, flashMessage, setFlashMessage } = useAuthStore();
 
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  
   useEffect(() => {
     if (!isLoading) {
       if (!user) {

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function AdminPages() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function AdminPages() {
   }, [flashMessage, setFlashMessage]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   if (!user || !user.isAdmin) {
