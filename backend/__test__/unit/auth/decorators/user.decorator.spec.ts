@@ -1,7 +1,7 @@
 import { ExecutionContext } from '@nestjs/common';
-import { UserInfo } from '../../../src/auth/decorators/user.decorator';
+import { UserInfo } from '../../../../src/auth/decorators/user.decorator';
 
-jest.mock('../../../src/auth/decorators/user.decorator', () => ({
+jest.mock('../../../../src/auth/decorators/user.decorator', () => ({
   User: jest.fn((property: string) => (ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     return property ? request.user[property] : request.user;
@@ -20,7 +20,7 @@ describe('User Decorator', () => {
         getRequest: jest.fn().mockReturnValue({ user: mockUser }),
       }),
     } as any;
-    User = jest.requireMock('../../../src/auth/decorators/user.decorator').User;
+    User = jest.requireMock('../../../../src/auth/decorators/user.decorator').User;
   });
 
   it('should extract entire user info from request', () => {
