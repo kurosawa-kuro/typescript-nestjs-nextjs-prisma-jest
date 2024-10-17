@@ -27,7 +27,6 @@ export class TestController {
 
   @Get('profile')
   getProfile(@User() user: UserInfo) {
-    console.log(user);
     return { message: `Welcome ${user.name}!` };
   }
 
