@@ -78,7 +78,7 @@ export default function DevelopPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        <h1 className=" font-bold p-6 bg-gray-800 text-white text-center">開発ツール</h1>
+        <h1 className=" font-bold py-2 bg-gray-800 text-white text-center">開発ツール</h1>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <button
