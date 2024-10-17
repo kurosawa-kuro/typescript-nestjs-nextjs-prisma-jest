@@ -3,8 +3,8 @@ import { AuthService } from '../../../src/auth/auth.service';
 import { UserService } from '../../../src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
-import { Request } from 'express';
+import { Response, Request } from 'express';
+import { BadRequestException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -31,33 +31,15 @@ describe('AuthService', () => {
   };
 
   const mockToken = 'mock_token';
-  const mockSecret = 'mock_secret';
+  const mockSecret = 'JWT_SECRET';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        {
-          provide: UserService,
-          useValue: {
-            createUser: jest.fn(),
-            validateUser: jest.fn(),
-            mapUserToUserInfo: jest.fn(),
-          },
-        },
-        {
-          provide: JwtService,
-          useValue: {
-            signAsync: jest.fn(),
-            verifyAsync: jest.fn(),
-          },
-        },
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn(),
-          },
-        },
+        { provide: UserService, useValue: createMockUserService() },
+        { provide: JwtService, useValue: createMockJwtService() },
+        { provide: ConfigService, useValue: createMockConfigService() },
       ],
     }).compile();
 
@@ -66,10 +48,7 @@ describe('AuthService', () => {
     jwtService = module.get(JwtService);
     configService = module.get(ConfigService);
 
-    // Common mock setups
-    userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
-    jwtService.signAsync.mockResolvedValue(mockToken);
-    configService.get.mockReturnValue(mockSecret);
+    setupCommonMocks();
   });
 
   it('should be defined', () => {
@@ -91,14 +70,7 @@ describe('AuthService', () => {
 
       expect(result).toEqual({ token: mockToken, user: mockUserInfo });
       expect(userService.createUser).toHaveBeenCalledWith(mockRegisterDto);
-      expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
-      expect(jwtService.signAsync).toHaveBeenCalledWith(
-        mockUserInfo,
-        {
-          secret: mockSecret,
-          expiresIn: '1d'
-        }
-      );
+      expectCommonAssertions();
     });
   });
 
@@ -112,15 +84,14 @@ describe('AuthService', () => {
 
       expect(result).toEqual({ token: mockToken, user: mockUserInfo });
       expect(userService.validateUser).toHaveBeenCalledWith(mockCredentials.email, mockCredentials.password);
-      expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
-      expect(jwtService.signAsync).toHaveBeenCalledWith(mockUserInfo, expect.any(Object));
+      expectCommonAssertions();
     });
 
     it('should throw BadRequestException for invalid credentials', async () => {
       const mockCredentials = { email: 'invalid@example.com', password: 'wrongpassword' };
       userService.validateUser.mockResolvedValue(null);
 
-      await expect(service.login(mockCredentials)).rejects.toThrow('Invalid credentials');
+      await expect(service.login(mockCredentials)).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -137,24 +108,18 @@ describe('AuthService', () => {
 
   describe('getUserFromToken', () => {
     it('should return user info from a valid token', async () => {
-      const mockRequest = {
-        cookies: { jwt: 'valid_token' },
-        headers: {},
-      } as Request;
+      const mockRequest = createMockRequest({ jwt: 'valid_token' });
 
       jwtService.verifyAsync.mockResolvedValue(mockUserInfo);
 
       const result = await service.getUserFromToken(mockRequest);
 
       expect(result).toEqual(mockUserInfo);
-      expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid_token', { secret: 'JWT_SECRET' });
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid_token', { secret: mockSecret });
     });
 
     it('should throw UnauthorizedException when no token is provided', async () => {
-      const mockRequest = {
-        cookies: {},
-        headers: {},
-      } as unknown as Request;
+      const mockRequest = createMockRequest({});
 
       await expect(service.getUserFromToken(mockRequest)).rejects.toThrow('No token provided');
     });
@@ -162,15 +127,13 @@ describe('AuthService', () => {
 
   describe('setTokenCookie', () => {
     it('should set a JWT cookie', () => {
-      const mockResponse = {
-        cookie: jest.fn(),
-      } as unknown as Response;
+      const mockResponse = { cookie: jest.fn() } as unknown as Response;
 
       service.setTokenCookie(mockResponse, mockToken);
 
       expect(mockResponse.cookie).toHaveBeenCalledWith('jwt', mockToken, {
         httpOnly: true,
-        secure: false, // Because NODE_ENV is not 'production' in test environment
+        secure: false,
         sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000,
       });
@@ -184,7 +147,7 @@ describe('AuthService', () => {
       const result = await service['verifyToken'](mockToken);
 
       expect(result).toEqual(mockUserInfo);
-      expect(jwtService.verifyAsync).toHaveBeenCalledWith(mockToken, { secret: 'JWT_SECRET' });
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith(mockToken, { secret: mockSecret });
     });
 
     it('should throw an error for an invalid token', async () => {
@@ -196,10 +159,7 @@ describe('AuthService', () => {
 
   describe('extractTokenFromRequest', () => {
     it('should extract token from cookies', () => {
-      const mockRequest = {
-        cookies: { jwt: 'cookie_token' },
-        headers: {},
-      } as unknown as Request;
+      const mockRequest = createMockRequest({ jwt: 'cookie_token' });
 
       const result = service['extractTokenFromRequest'](mockRequest);
 
@@ -207,10 +167,7 @@ describe('AuthService', () => {
     });
 
     it('should extract token from Authorization header', () => {
-      const mockRequest = {
-        cookies: {},
-        headers: { authorization: 'Bearer header_token' },
-      } as unknown as Request;
+      const mockRequest = createMockRequest({}, { authorization: 'Bearer header_token' });
 
       const result = service['extractTokenFromRequest'](mockRequest);
 
@@ -218,14 +175,57 @@ describe('AuthService', () => {
     });
 
     it('should return undefined if no token is found', () => {
-      const mockRequest = {
-        cookies: {},
-        headers: {},
-      } as unknown as Request;
+      const mockRequest = createMockRequest({});
 
       const result = service['extractTokenFromRequest'](mockRequest);
 
       expect(result).toBeUndefined();
     });
   });
+
+  // Helper functions
+  function createMockUserService() {
+    return {
+      createUser: jest.fn(),
+      validateUser: jest.fn(),
+      mapUserToUserInfo: jest.fn(),
+    };
+  }
+
+  function createMockJwtService() {
+    return {
+      signAsync: jest.fn(),
+      verifyAsync: jest.fn(),
+    };
+  }
+
+  function createMockConfigService() {
+    return {
+      get: jest.fn(),
+    };
+  }
+
+  function setupCommonMocks() {
+    userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
+    jwtService.signAsync.mockResolvedValue(mockToken);
+    configService.get.mockReturnValue(mockSecret);
+  }
+
+  function expectCommonAssertions() {
+    expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
+    expect(jwtService.signAsync).toHaveBeenCalledWith(
+      mockUserInfo,
+      {
+        secret: mockSecret,
+        expiresIn: '1d'
+      }
+    );
+  }
+
+  function createMockRequest(cookies = {}, headers = {}): Request {
+    return {
+      cookies,
+      headers,
+    } as unknown as Request;
+  }
 });
