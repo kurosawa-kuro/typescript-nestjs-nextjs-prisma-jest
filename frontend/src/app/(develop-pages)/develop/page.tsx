@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -11,6 +11,27 @@ export default function DevelopPage() {
   const router = useRouter();
   const { login, logout, isLoading, error } = useAuthStore();
   const [loginStatus, setLoginStatus] = useState<string | null>(null);
+  const [storageInfo, setStorageInfo] = useState<string>('');
+
+  useEffect(() => {
+    updateStorageInfo();
+  }, []);
+
+  const updateStorageInfo = () => {
+    const authStorage = localStorage.getItem('auth-storage');
+    if (authStorage) {
+      try {
+        const parsedAuthStorage = JSON.parse(authStorage);
+        // version を除外
+        const { version, ...relevantData } = parsedAuthStorage;
+        setStorageInfo(JSON.stringify(relevantData, null, 2));
+      } catch (error) {
+        setStorageInfo('Error parsing auth-storage');
+      }
+    } else {
+      setStorageInfo('auth-storage not found');
+    }
+  };
 
   const handleDemoLogin = async (isAdmin: boolean) => {
     setLoginStatus('ログイン中...');
@@ -21,6 +42,7 @@ export default function DevelopPage() {
 
     if (success) {
       setLoginStatus('ログイン成功！リダイレクトします...');
+      updateStorageInfo(); // ログイン後にストレージ情報を更新
       const { user } = useAuthStore.getState();
       if (user) {
         router.push(user.isAdmin ? '/admin' : '/profile');
@@ -34,11 +56,7 @@ export default function DevelopPage() {
     logout();
     localStorage.clear();
     sessionStorage.clear();
-    document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
+    updateStorageInfo();
     setLoginStatus('全てのデータがクリアされました。');
   };
 
@@ -77,6 +95,10 @@ export default function DevelopPage() {
           {error && (
             <p className="mt-4 text-center text-sm text-red-600">{error}</p>
           )}
+          <h2 className="text-xl font-bold mt-8 mb-2">ローカルストレージ情報</h2>
+          <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-60 text-sm whitespace-pre-wrap break-words">
+            {storageInfo}
+          </pre>
         </div>
       </div>
     </div>
