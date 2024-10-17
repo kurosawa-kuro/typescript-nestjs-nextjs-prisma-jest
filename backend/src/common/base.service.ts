@@ -12,6 +12,8 @@ export abstract class BaseService<
 
   constructor(protected prisma: PrismaService) {}
 
+  protected abstract getRepository(): any;
+
   async create(data: CreateInput): Promise<T> {
     return this.getRepository().create({ data }) as Promise<T>;
   }
@@ -70,6 +72,4 @@ export abstract class BaseService<
   protected handleNotFound(id: number): never {
     throw new NotFoundException(`${this.entityName} with ID ${id} not found`);
   }
-
-  protected abstract getRepository(): any;
 }
