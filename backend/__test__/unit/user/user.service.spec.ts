@@ -107,7 +107,7 @@ describe('UserService', () => {
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(expectedUser);
 
-      const result = await userService.find(1);
+      const result = await userService.findById(1);
       expect(result).toEqual(expectedUser);
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
@@ -117,7 +117,7 @@ describe('UserService', () => {
     it('should throw NotFoundException if user not found', async () => {
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(userService.find(1)).rejects.toThrow(NotFoundException);
+      await expect(userService.findById(1)).rejects.toThrow(NotFoundException);
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
       });
