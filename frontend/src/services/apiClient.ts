@@ -1,24 +1,43 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
 export const ApiClient = {
-  request: async <T>(method: string, endpoint: string, body?: unknown): Promise<T> => {
+  request: async <T>(
+    method: string, 
+    endpoint: string, 
+    options?: RequestInit & { useNoStore?: boolean }
+  ): Promise<T> => {
     const url = `${API_BASE_URL}${endpoint}`;
-    const options: RequestInit = {
+    const defaultOptions: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: body ? JSON.stringify(body) : undefined,
     };
 
-    const response = await fetch(url, options);
+    const mergedOptions = {
+      ...defaultOptions,
+      ...options,
+      headers: {
+        ...defaultOptions.headers,
+        ...options?.headers,
+      },
+    };
+
+    // Add cache: 'no-store' if useNoStore flag is true
+    if (options?.useNoStore) {
+      mergedOptions.cache = 'no-store';
+    }
+
+    const response = await fetch(url, mergedOptions);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return response.json();
   },
 
-
-  post: <T>(endpoint: string, body: unknown) => ApiClient.request<T>('POST', endpoint, body),
+  get: <T>(endpoint: string, options?: RequestInit & { useNoStore?: boolean }) => 
+    ApiClient.request<T>('GET', endpoint, options),
+  post: <T>(endpoint: string, body: unknown, options?: RequestInit & { useNoStore?: boolean }) => 
+    ApiClient.request<T>('POST', endpoint, { ...options, body: JSON.stringify(body) }),
 };

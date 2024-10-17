@@ -10,13 +10,15 @@ export const ApiService = {
     return ApiClient.post('/auth/logout', {});
   },
 
-  // getUserProfile: async (): Promise<User> => {
-  //   console.log("ApiService getUserProfile");
-  //   return ApiClient.get<User>('/auth/me', {
-  //     headers: {
-  //       Authorization: 'Bearer ' + localStorage.getItem('token'), // Adjust as needed
-  //       'Content-Type': 'application/json'
-  //     }
-  //   });
-  // }
-};
+  me: async (token: string): Promise<User> => {
+    console.log("ApiService me");
+    const response = await ApiClient.get<User>('/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      useNoStore: true, // キャッシュを無効化
+    }); 
+    console.log("ApiService me response", response);
+    return response;
+  },
+}

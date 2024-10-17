@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.replace('/profile');
+      router.push('/profile');
     }
   }, [isLoggedIn, router]);
 
@@ -21,7 +21,7 @@ export default function LoginPage() {
     const success = await login(email, password);
     console.log("success",success);
     if (success) {
-      router.replace('/profile');
+      router.push('/profile');
     }
   };
 

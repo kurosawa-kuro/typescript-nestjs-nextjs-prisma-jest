@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { ApiService } from './services/apiService'
+import { User } from './types/models'
 
 export async function middleware(request: NextRequest) {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
   const token = request.cookies.get('jwt')?.value
   console.log("middleware token", token);
 
@@ -12,19 +13,8 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const res = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (!res.ok) {
-      throw new Error('Failed to fetch user data')
-    }
-    // console.log("middleware res", res.body);
-    const userData = await res.json()
-    console.log("middleware userData", userData);
+    // ApiServiceのmeメソッドを使用してユーザーデータを取得
+    const userData = await ApiService.me(token);
 
     // ユーザーデータをリクエストヘッダーに追加
     const requestHeaders = new Headers(request.headers)
@@ -32,7 +22,7 @@ export async function middleware(request: NextRequest) {
 
     // アドミンページへのアクセス制限
     if (request.nextUrl.pathname.startsWith('/admin') && !userData.isAdmin) {
-      return NextResponse.redirect(new URL('/', request.url))
+      return NextResponse.redirect(new URL('/login', request.url))
     }
 
     return NextResponse.next({
