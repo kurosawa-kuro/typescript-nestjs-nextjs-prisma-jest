@@ -1,6 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
-type RequestOptions = RequestInit & { useNoStore?: boolean };
+type RequestOptions = RequestInit & { useCache?: boolean };
 
 async function request<T>(method: string, endpoint: string, options?: RequestOptions): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
@@ -8,19 +8,17 @@ async function request<T>(method: string, endpoint: string, options?: RequestOpt
     method,
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
+    cache: 'no-store', // デフォルトで 'no-store' を設定
   };
 
   const mergedOptions = {
     ...defaultOptions,
     ...options,
     headers: { ...defaultOptions.headers, ...options?.headers },
-    cache: options?.useNoStore ? 'no-store' : undefined,
+    cache: options?.useCache ? undefined : 'no-store',
   };
 
-  const response = await fetch(url, {
-    ...mergedOptions,
-    cache: mergedOptions.cache as RequestCache | undefined
-  });
+  const response = await fetch(url, mergedOptions as RequestInit);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
