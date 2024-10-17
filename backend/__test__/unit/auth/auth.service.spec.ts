@@ -11,28 +11,52 @@ describe('AuthService', () => {
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
 
+  const mockUser = {
+    id: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+    passwordHash: 'hashedpassword123',
+    isAdmin: false,
+    avatarPath: '',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  const mockUserInfo = {
+    id: 1,
+    email: 'test@example.com',
+    name: 'Test User',
+    isAdmin: false,
+  };
+
+  const mockToken = 'mock_token';
+  const mockSecret = 'mock_secret';
+
   beforeEach(async () => {
-    const mockUserService = {
-      createUser: jest.fn(),
-      validateUser: jest.fn(),
-      mapUserToUserInfo: jest.fn(),
-    };
-
-    const mockJwtService = {
-      signAsync: jest.fn(),
-      verifyAsync: jest.fn(),
-    };
-
-    const mockConfigService = {
-      get: jest.fn(),
-    };
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: UserService, useValue: mockUserService },
-        { provide: JwtService, useValue: mockJwtService },
-        { provide: ConfigService, useValue: mockConfigService },
+        {
+          provide: UserService,
+          useValue: {
+            createUser: jest.fn(),
+            validateUser: jest.fn(),
+            mapUserToUserInfo: jest.fn(),
+          },
+        },
+        {
+          provide: JwtService,
+          useValue: {
+            signAsync: jest.fn(),
+            verifyAsync: jest.fn(),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -40,6 +64,11 @@ describe('AuthService', () => {
     userService = module.get(UserService);
     jwtService = module.get(JwtService);
     configService = module.get(ConfigService);
+
+    // Common mock setups
+    userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
+    jwtService.signAsync.mockResolvedValue(mockToken);
+    configService.get.mockReturnValue(mockSecret);
   });
 
   it('should be defined', () => {
@@ -47,51 +76,32 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('should return a token', async () => {
+    it('should return a token and user info', async () => {
       const mockRegisterDto = { 
         username: 'testuser', 
         password: 'password123', 
         name: 'Test User', 
         email: 'test@example.com' 
       };
-      const mockCreatedUser = {
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        passwordHash: 'hashedpassword123',
-        isAdmin: false,
-        avatarPath: '',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      const mockUserInfo = { 
-        id: 1, 
-        email: 'test@example.com', 
-        name: 'Test User' ,
-        isAdmin: false,
-      };
 
-      userService.createUser.mockResolvedValue(mockCreatedUser);
-      userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
-      jwtService.signAsync.mockResolvedValue('mock_token');
-
-      configService.get.mockReturnValue('mock_secret'); // Add this line
+      userService.createUser.mockResolvedValue(mockUser);
 
       const result = await service.register(mockRegisterDto);
-      expect(result).toEqual({ token: 'mock_token', user: mockUserInfo });
+
+      expect(result).toEqual({ token: mockToken, user: mockUserInfo });
       expect(userService.createUser).toHaveBeenCalledWith(mockRegisterDto);
-      expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockCreatedUser);
+      expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
       expect(jwtService.signAsync).toHaveBeenCalledWith(
         mockUserInfo,
         {
-          secret: 'mock_secret', // Change this line
-          expiresIn: '1d' // Change this line
+          secret: mockSecret,
+          expiresIn: '1d'
         }
       );
     });
   });
 
-  describe('signin', () => {
+  describe('login', () => {
     it('should return a token and user info', async () => {
       const mockCredentials = { email: 'testuser@example.com', password: 'password123' };
       const mockUser = {
