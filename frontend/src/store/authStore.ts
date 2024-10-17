@@ -11,7 +11,7 @@ export const useAuthStore = create<AuthState & {
   clearStorage?: () => void;
 }>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isLoading: false,
       error: null,

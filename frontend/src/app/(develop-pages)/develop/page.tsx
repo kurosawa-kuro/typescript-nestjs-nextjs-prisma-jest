@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -14,27 +14,22 @@ export default function DevelopPage() {
   const [storageInfo, setStorageInfo] = useState<string>('');
   const [zustandInfo, setZustandInfo] = useState<string>('');
 
-  useEffect(() => {
-    updateStorageInfo();
-    updateZustandInfo();
-  }, [user, isLoading, error, flashMessage]);
-
-  const updateStorageInfo = () => {
+  const updateStorageInfo = useCallback(() => {
     const authStorage = localStorage.getItem('auth-storage');
     if (authStorage) {
       try {
         const parsedAuthStorage = JSON.parse(authStorage);
-        const { version, ...relevantData } = parsedAuthStorage;
-        setStorageInfo(JSON.stringify(relevantData, null, 2));
+        const { state } = parsedAuthStorage; // version を除外
+        setStorageInfo(JSON.stringify({ state }, null, 2));
       } catch (error) {
         setStorageInfo('Error parsing auth-storage');
       }
     } else {
       setStorageInfo('auth-storage not found');
     }
-  };
+  }, []);
 
-  const updateZustandInfo = () => {
+  const updateZustandInfo = useCallback(() => {
     const zustandState = {
       user,
       isLoading,
@@ -42,7 +37,12 @@ export default function DevelopPage() {
       flashMessage
     };
     setZustandInfo(JSON.stringify(zustandState, null, 2));
-  };
+  }, [user, isLoading, error, flashMessage]);
+
+  useEffect(() => {
+    updateStorageInfo();
+    updateZustandInfo();
+  }, [user, isLoading, error, flashMessage, updateStorageInfo, updateZustandInfo]);
 
   const handleDemoLogin = async (isAdmin: boolean) => {
     setLoginStatus('ログイン中...');
