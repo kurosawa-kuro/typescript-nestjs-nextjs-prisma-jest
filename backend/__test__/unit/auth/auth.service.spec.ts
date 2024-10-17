@@ -114,7 +114,7 @@ describe('AuthService', () => {
       userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
       jwtService.signAsync.mockResolvedValue('mock_token');
 
-      const result = await service.signin(mockCredentials);
+      const result = await service.login(mockCredentials);
       expect(result).toEqual({ token: 'mock_token', user: mockUserInfo });
     });
   });

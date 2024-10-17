@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { SigninDto, RegisterDto, UserInfo } from '../types/auth.types';
+import { LoginDto, RegisterDto, UserInfo } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 
@@ -33,10 +33,10 @@ export class AuthService {
     return { token, user: userInfo };
   }
 
-  async signin(signinDto: SigninDto): Promise<{ token: string; user: UserInfo }> {
+  async login(LoginDto: LoginDto): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.validateUser(
-      signinDto.email,
-      signinDto.password,
+      LoginDto.email,
+      LoginDto.password,
     );
     if (!user) {
       throw new BadRequestException('Invalid credentials');

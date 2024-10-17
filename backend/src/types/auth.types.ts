@@ -5,11 +5,11 @@ export interface UserInfo {
   isAdmin: boolean;
 }
 
-export interface SigninDto {
+export interface LoginDto {
   email: string;
   password: string;
 }
 
-export interface RegisterDto extends SigninDto {
+export interface RegisterDto extends LoginDto {
   name: string;
 }
