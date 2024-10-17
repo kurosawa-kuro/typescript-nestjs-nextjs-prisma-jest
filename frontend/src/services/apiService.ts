@@ -8,7 +8,6 @@ export const ApiService = {
   logout: () => ApiClient.post('/auth/logout', {}),
 
   me: (token: string) => ApiClient.get<User>('/auth/me', {
-    headers: { Authorization: `Bearer ${token}` },
-    useNoStore: true,
+    headers: { Authorization: `Bearer ${token}` }
   }),
 };
