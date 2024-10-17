@@ -12,7 +12,6 @@ export interface LoginResponse {
 }
 
 export interface AuthState {
-  isLoggedIn: boolean;
   user: User | null;
   isLoading: boolean;
   error: string | null;

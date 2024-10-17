@@ -1,23 +1,22 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { useEffect, useLayoutEffect } from 'react';
 
 export default function AdminPages() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
 
-  useLayoutEffect(() => {
-    console.log("useLayoutEffect");
-    console.log("user", user);
-    console.log("user?.isAdmin", user?.isAdmin);
-
-    // 管理者でない場合はホームページにリダイレクト
-    if (user && !user.isAdmin) {
-      router.push('/');
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (!user.isAdmin) {
+        router.push('/profile');
+      }
     }
-  }, [user, router]);
+  }, [user, isLoading, router]);
 
   const handleLogout = async () => {
     await logout();

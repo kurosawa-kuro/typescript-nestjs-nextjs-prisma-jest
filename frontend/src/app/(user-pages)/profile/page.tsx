@@ -1,22 +1,26 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import { useEffect, useLayoutEffect } from 'react';
 
 export default function UserPages() {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
 
-  useLayoutEffect(() => {
-    console.log("useLayoutEffect");
-    console.log("user", user);
-    console.log("user?.isAdmin", user?.isAdmin);
-  }, []);
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user.isAdmin) {
+        router.push('/admin');
+      }
+    }
+  }, [user, isLoading, router]);
 
   const handleLogout = async () => {
     await logout();
-    router.push('/');
+    router.push('/login');  
   };
 
   return (
