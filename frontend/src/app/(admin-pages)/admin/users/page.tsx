@@ -1,7 +1,8 @@
-import { ApiService } from '@/services/apiService';
+import { ServerApiService } from '@/services/serverApiService';
+import { User } from '@/types/models';
 
-export default async function UsersPages() {
-  const users = await ApiService.getUsers();
+export default async function UsersPage() {
+  const users: User[] = await ServerApiService.getUsers();
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">

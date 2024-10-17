@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { ApiService } from './services/apiService'
+import { ClientApiService } from './services/clientApiService'
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt')?.value;
@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const userData = await ApiService.me(token);
+    const userData = await ClientApiService.me(token);
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-data', JSON.stringify(userData));
 

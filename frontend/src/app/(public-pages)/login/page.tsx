@@ -4,12 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { ClientApiService } from '@/services/clientApiService';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { login, isLoading, error, user } = useAuthStore();
+  const { user, login } = useAuthStore();
 
   useEffect(() => {
     if (user) {
@@ -23,7 +26,16 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await login(email, password);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await login(email, password);
+      // The login function from useAuthStore should handle setting the user
+    } catch (error) {
+      setError('Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading || user) {

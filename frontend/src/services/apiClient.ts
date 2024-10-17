@@ -30,3 +30,8 @@ export const ApiClient = {
   post: <T>(endpoint: string, body: unknown, options?: RequestOptions) => 
     request<T>('POST', endpoint, { ...options, body: JSON.stringify(body) }),
 };
+
+// Add this new function for server-side requests
+export async function serverRequest<T>(method: string, endpoint: string, body?: unknown): Promise<T> {
+  return request<T>(method, endpoint, body ? { body: JSON.stringify(body) } : undefined);
+}
