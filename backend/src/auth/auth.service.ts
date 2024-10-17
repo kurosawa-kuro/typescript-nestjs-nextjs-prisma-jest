@@ -23,12 +23,14 @@ export class AuthService {
   }
 
   // Authentication methods
-  async register(registerDto: RegisterDto): Promise<{ token: string; user: UserInfo }> {
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.createUser(registerDto);
     const userInfo = this.userService.mapUserToUserInfo(user);
     const token = await this.jwtService.signAsync(userInfo, {
       secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: '1d'
+      expiresIn: '1d',
     });
     return { token, user: userInfo };
   }
