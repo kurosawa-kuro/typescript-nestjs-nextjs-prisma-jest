@@ -10,4 +10,7 @@ export const ApiService = {
   me: (token: string) => ApiClient.get<User>('/auth/me', {
     headers: { Authorization: `Bearer ${token}` }
   }),
+
+  // 新しく追加された getUsers 関数
+  getUsers: () => ApiClient.get<User[]>('/users'),
 };

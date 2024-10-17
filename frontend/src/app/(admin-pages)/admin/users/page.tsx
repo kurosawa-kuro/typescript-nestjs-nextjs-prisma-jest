@@ -1,21 +1,7 @@
-import { ApiClient } from '@/services/apiClient';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  isAdmin: boolean;
-  avatarPath: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-async function getUsers(): Promise<User[]> {
-  return ApiClient.get<User[]>('/users');
-}
+import { ApiService } from '@/services/apiService';
 
 export default async function UsersPages() {
-  const users = await getUsers();
+  const users = await ApiService.getUsers();
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
@@ -28,7 +14,6 @@ export default async function UsersPages() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -38,7 +23,6 @@ export default async function UsersPages() {
                 <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.isAdmin ? 'Admin' : 'User'}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{new Date(user.createdAt).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
