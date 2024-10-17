@@ -1,14 +1,17 @@
- "use client"
+"use client"
 
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 
-export default function Navigation() {
+export default function SideBar() {
   const { user, logout } = useAuthStore();
 
   return (
-    <nav className="bg-gray-800 text-white w-64 min-h-screen p-4">
-      <ul className="space-y-2">
+    <nav className="bg-gray-800 text-white w-64 h-screen p-4 flex flex-col">
+      <div className="text-2xl font-bold mb-6 text-center">
+        My Application
+      </div>
+      <ul className="space-y-2 flex-grow overflow-y-auto">
         <li>
           <Link href="/" className="block py-2 px-4 hover:bg-gray-700 rounded">Public</Link>
         </li>
@@ -32,12 +35,18 @@ export default function Navigation() {
             </li>
           </>
         )}
-        {user && (
-          <li>
-            <button onClick={logout} className="block w-full text-left py-2 px-4 hover:bg-gray-700 rounded">Logout</button>
-          </li>
-        )}
       </ul>
+      {user && (
+        <div className="mt-auto pt-4 border-t border-gray-700">
+          <div className="text-center mb-2">{user.name}</div>
+          <button 
+            onClick={logout} 
+            className="block w-full text-center py-2 px-4 bg-red-600 hover:bg-red-700 rounded"
+          >
+            Logout
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

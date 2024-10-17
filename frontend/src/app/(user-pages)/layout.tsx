@@ -1,4 +1,4 @@
-import Navigation from '@/components/SideBar';
+import SideBar from '@/components/SideBar';
 
 export default function UserPagesLayout({
   children,
@@ -7,7 +7,7 @@ export default function UserPagesLayout({
 }) {
   return (
     <div className="flex bg-white text-black">
-      <Navigation />
+      <SideBar />
       <main className="flex-grow p-8">{children}</main>
     </div>
   );
