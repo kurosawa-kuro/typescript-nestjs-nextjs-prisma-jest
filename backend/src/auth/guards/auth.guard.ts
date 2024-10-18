@@ -16,13 +16,14 @@ export class AuthGuard {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log("AuthGuard canActivate");
     if (this.isPublicRoute(context)) {
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
     const user = await this.authService.getUserFromToken(request);
-
+    console.log("AuthGuard canActivate user", user);
     if (!user) {
       throw new UnauthorizedException('Access token not found or invalid');
     }

@@ -4,6 +4,8 @@ import { AppModule } from '@/app.module';
 import { PrismaService } from '@/database/prisma.service';
 import { User, Micropost } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import * as request from 'supertest';
+import * as cookieParser from 'cookie-parser';
 
 export const setupTestApp = async (): Promise<{
   app: INestApplication;
@@ -14,6 +16,7 @@ export const setupTestApp = async (): Promise<{
   }).compile();
 
   const app = moduleFixture.createNestApplication();
+  app.use(cookieParser());  // この行を追加
   await app.init();
 
   const prismaService = app.get<PrismaService>(PrismaService);
@@ -89,4 +92,20 @@ export const createTestMicropost = async (
       imagePath: mergedData.imagePath,
     },
   });
+};
+
+export const loginTestUser = async (
+  app: INestApplication,
+  email: string,
+  password: string
+): Promise<{ token: string; user: User }> => {
+  const response = await request(app.getHttpServer())
+    .post('/auth/login')
+    .send({ email, password })
+    .expect(201);
+
+  return {
+    token: response.body.token,
+    user: response.body.user,
+  };
 };

@@ -55,7 +55,9 @@ export class AuthService {
   }
 
   async getUserFromToken(request: Request): Promise<UserInfo> {
+    console.log("AuthService getUserFromToken");
     const token = this.extractTokenFromRequest(request);
+    console.log("AuthService getUserFromToken token", token);
     if (!token) {
       throw new UnauthorizedException('No token provided');
     }
@@ -77,6 +79,11 @@ export class AuthService {
   }
 
   private extractTokenFromRequest(request: Request): string | undefined {
+    console.log("AuthService extractTokenFromRequest");
+    console.log("AuthService extractTokenFromRequest request.headers.authorization", request.headers.authorization);
+    console.log("AuthService extractTokenFromRequest request.headers.authorization?.split(' ')[1]", request.headers.authorization?.split(' ')[1]);
+    console.log("AuthService extractTokenFromRequest request.cookies['jwt']", request.cookies['jwt']);
+
     return (
       request.cookies['jwt'] || request.headers.authorization?.split(' ')[1]
     );

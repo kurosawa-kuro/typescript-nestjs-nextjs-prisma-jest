@@ -18,7 +18,6 @@ export class MicropostController {
   }
 
   @Get()
-  @Public()
   async index(): Promise<Micropost[]> {
     console.log("MicropostController index");
     return this.micropostService.all();
