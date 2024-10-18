@@ -1,18 +1,29 @@
-import { NextRequest } from 'next/server';
+import '@testing-library/jest-dom';
 
-// Mock the entire middleware module
-jest.mock('../src/middleware', () => ({
-  middleware: jest.fn(),
+import { NextRequest, NextResponse } from 'next/server';
+import { middleware } from '../src/middleware';
+import { ClientSideApiService } from '../src/services/ClientSideApiService';
+
+jest.mock('next/server', () => ({
+  NextResponse: {
+    redirect: jest.fn().mockImplementation((url) => ({ type: 'redirect', url })),
+    next: jest.fn().mockImplementation(() => ({ type: 'next' })),
+  },
 }));
 
-// Import the mocked middleware function
-import { middleware } from '../src/middleware';
+jest.mock('../src/services/ClientSideApiService', () => ({
+  ClientSideApiService: {
+    me: jest.fn(),
+  },
+}));
+
+
 
 describe('Middleware', () => {
   let mockRequest: NextRequest;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     mockRequest = {
       cookies: {
         get: jest.fn(),
@@ -22,62 +33,46 @@ describe('Middleware', () => {
       },
       url: 'http://localhost/',
     } as unknown as NextRequest;
-
-    // Reset the middleware mock before each test
-    (middleware as jest.Mock).mockReset();
   });
 
   test('redirects to login page when no token is present', async () => {
     mockRequest.cookies.get = jest.fn().mockReturnValue(undefined);
     mockRequest.nextUrl.pathname = '/some-protected-route';
 
-    const mockRedirectResponse = {
-      type: 'redirect',
-      url: 'http://localhost/login',
-    };
+    const mockRedirect = jest.fn().mockReturnValue({ type: 'redirect' });
+    (NextResponse.redirect as jest.Mock).mockImplementation(mockRedirect);
 
-    (middleware as jest.Mock).mockResolvedValue(mockRedirectResponse);
+    await middleware(mockRequest);
 
-    const response = await middleware(mockRequest);
-    console.log("redirects to login page when no token is present response", response);
-
-    expect(response).toEqual(mockRedirectResponse);
+    expect(mockRedirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
   });
 
-  // ユーザーログインしている場合
-  test('does not redirect when token is present', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue('valid-token');
+  test('does not redirect when token is present and user data is valid', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
     mockRequest.nextUrl.pathname = '/some-protected-route';
 
-    const mockResponse = {
-      type: 'next',
-      url: 'http://localhost/some-protected-route',
-    };
+    (ClientSideApiService.me as jest.Mock).mockResolvedValue({ isAdmin: false });
+    const mockNext = jest.fn().mockReturnValue({ type: 'next' });
+    (NextResponse.next as jest.Mock).mockImplementation(mockNext);
 
-    (middleware as jest.Mock).mockResolvedValue(mockResponse);
+    const result = await middleware(mockRequest);
+    console.log("does not redirect when token is present and user data is valid result", result);
 
-    const response = await middleware(mockRequest);
-    console.log("does not redirect when token is present response", response);
-
-    expect(response).toEqual(mockResponse);
+    expect(mockNext).toHaveBeenCalled();
+    expect(result.type).toBe('next');
   });
 
-  // 管理者ログインしている場合
-  test('does not redirect when admin token is present', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue('admin-token');
-    mockRequest.nextUrl.pathname = '/admin-protected-route';
+  test('redirects to home when non-admin user tries to access admin route', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue('valid-token');
+    mockRequest.nextUrl.pathname = '/admin/some-route';
 
-    const mockResponse = {
-      type: 'next',
-      url: 'http://localhost/admin-protected-route',
-    };
+    (ClientSideApiService.me as jest.Mock).mockResolvedValue({ isAdmin: false });
+    const mockRedirect = jest.fn().mockReturnValue({ type: 'redirect' });
+    (NextResponse.redirect as jest.Mock).mockImplementation(mockRedirect);
 
-    (middleware as jest.Mock).mockResolvedValue(mockResponse);
+    await middleware(mockRequest);
 
-    const response = await middleware(mockRequest);
-    console.log("does not redirect when admin token is present response", response);
-
-    expect(response).toEqual(mockResponse);
+    expect(mockRedirect).toHaveBeenCalledWith(new URL('/', mockRequest.url));
   });
 
   // Add more tests here...
