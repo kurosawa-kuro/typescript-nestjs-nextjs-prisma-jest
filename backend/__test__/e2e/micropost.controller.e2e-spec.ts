@@ -29,33 +29,44 @@ describe('MicropostController (e2e)', () => {
     await cleanupDatabase(prismaService);
   });
 
-  it('/GET microposts', async () => {
-    // テストユーザーを作成
-    const testUser = await createTestUser(prismaService, {
-      email: 'test@example.com',
-      password: 'password123',
+  describe('GET /microposts', () => {
+    it('should return all microposts for authenticated user', async () => {
+      // Arrange
+      const testUser = await createTestUserWithMicroposts(prismaService);
+      const { token } = await loginTestUser(app, testUser.email, 'password123');
+
+      // Act
+      const response = await request(app.getHttpServer())
+        .get('/microposts')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      // Assert
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body).toHaveLength(2);
+      expectValidMicropost(response.body[0], testUser.id);
     });
-
-    // ユーザーをログイン
-    const { token } = await loginTestUser(app, testUser.email, 'password123');
-    console.log("token", token);
-
-    // マイクロポストを作成
-    await Promise.all([
-      createTestMicropost(prismaService, testUser.id),
-      createTestMicropost(prismaService, testUser.id)
-    ]);
-
-    const response = await request(app.getHttpServer())
-      .get('/microposts')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
-
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBe(2);
-    expect(response.body[0]).toHaveProperty('id');
-    expect(response.body[0]).toHaveProperty('title');
-    expect(response.body[0]).toHaveProperty('imagePath');
-    expect(response.body[0]).toHaveProperty('userId', testUser.id);
   });
 });
+
+// Helper functions
+async function createTestUserWithMicroposts(prismaService: PrismaService) {
+  const testUser = await createTestUser(prismaService, {
+    email: 'test@example.com',
+    password: 'password123',
+  });
+
+  await Promise.all([
+    createTestMicropost(prismaService, testUser.id),
+    createTestMicropost(prismaService, testUser.id)
+  ]);
+
+  return testUser;
+}
+
+function expectValidMicropost(micropost: any, userId: number) {
+  expect(micropost).toHaveProperty('id');
+  expect(micropost).toHaveProperty('title');
+  expect(micropost).toHaveProperty('imagePath');
+  expect(micropost).toHaveProperty('userId', userId);
+}
