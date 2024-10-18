@@ -31,27 +31,36 @@ export const cleanupDatabase = async (
   ]);
 };
 
+interface TestUserData {
+  name?: string;
+  email?: string;
+  password?: string;
+  isAdmin?: boolean;
+  avatarPath?: string;
+}
+
+const defaultUserData: TestUserData = {
+  name: 'Test User',
+  email: `test${Math.random().toString(36).substring(2, 7)}@example.com`,
+  password: 'testPassword123',
+  isAdmin: false,
+  avatarPath: 'path/to/avatar.jpg',
+};
+
 export const createTestUser = async (
   prismaService: PrismaService,
-  userData: {
-    name?: string;
-    email?: string;
-    password?: string;
-    isAdmin?: boolean;
-    avatarPath?: string;
-  } = {}
+  userData: TestUserData = {}
 ): Promise<User> => {
-  const plainPassword = userData.password || 'testPassword123';
-  const hashedPassword = await bcrypt.hash(plainPassword, 10);
-  console.log("createTestUser hashedPassword", hashedPassword);
+  const mergedData = { ...defaultUserData, ...userData };
+  const hashedPassword = await bcrypt.hash(mergedData.password, 10);
 
   return prismaService.user.create({
     data: {
-      name: userData.name || 'Test User',
-      email: userData.email || `${Math.random().toString(36).substring(2, 15)}@example.com`,
+      name: mergedData.name,
+      email: mergedData.email,
       passwordHash: hashedPassword,
-      isAdmin: userData.isAdmin ?? false,
-      avatarPath: userData.avatarPath || 'path/to/avatar.jpg',
+      isAdmin: mergedData.isAdmin,
+      avatarPath: mergedData.avatarPath,
     },
   });
 };

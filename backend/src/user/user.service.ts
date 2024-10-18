@@ -23,15 +23,6 @@ export class UserService extends BaseService<
     return this.prisma.user;
   }
 
-  // base.serviceのcreateをオーバーライドする
-  // 引数はRegisterDtoを受け取る
-  // passwordHashを生成して、dataにpasswordHashを追加する
-  // ユーザーを作成する
-  // パスワードを除いたユーザーデータを返す
-
-
-
-
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -88,15 +79,6 @@ export class UserService extends BaseService<
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
-
-  // Add this method to handle registration
-  // async register(registerDto: RegisterDto): Promise<User> {
-  //   return this.create({
-  //     email: registerDto.email,
-  //     name: registerDto.name,
-  //     password: registerDto.password,
-  //   });
-  // }
 
   override async create(data: Prisma.UserCreateInput & { password: string }): Promise<Partial<User>> {
     const { password, ...userData } = data;
