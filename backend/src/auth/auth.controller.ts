@@ -29,6 +29,7 @@ export class AuthController {
     @Body() LoginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    console.log("LoginDto", LoginDto);
     const { token, user } = await this.authService.login(LoginDto);
     this.authService.setTokenCookie(res, token);
     return { message: 'Login successful', token, user };

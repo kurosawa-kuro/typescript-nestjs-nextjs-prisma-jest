@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from '@/app.module';
 import { PrismaService } from '@/database/prisma.service';
 import { User, Micropost } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 export const setupTestApp = async (): Promise<{
   app: INestApplication;
@@ -32,14 +33,25 @@ export const cleanupDatabase = async (
 
 export const createTestUser = async (
   prismaService: PrismaService,
+  userData: {
+    name?: string;
+    email?: string;
+    password?: string;
+    isAdmin?: boolean;
+    avatarPath?: string;
+  } = {}
 ): Promise<User> => {
+  const plainPassword = userData.password || 'testPassword123';
+  const hashedPassword = await bcrypt.hash(plainPassword, 10);
+  console.log("createTestUser hashedPassword", hashedPassword);
+
   return prismaService.user.create({
     data: {
-      name: 'Test User',
-      email: `${Math.random().toString(36).substring(2, 15)}@example.com`,
-      passwordHash: 'hashedPassword',
-      isAdmin: false,
-      avatarPath: 'path/to/avatar.jpg',
+      name: userData.name || 'Test User',
+      email: userData.email || `${Math.random().toString(36).substring(2, 15)}@example.com`,
+      passwordHash: hashedPassword,
+      isAdmin: userData.isAdmin ?? false,
+      avatarPath: userData.avatarPath || 'path/to/avatar.jpg',
     },
   });
 };
