@@ -63,16 +63,31 @@ describe('Middleware', () => {
   });
 
   test('redirects to home when non-admin user tries to access admin route', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue('valid-token');
+    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
     mockRequest.nextUrl.pathname = '/admin/some-route';
 
     (ClientSideApiService.me as jest.Mock).mockResolvedValue({ isAdmin: false });
     const mockRedirect = jest.fn().mockReturnValue({ type: 'redirect' });
     (NextResponse.redirect as jest.Mock).mockImplementation(mockRedirect);
 
-    await middleware(mockRequest);
+    const result = await middleware(mockRequest);
 
     expect(mockRedirect).toHaveBeenCalledWith(new URL('/', mockRequest.url));
+    expect(result.type).toBe('redirect');
+  });
+
+  test('allows admin user to access admin route', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
+    mockRequest.nextUrl.pathname = '/admin/some-route';
+
+    (ClientSideApiService.me as jest.Mock).mockResolvedValue({ isAdmin: true });
+    const mockNext = jest.fn().mockReturnValue({ type: 'next' });
+    (NextResponse.next as jest.Mock).mockImplementation(mockNext);
+
+    const result = await middleware(mockRequest);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(result.type).toBe('next');
   });
 
   test('redirects to login when there is an error in the middleware', async () => {
@@ -108,5 +123,27 @@ describe('Middleware', () => {
     await middleware(mockRequest);
 
     expect(mockRedirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+  });
+
+  test('redirects to login and deletes jwt cookie when an error occurs', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
+    mockRequest.nextUrl.pathname = '/some-protected-route';
+
+    // ClientSideApiService.me がエラーをスローするようにモック
+    (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('API Error'));
+
+    const mockRedirect = jest.fn().mockReturnValue({
+      type: 'redirect',
+      cookies: {
+        delete: jest.fn(),
+      },
+    });
+    (NextResponse.redirect as jest.Mock).mockImplementation(mockRedirect);
+
+    const result = await middleware(mockRequest);
+
+    expect(mockRedirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+    expect(result.type).toBe('redirect');
+    expect(result.cookies.delete).toHaveBeenCalledWith('jwt');
   });
 });
