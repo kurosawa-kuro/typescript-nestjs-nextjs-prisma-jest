@@ -39,6 +39,7 @@ describe('Middleware', () => {
     (middleware as jest.Mock).mockResolvedValue(mockRedirectResponse);
 
     const response = await middleware(mockRequest);
+    console.log("Check response", response);
 
     expect(response).toEqual(mockRedirectResponse);
   });
