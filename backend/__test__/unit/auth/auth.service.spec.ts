@@ -16,7 +16,7 @@ describe('AuthService', () => {
     id: 1,
     name: 'Test User',
     email: 'test@example.com',
-    passwordHash: 'hashedpassword123',
+    password: 'hashedpassword123',
     isAdmin: false,
     avatarPath: '',
     createdAt: new Date(),
@@ -63,13 +63,13 @@ describe('AuthService', () => {
         name: 'Test User', 
         email: 'test@example.com' 
       };
-
-      userService.createUser.mockResolvedValue(mockUser);
-
+  
+      userService.create.mockResolvedValue(mockUser);
+  
       const result = await service.register(mockRegisterDto);
 
       expect(result).toEqual({ token: mockToken, user: mockUserInfo });
-      expect(userService.createUser).toHaveBeenCalledWith(mockRegisterDto);
+      expect(userService.create).toHaveBeenCalledWith(mockRegisterDto);
       expectCommonAssertions();
     });
   });
@@ -186,7 +186,7 @@ describe('AuthService', () => {
   // Helper functions
   function createMockUserService() {
     return {
-      createUser: jest.fn(),
+      create: jest.fn(),
       validateUser: jest.fn(),
       mapUserToUserInfo: jest.fn(),
     };

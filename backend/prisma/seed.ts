@@ -24,7 +24,7 @@ export async function seed() {
     data: {
       name: 'Admin',
       email: 'admin@example.com',
-      passwordHash: await bcrypt.hash('password', 10),
+      password: await bcrypt.hash('password', 10),
       isAdmin: true,
     },
   })
@@ -35,7 +35,7 @@ export async function seed() {
       data: {
         name: 'Alice',
         email: 'alice@example.com',
-        passwordHash: await bcrypt.hash('password', 10),
+        password: await bcrypt.hash('password', 10),
         avatarPath: 'alice_avatar.png',
       },
     }),
@@ -43,7 +43,7 @@ export async function seed() {
       data: {
         name: 'Bob',
         email: 'bob@example.com',
-        passwordHash: await bcrypt.hash('password', 10),
+        password: await bcrypt.hash('password', 10),
         avatarPath: 'bob_avatar.png',
       },
     }),
@@ -51,7 +51,7 @@ export async function seed() {
       data: {
         name: 'Charlie',
         email: 'charlie@example.com',
-        passwordHash: await bcrypt.hash('password', 10),
+        password: await bcrypt.hash('password', 10),
         avatarPath: 'charlie_avatar.png',
       },
     }),

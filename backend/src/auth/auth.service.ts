@@ -25,7 +25,7 @@ export class AuthService {
 
   // Authentication methods
   async register(
-    data: Prisma.UserCreateInput & { password: string },
+    data: Prisma.UserCreateInput ,
   ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.create(data);
     const userInfo = this.userService.mapUserToUserInfo(user as User);

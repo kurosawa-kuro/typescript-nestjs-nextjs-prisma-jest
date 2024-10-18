@@ -16,7 +16,7 @@ describe('UserService', () => {
     id: 1,
     name: 'Test User',
     email: 'test@example.com',
-    passwordHash: 'hash',
+    password: 'hash',
     isAdmin: false,
     avatarPath: '',
     createdAt: new Date(),
@@ -56,21 +56,34 @@ describe('UserService', () => {
         password: 'password123',
       };
       const hashedPassword = 'hashedPassword123';
+      const createdUser = {
+        id: 1,
+        ...registerDto,
+        password: hashedPassword,
+        isAdmin: false,
+        avatarPath: '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, ...registerDto, passwordHash: hashedPassword });
+      (prismaService.user.create as jest.Mock).mockResolvedValue(createdUser);
 
-      const result = await userService.createUser(registerDto);
+      const result = await userService.create(registerDto);
 
-      expect(result).toEqual(expect.objectContaining(registerDto));
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { email: registerDto.email } });
+      expect(result).toEqual({
+        id: createdUser.id,
+        name: createdUser.name,
+        email: createdUser.email,
+        isAdmin: createdUser.isAdmin,
+      });
       expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           email: registerDto.email,
           name: registerDto.name,
-          passwordHash: hashedPassword,
+          password: hashedPassword,
+          isAdmin: false,
         }),
       });
     });
@@ -82,9 +95,26 @@ describe('UserService', () => {
         password: 'password123',
       };
 
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({ id: 1 });
+      (prismaService.user.create as jest.Mock).mockRejectedValue({
+        code: 'P2002',
+        meta: { target: ['email'] }
+      });
 
-      await expect(userService.createUser(registerDto)).rejects.toThrow(BadRequestException);
+      await expect(userService.create(registerDto)).rejects.toThrow(BadRequestException);
+      await expect(userService.create(registerDto)).rejects.toThrow('Email already exists');
+    });
+
+    it('should throw the original error for other errors', async () => {
+      const registerDto = {
+        email: 'new@example.com',
+        name: 'New User',
+        password: 'password123',
+      };
+
+      const originalError = new Error('Some other error');
+      (prismaService.user.create as jest.Mock).mockRejectedValue(originalError);
+
+      await expect(userService.create(registerDto)).rejects.toThrow(originalError);
     });
   });
 
@@ -92,7 +122,7 @@ describe('UserService', () => {
     it('should return user if credentials are valid', async () => {
       const password = 'password123';
       const hashedPassword = 'hashedPassword123';
-      const user = { ...mockUser, passwordHash: hashedPassword };
+      const user = { ...mockUser, password: hashedPassword };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);

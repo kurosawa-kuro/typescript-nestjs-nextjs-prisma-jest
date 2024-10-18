@@ -28,13 +28,13 @@ export class UserService extends BaseService<
       where: { email },
     });
 
-    if (!user || !user.passwordHash) {
+    if (!user || !user.password) {
       return null;
     }
 
     const isPasswordValid = await this.verifyPassword(
       password,
-      user.passwordHash,
+      user.password,
     );
 
     if (!isPasswordValid) {
@@ -54,7 +54,7 @@ export class UserService extends BaseService<
   }
 
     // Todo: allをオーバーライドする
-  async getAllWithoutPassword(): Promise<Omit<User, 'passwordHash'>[]> {
+  async getAllWithoutPassword(): Promise<Omit<User, 'password'>[]> {
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -80,16 +80,23 @@ export class UserService extends BaseService<
     return bcrypt.compare(password, hashedPassword);
   }
 
-  override async create(data: Prisma.UserCreateInput & { password: string }): Promise<Partial<User>> {
-    const { password, ...userData } = data;
-    const user = await this.prisma.user.create({
-      data: {
-        ...userData,
-        passwordHash: await this.hashPassword(password),
-        isAdmin: false,
-      },
-    });
+  override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
+    try {
+      const { password, ...userData } = data;
+      const user = await this.prisma.user.create({
+        data: {
+          ...userData,
+          password: await this.hashPassword(password),
+          isAdmin: false,
+        },
+      });
 
-    return this.mapUserToUserInfo(user);
+      return this.mapUserToUserInfo(user);
+    } catch (error) {
+      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+        throw new BadRequestException('Email already exists');
+      }
+      throw error;
+    }
   }
 }
