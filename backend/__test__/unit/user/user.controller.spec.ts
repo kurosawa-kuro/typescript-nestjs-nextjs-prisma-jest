@@ -8,7 +8,7 @@ describe('UserController', () => {
   let userService: UserService;
 
   beforeEach(async () => {
-    const mockUserService = createMockService(['create', 'getAllWithoutPassword']);
+    const mockUserService = createMockService(['create', 'all']);
     const module = await setupTestModule(
       [UserController],
       [{ provide: UserService, useValue: mockUserService }],
@@ -47,11 +47,12 @@ describe('UserController', () => {
 
   describe('index', () => {
     it('should return an array of users without passwords', async () => {
-      const expectedResult: Omit<User, 'password'>[] = [
+      const expectedResult: User[] = [
         {
           id: 1,
           name: 'Test User',
           email: 'test@example.com',
+          password: 'dummyPassword',
           isAdmin: false,
           avatarPath: '',
           createdAt: new Date(),
@@ -59,10 +60,10 @@ describe('UserController', () => {
         },
       ];
 
-      jest.spyOn(userService, 'getAllWithoutPassword').mockResolvedValue(expectedResult);
+      jest.spyOn(userService, 'all').mockResolvedValue(expectedResult);
 
       expect(await controller.index()).toBe(expectedResult);
-      expect(userService.getAllWithoutPassword).toHaveBeenCalled();
+      expect(userService.all).toHaveBeenCalled();
     });
   });
 });

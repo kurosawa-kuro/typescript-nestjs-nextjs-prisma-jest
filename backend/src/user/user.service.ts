@@ -53,8 +53,7 @@ export class UserService extends BaseService<
     };
   }
 
-    // Todo: allをオーバーライドする
-  async getAllWithoutPassword(): Promise<Omit<User, 'password'>[]> {
+  override async all(): Promise<User[]> {
     const users = await this.prisma.user.findMany({
       select: {
         id: true,
@@ -64,9 +63,13 @@ export class UserService extends BaseService<
         avatarPath: true,
         createdAt: true,
         updatedAt: true,
+        password: true, // Include password in the select
       },
     });
-    return users;
+    return users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword as User; // Cast to User type
+    });
   }
 
   private async hashPassword(password: string): Promise<string> {
