@@ -75,5 +75,38 @@ describe('Middleware', () => {
     expect(mockRedirect).toHaveBeenCalledWith(new URL('/', mockRequest.url));
   });
 
-  // Add more tests here...
+  test('redirects to login when there is an error in the middleware', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue('valid-token');
+    mockRequest.nextUrl.pathname = '/some-protected-route';
+
+    (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('Some error'));
+    const mockRedirect = jest.fn().mockReturnValue({ type: 'redirect' });
+    (NextResponse.redirect as jest.Mock).mockImplementation(mockRedirect);
+
+    await middleware(mockRequest);
+  
+    expect(mockRedirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+  });
+
+  test('skips processing for login page', async () => {
+    mockRequest.nextUrl.pathname = '/login';
+
+    const result = await middleware(mockRequest);
+    console.log("skips processing for login page result", result);
+
+    expect(result.type).toBe('next');
+  });
+
+  test('redirects to login when there is an error in the middleware', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue('valid-token');
+    mockRequest.nextUrl.pathname = '/some-protected-route';
+
+    (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('Some error'));
+    const mockRedirect = jest.fn().mockReturnValue({ type: 'redirect' });
+    (NextResponse.redirect as jest.Mock).mockImplementation(mockRedirect);
+
+    await middleware(mockRequest);
+
+    expect(mockRedirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+  });
 });
