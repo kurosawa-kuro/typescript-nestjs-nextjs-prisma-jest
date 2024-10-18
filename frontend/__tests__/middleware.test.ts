@@ -62,5 +62,23 @@ describe('Middleware', () => {
     expect(response).toEqual(mockResponse);
   });
 
+  // 管理者ログインしている場合
+  test('does not redirect when admin token is present', async () => {
+    mockRequest.cookies.get = jest.fn().mockReturnValue('admin-token');
+    mockRequest.nextUrl.pathname = '/admin-protected-route';
+
+    const mockResponse = {
+      type: 'next',
+      url: 'http://localhost/admin-protected-route',
+    };
+
+    (middleware as jest.Mock).mockResolvedValue(mockResponse);
+
+    const response = await middleware(mockRequest);
+    console.log("does not redirect when admin token is present response", response);
+
+    expect(response).toEqual(mockResponse);
+  });
+
   // Add more tests here...
 });
