@@ -65,15 +65,28 @@ export const createTestUser = async (
   });
 };
 
+interface TestMicropostData {
+  title?: string;
+  imagePath?: string;
+}
+
+const defaultMicropostData: TestMicropostData = {
+  title: 'Test Title',
+  imagePath: 'test.jpg',
+};
+
 export const createTestMicropost = async (
   prismaService: PrismaService,
   userId: number,
+  micropostData: TestMicropostData = {}
 ): Promise<Micropost> => {
+  const mergedData = { ...defaultMicropostData, ...micropostData };
+
   return prismaService.micropost.create({
     data: {
       userId,
-      title: 'Test Title',
-      imagePath: 'test.jpg',
+      title: mergedData.title,
+      imagePath: mergedData.imagePath,
     },
   });
 };

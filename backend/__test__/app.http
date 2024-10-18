@@ -81,6 +81,10 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
+###  マイクロポスト一覧を取得
+GET {{baseUrl}}/microposts
+Content-Type: {{contentType}}
+
 ### テストエンドポイント
 
 ###  公開テスト

@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
 import { MicropostService } from './micropost.service';
 import { Micropost } from '@prisma/client';
+import { Public } from '@/auth/decorators/public.decorator';
 
 @Controller('microposts')
 export class MicropostController {
@@ -17,7 +18,9 @@ export class MicropostController {
   }
 
   @Get()
+  @Public()
   async index(): Promise<Micropost[]> {
+    console.log("MicropostController index");
     return this.micropostService.all();
   }
 }
