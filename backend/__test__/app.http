@@ -81,6 +81,17 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
+###  ユーザー情報を変更
+PATCH {{baseUrl}}/users/11
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "{{randomEmail}}",
+  "isAdmin": true
+}
+
+
 ###  マイクロポスト一覧を取得
 GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, ParseIntPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
@@ -15,5 +15,10 @@ export class UserController extends BaseController<User> {
   override async index(): Promise<User[]> {
     const usersWithoutPassword = await this.userService.all();
     return usersWithoutPassword as User[];
+  }
+
+  @Patch(':id')
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: Partial<User>): Promise<User> {
+    return this.userService.update(id, updateUserDto);
   }
 }
