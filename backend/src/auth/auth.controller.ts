@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { User } from './decorators/user.decorator';
 import { Response } from 'express';
-import { LoginDto, UserInfo } from '../types/auth.types';
+import { LoginDto, UserInfo, UserWithoutPassword } from '../types/auth.types';
 import { AuthGuard } from './guards/auth.guard';
 import { Prisma } from '@prisma/client';
 
@@ -28,7 +28,7 @@ export class AuthController {
   async login(
     @Body() LoginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{ message: string; token: string; user: UserWithoutPassword & { userRoles: string[] } }> {
     const { token, user } = await this.authService.login(LoginDto);
     this.authService.setTokenCookie(res, token);
     return { message: 'Login successful', token, user };

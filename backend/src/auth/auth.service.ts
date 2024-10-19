@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, UserInfo, UserWithRoleObjects, UserWithStringRoles } from '../types/auth.types';
+import { LoginDto, UserInfo, UserWithRoleObjects, UserWithStringRoles, UserWithoutPassword } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 import { Prisma } from '@prisma/client';
@@ -36,7 +36,7 @@ export class AuthService {
     return { token, user: userInfo };
   }
 
-  async login(LoginDto: LoginDto): Promise<{ token: string; user: Omit<UserInfo, 'password'> }> {
+  async login(LoginDto: LoginDto): Promise<{ token: string; user: UserWithoutPassword & { userRoles: string[] } }> {
     const user = await this.userService.validateUser(
       LoginDto.email,
       LoginDto.password,
@@ -44,13 +44,17 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
-    console.log('login user', user);
     const userWithRoles = await this.userService.getUserWithRoles(user.id);
+    console.log('login userWithRoles', userWithRoles);
+    const userWithoutPassword = Object.fromEntries(
+      Object.entries(userWithRoles).filter(([key]) => key !== 'password')
+    );
     const userInfo = {
-      ...userWithRoles,
+      ...userWithoutPassword,
       userRoles: userWithRoles.userRoles.map(role => role.name)
-    };
-    const token = await this.signToken(userInfo as UserInfo);
+    } as UserWithoutPassword & { userRoles: string[] };
+
+    const token = await this.signToken(userInfo);
     return { token, user: userInfo };
   }
 
