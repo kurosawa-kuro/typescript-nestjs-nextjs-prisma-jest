@@ -1,9 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AuthState, LoginResponse, TokenUser, UserDetails } from '../types/models';
+import { AuthState,  TokenUser } from '../types/models';
 import { ClientSideApiService } from '../services/ClientSideApiService';
 import { useFlashMessageStore } from './flashMessageStore';
-import { getUserDetails as getUserDetailsAction } from '@/app/actions/users';
 
 const initialState: Omit<AuthState, 'resetStore' | 'login' | 'logout'> = {
   user: null,
@@ -43,18 +42,6 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user: TokenUser | null) => set({ user }),
       setLoading: (isLoading: boolean) => set({ isLoading }),
       setError: (error: string | null) => set({ error }),
-      getUserDetails: async (userId: number) => {
-        try {
-          const userDetails = await getUserDetailsAction(userId);
-          if (!userDetails) {
-            throw new Error('User details not found');
-          }
-          return userDetails;
-        } catch (error) {
-          console.error('Error fetching user details:', error);
-          throw error;
-        }
-      },
     }),
     {
       name: 'auth-storage',

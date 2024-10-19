@@ -3,7 +3,7 @@ import { useAuthStore } from '../../src/store/authStore';
 import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { useFlashMessageStore } from '../../src/store/flashMessageStore';
 import { TokenUser } from '@/types/models';
-import { getUserDetails as getUserDetailsAction } from '@/app/actions/users';
+import * as usersActions from '@/app/actions/users';
 
 // モックの設定
 jest.mock('../../src/services/ClientSideApiService');
@@ -161,43 +161,49 @@ describe('useAuthStore', () => {
       expect(result.current.error).toBe('Test error');
     });
   });
+  //   it('should update store state with user details', async () => {
+  //     const mockUserDetails = {
+  //       id: 1,
+  //       name: 'Test User',
+  //       email: 'test@example.com',
+  //       avatarPath: null,
+  //       isAdmin: false,
+  //       createdAt: '2023-01-01T00:00:00Z',
+  //       updatedAt: '2023-01-01T00:00:00Z',
+  //     };
 
-  describe('getUserDetails', () => {
-    // it('should fetch and return user details', async () => {
-    //   const mockUserDetails = {
-    //     id: 1,
-    //     name: 'Test User',
-    //     email: 'test@example.com',
-    //     avatarPath: '/avatar.jpg',
-    //     isAdmin: false,
-    //     createdAt: '2023-01-01T00:00:00Z',
-    //     updatedAt: '2023-01-01T00:00:00Z',
-    //   };
+  //     (usersActions.getUserDetails as jest.Mock).mockResolvedValue(mockUserDetails);
 
-    //   (getUserDetailsAction as jest.Mock).mockResolvedValue(mockUserDetails);
+  //     const { result, waitForNextUpdate } = renderHook(() => useAuthStore());
 
-    //   const { result } = renderHook(() => useAuthStore());
+  //     act(() => {
+  //       result.current.getUserDetails(1);
+  //     });
 
-    //   const userDetails = await result.current.getUserDetails(1);
-    //   console.log("userDetails",userDetails);
-    //   console.log("mockUserDetails",mockUserDetails);
-    //   expect(userDetails).toEqual(mockUserDetails);
-    //   expect(getUserDetailsAction).toHaveBeenCalledWith(1);
-    // });
+  //     await waitForNextUpdate();
 
-    // it('should handle error when fetching user details', async () => {
-    //   const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    //   const mockError = new Error('Failed to fetch user details');
+  //     expect(usersActions.getUserDetails).toHaveBeenCalledWith(1);
+  //     expect(result.current.user).toEqual(mockUserDetails);
+  //     expect(result.current.isLoading).toBe(false);
+  //     expect(result.current.error).toBeNull();
+  //   });
 
-    //   (getUserDetailsAction as jest.Mock).mockRejectedValue(mockError);
+  //   it('should handle errors when fetching user details', async () => {
+  //     const mockError = new Error('Failed to fetch user details');
+  //     (usersActions.getUserDetails as jest.Mock).mockRejectedValue(mockError);
 
-    //   const { result } = renderHook(() => useAuthStore());
+  //     const { result, waitForNextUpdate } = renderHook(() => useAuthStore());
 
-    //   await expect(result.current.getUserDetails(1)).rejects.toThrow('Failed to fetch user details');
+  //     act(() => {
+  //       result.current.getUserDetails(1);
+  //     });
 
-    //   expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching user details:', mockError);
+  //     await waitForNextUpdate();
 
-    //   consoleErrorSpy.mockRestore();
-    // });
-  });
+  //     expect(usersActions.getUserDetails).toHaveBeenCalledWith(1);
+  //     expect(result.current.user).toBeNull();
+  //     expect(result.current.isLoading).toBe(false);
+  //     expect(result.current.error).toBe('Failed to fetch user details');
+  //   });
+  // });
 });
