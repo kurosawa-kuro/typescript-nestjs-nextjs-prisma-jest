@@ -10,7 +10,15 @@ import * as bcrypt from 'bcryptjs';
 import { UserInfo } from '../types/auth.types';
 
 // 新しい型を定義
-type UserWithoutPassword = Omit<User, 'password'>;
+type UserWithoutPassword = {
+  id: number;
+  name: string;
+  email: string;
+  avatarPath: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 type UserWithStringRoles = UserWithoutPassword & {
   userRoles: string[];
 };
@@ -64,6 +72,8 @@ export class UserService extends BaseService<
           }
         }
       });
+
+      console.log('create user', user);
 
       return this.mapUserToUserInfo({
         ...user,
@@ -170,7 +180,7 @@ export class UserService extends BaseService<
   }
 
   async getUserWithRoles(userId: number): Promise<UserWithRoleObjects> {
-    const user = await this.prisma.user.findUnique({
+    const userWithRoles = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { 
         userRoles: {
@@ -181,11 +191,12 @@ export class UserService extends BaseService<
       },
     });
 
-    if (!user) throw new NotFoundException('User not found');
-
+    if (!userWithRoles) throw new NotFoundException('User not found');
+    const { password, ...userWithoutPassword } = userWithRoles;
+    console.log('getUserWithRoles userWithoutPassword', userWithoutPassword);
     return {
-      ...user,
-      userRoles: user.userRoles.map(ur => ur.role)
+      ...userWithoutPassword,
+      userRoles: userWithRoles.userRoles.map(ur => ur.role)
     };
   }
 }
