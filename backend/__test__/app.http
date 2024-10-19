@@ -82,7 +82,7 @@ GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
 ###  ユーザー情報を変更
-Put {{baseUrl}}/users/11
+Put {{baseUrl}}/users/3
 Content-Type: {{contentType}}
 
 {
