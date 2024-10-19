@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { BaseService } from '../common/base.service';
@@ -23,7 +27,7 @@ export class UserService extends BaseService<
     return this.prisma.user;
   }
 
-  // User creation and validation methods
+  // Create (C)
   override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
     try {
       const { password, ...userData } = data;
@@ -44,10 +48,9 @@ export class UserService extends BaseService<
     }
   }
 
-  // User retrieval methods
+  // Read (R)
   override async all(): Promise<User[]> {
     const users = await this.prisma.user.findMany();
-    // Remove password from each user object
     return users.map(({ password: _, ...user }) => user) as User[];
   }
 
@@ -69,6 +72,23 @@ export class UserService extends BaseService<
     return user;
   }
 
+  // Update (U)
+  async updateAvatar(id: number, filename: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.prisma.user.update({
+      where: { id },
+      data: { avatarPath: filename },
+    });
+  }
+
+  // Delete (D)
+  // No specific delete method in this service, using the one from BaseService
+
   // Helper methods
   mapUserToUserInfo(user: User): UserInfo {
     return {
@@ -88,18 +108,5 @@ export class UserService extends BaseService<
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
-  }
-
-  async updateAvatar(id: number, filename: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return this.prisma.user.update({
-      where: { id },
-      data: { avatarPath: filename },
-    });
   }
 }
