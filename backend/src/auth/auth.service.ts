@@ -10,6 +10,11 @@ import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 import { Prisma, User } from '@prisma/client';
 
+type UserWithoutPassword = Omit<User, 'password'>;
+type UserWithRoles = UserWithoutPassword & {
+  userRoles: string[];
+};
+
 @Injectable()
 export class AuthService {
   private readonly jwtSecret: string;
@@ -44,7 +49,8 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
-    const userInfo = this.userService.mapUserToUserInfo(user);
+    console.log('login user', user);
+    const userInfo = this.userService.mapUserToUserInfo(user as any);
     const token = await this.signToken(userInfo);
     return { token, user: userInfo };
   }

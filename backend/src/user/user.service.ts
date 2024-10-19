@@ -97,21 +97,31 @@ export class UserService extends BaseService<
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.prisma.user.findUnique({
+    const userWithRoles = await this.prisma.user.findUnique({
       where: { email },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              select: {
+                name: true
+              }
+            }
+          }
+        }
+      }
     });
 
-    if (!user || !user.password) {
-      return null;
+    if (userWithRoles) {
+      const user = {
+        ...userWithRoles,
+        userRoles: userWithRoles.userRoles.map(ur => ur.role.name)
+      };
+      console.log('validateUseruser', user);
+      return user;
     }
 
-    const isPasswordValid = await this.verifyPassword(password, user.password);
-
-    if (!isPasswordValid) {
-      return null;
-    }
-
-    return user;
+    return null;
   }
 
   // Update (U)
@@ -132,11 +142,12 @@ export class UserService extends BaseService<
   // No specific delete method in this service, using the one from BaseService
 
   // Helper methods
-  mapUserToUserInfo(user: User): UserInfo {
+  mapUserToUserInfo(user: any): any {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
+      userRoles: user.userRoles.map(ur => ur)
     };
   }
 

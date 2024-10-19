@@ -3,6 +3,7 @@ export interface UserInfo {
   id: number;
   name: string;
   email: string;
+  userRoles: string[];
 }
 
 export interface LoginDto {
