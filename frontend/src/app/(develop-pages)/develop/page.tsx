@@ -34,7 +34,8 @@ export default function DevelopPage() {
   const updateZustandInfo = useCallback(() => {
     const zustandState = {
       auth: { user, isLoading, error },
-      flashMessage: { message: flashMessage }
+      flashMessage: { message: flashMessage },
+      useUserProfileStore: { user }
     };
     setZustandInfo(JSON.stringify(zustandState, null, 2));
   }, [user, isLoading, error, flashMessage]);
@@ -133,13 +134,13 @@ export default function DevelopPage() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="border border-gray-300 rounded-lg overflow-hidden">
         <h2 className="text-xl font-bold mb-2 p-3 bg-blue-100 border-b border-gray-300">Zustand 状態</h2>
-        <pre className="bg-white p-4 overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        <pre className="bg-white p-4 overflow-auto h-[calc(100vh-300px)] text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           {zustandInfo}
         </pre>
       </div>
       <div className="border border-gray-300 rounded-lg overflow-hidden">
         <h2 className="text-xl font-bold mb-2 p-3 bg-green-100 border-b border-gray-300">ローカルストレージ情報</h2>
-        <pre className="bg-white p-4 overflow-auto h-80 text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        <pre className="bg-white p-4 overflow-auto h-[calc(100vh-300px)] text-sm whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
           {storageInfo}
         </pre>
       </div>
