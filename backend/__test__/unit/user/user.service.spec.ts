@@ -171,4 +171,52 @@ describe('UserService', () => {
       expect(result.isAdmin).toBe(false);
     });
   });
+
+  describe('updateAvatar', () => {
+    it('should update user avatar path', async () => {
+      const userId = 1;
+      const filename = 'new-avatar.jpg';
+      const updatedUser = { ...mockUser, avatarPath: filename };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (prismaService.user.update as jest.Mock).mockResolvedValue(updatedUser);
+
+      const result = await userService.updateAvatar(userId, filename);
+
+      expect(result).toEqual(updatedUser);
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { avatarPath: filename },
+      });
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      const userId = 999;
+      const filename = 'new-avatar.jpg';
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(userService.updateAvatar(userId, filename)).rejects.toThrow(NotFoundException);
+      await expect(userService.updateAvatar(userId, filename)).rejects.toThrow('User not found');
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
+      expect(prismaService.user.update).not.toHaveBeenCalled();
+    });
+
+    it('should throw an error if update fails', async () => {
+      const userId = 1;
+      const filename = 'new-avatar.jpg';
+      const updateError = new Error('Update failed');
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (prismaService.user.update as jest.Mock).mockRejectedValue(updateError);
+
+      await expect(userService.updateAvatar(userId, filename)).rejects.toThrow(updateError);
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { avatarPath: filename },
+      });
+    });
+  });
 });
