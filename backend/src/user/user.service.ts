@@ -23,6 +23,36 @@ export class UserService extends BaseService<
     return this.prisma.user;
   }
 
+  // User creation and validation methods
+  override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
+    try {
+      const { password, ...userData } = data;
+      const user = await this.prisma.user.create({
+        data: {
+          ...userData,
+          password: await this.hashPassword(password),
+          isAdmin: false,
+        },
+      });
+
+      return this.mapUserToUserInfo(user);
+    } catch (error) {
+      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+        throw new BadRequestException('Email already exists');
+      }
+      throw error;
+    }
+  }
+
+  // User retrieval methods
+  override async all(): Promise<User[]> {
+    const users = await this.prisma.user.findMany();
+    return users.map(user => {
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword as User;
+    });
+  }
+
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -44,6 +74,7 @@ export class UserService extends BaseService<
     return user;
   }
 
+  // Helper methods
   mapUserToUserInfo(user: User): UserInfo {
     return {
       id: user.id,
@@ -51,25 +82,6 @@ export class UserService extends BaseService<
       email: user.email,
       isAdmin: user.isAdmin || false,
     };
-  }
-
-  override async all(): Promise<User[]> {
-    const users = await this.prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        isAdmin: true,
-        avatarPath: true,
-        createdAt: true,
-        updatedAt: true,
-        password: true, // Include password in the select
-      },
-    });
-    return users.map(user => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword as User; // Cast to User type
-    });
   }
 
   private async hashPassword(password: string): Promise<string> {
@@ -81,25 +93,5 @@ export class UserService extends BaseService<
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
-  }
-
-  override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
-    try {
-      const { password, ...userData } = data;
-      const user = await this.prisma.user.create({
-        data: {
-          ...userData,
-          password: await this.hashPassword(password),
-          isAdmin: false,
-        },
-      });
-
-      return this.mapUserToUserInfo(user);
-    } catch (error) {
-      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
-        throw new BadRequestException('Email already exists');
-      }
-      throw error;
-    }
   }
 }

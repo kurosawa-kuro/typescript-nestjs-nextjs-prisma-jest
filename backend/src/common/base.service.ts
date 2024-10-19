@@ -32,18 +32,19 @@ export abstract class BaseService<
     return entity as T;
   }
 
-  async update(id: number, data: UpdateInput): Promise<T> {
+  async update(id: number, updateDto: UpdateInput): Promise<T> {
     try {
-      return (await this.getRepository().update({
+      return await this.getRepository().update({
         where: { id },
-        data
-      })) as T;
+        data: updateDto,
+      });
     } catch (error) {
-      // エラーハンドリング
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`${this.entityName} with ID ${id} not found`);
+      }
       throw error;
     }
   }
-
   async destroy(id: number): Promise<void> {
     try {
       await this.getRepository().delete({ where: { id } as WhereUniqueInput });
