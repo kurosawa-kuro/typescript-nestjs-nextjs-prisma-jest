@@ -5,9 +5,19 @@ import { AllExceptionFilter } from './filters/all-exception.filter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // パスを絶対パスで指定
+  const uploadsPath = join(__dirname, '..', '..', 'uploads');
+  console.log('Uploads path:', uploadsPath); // パスをログに出力
+
+  app.useStaticAssets(uploadsPath, {
+    prefix: '/uploads/',
+  });
 
   const httpAdapter = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionFilter(httpAdapter));
