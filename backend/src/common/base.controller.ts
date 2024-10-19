@@ -1,4 +1,12 @@
-import { Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import {
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
 
 export abstract class BaseController<T> {
   constructor(private readonly service: any) {}
@@ -19,7 +27,10 @@ export abstract class BaseController<T> {
   }
 
   @Put(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() data: any): Promise<T> {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: any,
+  ): Promise<T> {
     return this.service.update(id, data);
   }
 

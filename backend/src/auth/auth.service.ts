@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, RegisterDto, UserInfo } from '../types/auth.types';
+import { LoginDto, UserInfo } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 import { Prisma, User } from '@prisma/client';
@@ -25,7 +25,7 @@ export class AuthService {
 
   // Authentication methods
   async register(
-    data: Prisma.UserCreateInput ,
+    data: Prisma.UserCreateInput,
   ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.create(data);
     const userInfo = this.userService.mapUserToUserInfo(user as User);
@@ -77,7 +77,6 @@ export class AuthService {
   }
 
   private extractTokenFromRequest(request: Request): string | undefined {
-
     return (
       request.cookies['jwt'] || request.headers.authorization?.split(' ')[1]
     );

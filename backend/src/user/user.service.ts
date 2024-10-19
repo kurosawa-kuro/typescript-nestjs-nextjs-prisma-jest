@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { RegisterDto, UserInfo } from '../types/auth.types';
+import { UserInfo } from '../types/auth.types';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -47,10 +47,8 @@ export class UserService extends BaseService<
   // User retrieval methods
   override async all(): Promise<User[]> {
     const users = await this.prisma.user.findMany();
-    return users.map(user => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword as User;
-    });
+    // Remove password from each user object
+    return users.map(({ password: _, ...user }) => user) as User[];
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -62,10 +60,7 @@ export class UserService extends BaseService<
       return null;
     }
 
-    const isPasswordValid = await this.verifyPassword(
-      password,
-      user.password,
-    );
+    const isPasswordValid = await this.verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
       return null;
