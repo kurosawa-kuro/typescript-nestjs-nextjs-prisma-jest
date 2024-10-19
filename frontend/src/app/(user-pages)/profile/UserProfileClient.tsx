@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UserDetails } from '@/types/models';
-import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
 import { useUserProfileStore } from '@/store/UserProfileStore';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
@@ -12,23 +11,20 @@ import { useUserProfileUpdate } from '@/hooks/useUserProfileUpdate';
 import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails }) {
-  const router = useRouter();
-  const { user: authUser, isLoading: authLoading, error: authError } = useAuthStore();
   const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
   const { user, setUser, updateUser } = useUserProfileStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [editedEmail, setEditedEmail] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
-    setUser(initialUserDetails);
-  }, [initialUserDetails, setUser]);
-
-  useEffect(() => {
-    if (!authLoading && !authUser) {
+    if (!initialUserDetails) {
       router.push('/login');
+    } else {
+      setUser(initialUserDetails);
     }
-  }, [authUser, authLoading, router]);
+  }, [initialUserDetails, setUser, router]);
 
   useEffect(() => {
     if (flashMessage) {
@@ -69,8 +65,7 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
     setIsEditing(false);
   };
 
-  if (authLoading || !user) return <LoadingSpinner />;
-  if (authError) return <ErrorDisplay error={authError} />;
+  if (!user) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
