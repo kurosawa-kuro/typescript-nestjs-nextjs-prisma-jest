@@ -2,8 +2,7 @@ import { UserController } from '../../../src/user/user.controller';
 import { UserService } from '../../../src/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
 import { User } from '@prisma/client';
-import { mockUser, createMockUser } from '../../mocks/user.mock';
-import { ParseIntPipe } from '@nestjs/common';
+import { mockUser  } from '../../mocks/user.mock';
 
 describe('UserController', () => {
   let controller: UserController;
