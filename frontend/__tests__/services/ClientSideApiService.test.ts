@@ -1,5 +1,6 @@
 import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { ApiClient } from '../../src/services/apiClient';
+import { UserDetails } from '../../src/types/models';
 
 // ApiClient をモック化
 jest.mock('../../src/services/apiClient');
@@ -45,6 +46,60 @@ describe('ClientSideApiService', () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       expect(result).toEqual(mockUserResponse);
+    });
+  });
+
+  describe('updateAvatar', () => {
+    it('should call ApiClient.put with correct parameters', async () => {
+      const mockUserDetails: UserDetails = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: 'new/avatar/path',
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+      const formData = new FormData();
+      formData.append('avatar', new Blob(['test']), 'test.jpg');
+
+      const result = await ClientSideApiService.updateAvatar(userId, formData);
+
+      expect(ApiClient.put).toHaveBeenCalledWith(
+        `/users/${userId}/avatar`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          rawBody: true,
+        }
+      );
+      expect(result).toEqual(mockUserDetails);
+    });
+  });
+
+  describe('updateUserProfile', () => {
+    it('should call ApiClient.put with correct parameters', async () => {
+      const mockUserDetails: UserDetails = {
+        id: 1,
+        name: 'Updated User',
+        email: 'updated@example.com',
+        isAdmin: false,
+        avatarPath: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+      const updatedFields: Partial<UserDetails> = { name: 'Updated User' };
+
+      const result = await ClientSideApiService.updateUserProfile(userId, updatedFields);
+
+      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}`, updatedFields);
+      expect(result).toEqual(mockUserDetails);
     });
   });
 });

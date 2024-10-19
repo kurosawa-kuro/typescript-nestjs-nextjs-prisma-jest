@@ -43,25 +43,16 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user: TokenUser | null) => set({ user }),
       setLoading: (isLoading: boolean) => set({ isLoading }),
       setError: (error: string | null) => set({ error }),
-      getUserDetails: async (id: number) => {
+      getUserDetails: async (userId: number) => {
         try {
-          const response = await getUserDetailsAction(id);
-          if (response) {
-            const userDetails: UserDetails = {
-              id: Number(response.id),
-              name: response.name,
-              email: response.email,
-              isAdmin: response.isAdmin,
-              avatarPath: response.avatarPath || null,
-              createdAt: response.createdAt || new Date().toISOString(),
-              updatedAt: response.updatedAt || new Date().toISOString(),
-            };
-            return userDetails;
+          const userDetails = await getUserDetailsAction(userId);
+          if (!userDetails) {
+            throw new Error('User details not found');
           }
-          return null;
+          return userDetails;
         } catch (error) {
           console.error('Error fetching user details:', error);
-          return null;
+          throw error;
         }
       },
     }),
