@@ -91,6 +91,17 @@ Content-Type: {{contentType}}
   "isAdmin": false
 }
 
+###  ユーザー情報を変更
+PUT {{baseUrl}}/users/1/avatar
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="avatar"; filename="example.jpg"
+Content-Type: image/jpeg
+
+< ./backend/uploads/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
 
 ###  マイクロポスト一覧を取得
 GET {{baseUrl}}/microposts
