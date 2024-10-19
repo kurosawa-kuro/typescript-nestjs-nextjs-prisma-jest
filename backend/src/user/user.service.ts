@@ -4,15 +4,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
 import { UserInfo } from '../types/auth.types';
 
 // 新しい型を定義
 type UserWithoutPassword = Omit<User, 'password'>;
-type UserWithRoles = UserWithoutPassword & {
+type UserWithStringRoles = UserWithoutPassword & {
   userRoles: string[];
+};
+
+type UserWithRoleObjects = UserWithoutPassword & {
+  userRoles: Role[];
 };
 
 @Injectable()
@@ -61,7 +65,10 @@ export class UserService extends BaseService<
         }
       });
 
-      return this.mapUserToUserInfo(user);
+      return this.mapUserToUserInfo({
+        ...user,
+        userRoles: user.userRoles.map(ur => ur.role)
+      });
     } catch (error) {
       if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
         throw new BadRequestException('Email already exists');
@@ -71,7 +78,7 @@ export class UserService extends BaseService<
   }
 
   // Read (R)
-  override async all(): Promise<UserWithRoles[]> {
+  override async all(): Promise<UserWithStringRoles[]> {
     return this.prisma.user.findMany({
       select: {
         id: true,
@@ -142,7 +149,7 @@ export class UserService extends BaseService<
   // No specific delete method in this service, using the one from BaseService
 
   // Helper methods
-  mapUserToUserInfo(user: any): any {
+  mapUserToUserInfo(user: UserWithRoleObjects): any {
     return {
       id: user.id,
       name: user.name,
@@ -160,5 +167,25 @@ export class UserService extends BaseService<
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
+  }
+
+  async getUserWithRoles(userId: number): Promise<UserWithRoleObjects> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { 
+        userRoles: {
+          include: {
+            role: true
+          }
+        }
+      },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return {
+      ...user,
+      userRoles: user.userRoles.map(ur => ur.role)
+    };
   }
 }

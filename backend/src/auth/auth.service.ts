@@ -8,11 +8,15 @@ import { ConfigService } from '@nestjs/config';
 import { LoginDto, UserInfo } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 
 type UserWithoutPassword = Omit<User, 'password'>;
-type UserWithRoles = UserWithoutPassword & {
+type UserWithStringRoles = UserWithoutPassword & {
   userRoles: string[];
+};
+
+type UserWithRoleObjects = UserWithoutPassword & {
+  userRoles: Role[];
 };
 
 @Injectable()
@@ -33,7 +37,7 @@ export class AuthService {
     data: Prisma.UserCreateInput,
   ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.create(data);
-    const userInfo = this.userService.mapUserToUserInfo(user as User);
+    const userInfo = this.userService.mapUserToUserInfo(user as any);
     const token = await this.jwtService.signAsync(userInfo, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: '1d',
@@ -41,7 +45,7 @@ export class AuthService {
     return { token, user: userInfo };
   }
 
-  async login(LoginDto: LoginDto): Promise<{ token: string; user: UserInfo }> {
+  async login(LoginDto: LoginDto): Promise<{ token: string; user: Omit<UserInfo, 'password'> }> {
     const user = await this.userService.validateUser(
       LoginDto.email,
       LoginDto.password,
@@ -50,8 +54,12 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
     console.log('login user', user);
-    const userInfo = this.userService.mapUserToUserInfo(user as any);
-    const token = await this.signToken(userInfo);
+    const userWithRoles = await this.userService.getUserWithRoles(user.id);
+    const userInfo = {
+      ...userWithRoles,
+      userRoles: userWithRoles.userRoles.map(role => role.name)
+    };
+    const token = await this.signToken(userInfo as UserInfo);
     return { token, user: userInfo };
   }
 
