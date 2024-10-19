@@ -91,7 +91,7 @@ Content-Type: {{contentType}}
   "isAdmin": false
 }
 
-###  ユーザー情報を変更
+###  ユーザー avatar情報を変更
 PUT {{baseUrl}}/users/1/avatar
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
