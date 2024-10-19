@@ -13,7 +13,6 @@ export class UserController extends BaseController<User> {
   @Public()
   @Get()
   override async index(): Promise<User[]> {
-    const users = await this.userService.all();
-    return users as User[];
+    return this.userService.all();
   }
 }
