@@ -19,6 +19,13 @@ export async function seed() {
     }
   });
 
+  // Roles
+  await Promise.all([
+    prisma.role.create({ data: { name: 'general', description: '一般ユーザー' } }),
+    prisma.role.create({ data: { name: 'read_only_admin', description: '閲覧限定アドミン' } }),
+    prisma.role.create({ data: { name: 'admin', description: 'フルアクセス権限を持つアドミン' } }),
+  ])
+
   // Admin user
   await prisma.user.create({
     data: {
