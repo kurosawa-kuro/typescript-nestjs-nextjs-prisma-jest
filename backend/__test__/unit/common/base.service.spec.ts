@@ -140,6 +140,13 @@ describe('BaseService', () => {
 
       await expect(service.update(1, { name: 'Updated Entity' })).rejects.toThrow(NotFoundException);
     });
+
+    it('should throw original error if not P2025', async () => {
+      const originalError = new Error('Database connection failed');
+      (prismaService.testEntity.update as jest.Mock).mockRejectedValue(originalError);
+
+      await expect(service.update(1, { name: 'Updated Entity' })).rejects.toThrow('Database connection failed');
+    });
   });
 
   describe('destroy', () => {
@@ -155,6 +162,13 @@ describe('BaseService', () => {
       (prismaService.testEntity.delete as jest.Mock).mockRejectedValue({ code: 'P2025' });
 
       await expect(service.destroy(1)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw original error if not P2025', async () => {
+      const originalError = new Error('Database connection failed');
+      (prismaService.testEntity.delete as jest.Mock).mockRejectedValue(originalError);
+
+      await expect(service.destroy(1)).rejects.toThrow('Database connection failed');
     });
   });
 

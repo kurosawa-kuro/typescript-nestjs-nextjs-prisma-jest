@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 
 export abstract class BaseController<T> {
@@ -18,7 +19,11 @@ export abstract class BaseController<T> {
 
   @Get(':id')
   async show(@Param('id') id: number): Promise<T> {
-    return this.service.findOne(id);
+    const item = await this.service.findOne(id);
+    if (!item) {
+      throw new NotFoundException(`Item with id ${id} not found`);
+    }
+    return item;
   }
 
   @Post()
