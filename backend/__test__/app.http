@@ -82,13 +82,13 @@ GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
 ###  ユーザー情報を変更
-PATCH {{baseUrl}}/users/11
+Put {{baseUrl}}/users/11
 Content-Type: {{contentType}}
 
 {
   "name": "John Doe",
   "email": "{{randomEmail}}",
-  "isAdmin": true
+  "isAdmin": false
 }
 
 

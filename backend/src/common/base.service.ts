@@ -35,13 +35,11 @@ export abstract class BaseService<
   async update(id: number, data: UpdateInput): Promise<T> {
     try {
       return (await this.getRepository().update({
-        where: { id } as WhereUniqueInput,
-        data,
-      })) as Promise<T>;
+        where: { id },
+        data
+      })) as T;
     } catch (error) {
-      if (error.code === 'P2025') {
-        this.handleNotFound(id);
-      }
+      // エラーハンドリング
       throw error;
     }
   }
