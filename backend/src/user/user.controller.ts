@@ -12,8 +12,7 @@ import { User } from '@prisma/client';
 import { BaseController } from '../common/base.controller';
 import { Public } from '../auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { multerConfig, multerOptions } from '../common/multer-config';
 
 @Controller('users')
 export class UserController extends BaseController<User> {
@@ -29,20 +28,7 @@ export class UserController extends BaseController<User> {
 
   @Public()
   @Put(':id/avatar')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          return cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('avatar', { ...multerConfig, ...multerOptions }))
   async updateAvatar(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
