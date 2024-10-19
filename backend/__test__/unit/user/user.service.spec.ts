@@ -4,21 +4,11 @@ import { setupTestModule } from '../test-utils';
 import { User } from '@prisma/client';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { mockUser, createMockUser } from '../../mocks/user.mock';
 
 describe('UserService', () => {
   let userService: UserService;
   let prismaService: PrismaService;
-
-  const mockUser: User = {
-    id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-    password: 'hash',
-    isAdmin: false,
-    avatarPath: '',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
 
   beforeEach(async () => {
     const module = await setupTestModule(
@@ -111,7 +101,7 @@ describe('UserService', () => {
     const hashedPassword = 'hashedPassword123';
 
     it('should return user if credentials are valid', async () => {
-      const user = { ...mockUser, password: hashedPassword };
+      const user = createMockUser({ password: hashedPassword });
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
 

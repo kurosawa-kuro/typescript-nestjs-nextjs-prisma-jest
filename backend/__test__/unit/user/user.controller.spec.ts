@@ -2,6 +2,7 @@ import { UserController } from '../../../src/user/user.controller';
 import { UserService } from '../../../src/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
 import { User } from '@prisma/client';
+import { mockUser, createMockUser } from '../../mocks/user.mock';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -25,18 +26,15 @@ describe('UserController', () => {
   describe('create', () => {
     it('should create a user', async () => {
       const userData: Omit<User, 'id'> = {
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'testHash',
-        isAdmin: false,
-        avatarPath: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        name: mockUser.name,
+        email: mockUser.email,
+        password: mockUser.password,
+        isAdmin: mockUser.isAdmin,
+        avatarPath: mockUser.avatarPath,
+        createdAt: mockUser.createdAt,
+        updatedAt: mockUser.updatedAt,
       };
-      const expectedResult: User = {
-        id: 1,
-        ...userData,
-      };
+      const expectedResult: User = mockUser;
 
       jest.spyOn(userService, 'create').mockResolvedValue(expectedResult);
 
@@ -47,18 +45,7 @@ describe('UserController', () => {
 
   describe('index', () => {
     it('should return an array of users without passwords', async () => {
-      const expectedResult: User[] = [
-        {
-          id: 1,
-          name: 'Test User',
-          email: 'test@example.com',
-          password: 'dummyPassword',
-          isAdmin: false,
-          avatarPath: '',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+      const expectedResult: User[] = [mockUser];
 
       jest.spyOn(userService, 'all').mockResolvedValue(expectedResult);
 
