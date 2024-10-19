@@ -41,7 +41,24 @@ export class UserService extends BaseService<
         data: {
           ...userData,
           password: await this.hashPassword(password),
+          userRoles: {
+            create: {
+              role: {
+                connectOrCreate: {
+                  where: { name: 'general' },
+                  create: { name: 'general' }
+                }
+              }
+            }
+          }
         },
+        include: {
+          userRoles: {
+            include: {
+              role: true
+            }
+          }
+        }
       });
 
       return this.mapUserToUserInfo(user);
