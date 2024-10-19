@@ -11,5 +11,10 @@ export const ClientSideApiService = {
     headers: { Authorization: `Bearer ${token}` }
   }),
 
-  getUserDetails: (userId: number) => ApiClient.get<UserDetails>(`/users/${userId}`),
+
+  updateAvatar: (userId: number, formData: FormData) => 
+    ApiClient.put<UserDetails>(`/users/${userId}/avatar`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      rawBody: true,
+    }),
 };

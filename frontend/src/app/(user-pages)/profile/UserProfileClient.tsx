@@ -1,18 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { UserDetails } from '@/types/models';
 import Image from 'next/image';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 
 export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails }) {
   const router = useRouter();
   const { user, isLoading, getUserDetails } = useAuthStore();
   const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
   const [userDetails, setUserDetails] = useState<UserDetails>(initialUserDetails);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -29,6 +31,23 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
     }
   }, [flashMessage, setFlashMessage]);
 
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const updatedUser = await ClientSideApiService.updateAvatar(userDetails.id, formData);
+      setUserDetails(updatedUser);
+      setFlashMessage('Avatar updated successfully');
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      setFlashMessage('Failed to update avatar');
+    }
+  };
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
@@ -36,13 +55,21 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-md w-full">
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-center">
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-center relative">
           <Image 
             src={`http://localhost:3001/uploads/${userDetails.avatarPath}`}
             alt="User Avatar"
             width={120}
             height={120}
-            className="rounded-full border-4 border-white mx-auto"
+            className="rounded-full border-4 border-white mx-auto cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleAvatarChange}
+            accept="image/*"
+            className="hidden"
           />
         </div>
         <div className="p-6">
@@ -55,6 +82,11 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
           </div>
         </div>
       </div>
+      {flashMessage && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white p-2 rounded">
+          {flashMessage}
+        </div>
+      )}
     </div>
   );
 }
