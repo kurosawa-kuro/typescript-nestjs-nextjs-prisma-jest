@@ -5,19 +5,10 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, UserInfo } from '../types/auth.types';
+import { LoginDto, UserInfo, UserWithRoleObjects, UserWithStringRoles } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
-import { Prisma, Role, User } from '@prisma/client';
-
-type UserWithoutPassword = Omit<User, 'password'>;
-type UserWithStringRoles = UserWithoutPassword & {
-  userRoles: string[];
-};
-
-type UserWithRoleObjects = UserWithoutPassword & {
-  userRoles: Role[];
-};
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
