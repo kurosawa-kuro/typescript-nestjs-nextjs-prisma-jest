@@ -8,7 +8,6 @@ const initialState: Omit<AuthState, 'resetStore' | 'login' | 'logout'> = {
   user: null,
   isLoading: false,
   error: null,
-  getUserDetails: async () => null,
 };
 
 export const useAuthStore = create<AuthState>()(

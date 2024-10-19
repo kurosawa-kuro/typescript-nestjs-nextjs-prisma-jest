@@ -19,7 +19,6 @@ export interface AuthState {
   resetStore: () => void;
   login: (email: string, password: string) => Promise<LoginResponse | null>;
   logout: () => Promise<void>;
-  getUserDetails: (id: number) => Promise<UserDetails | null>;
 }
 
 export interface ApiError extends Error {
