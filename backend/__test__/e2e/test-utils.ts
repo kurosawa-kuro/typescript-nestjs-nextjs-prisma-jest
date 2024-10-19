@@ -62,7 +62,6 @@ export const createTestUser = async (
       name: mergedData.name,
       email: mergedData.email,
       password: hashedPassword,
-      isAdmin: mergedData.isAdmin,
       avatarPath: mergedData.avatarPath,
     },
   });

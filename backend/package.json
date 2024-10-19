@@ -20,6 +20,7 @@
     "test:e2e": "cross-env NODE_ENV=test dotenv -e .env.test -- jest --maxWorkers=1 --config ./__test__/e2e/jest-e2e.json",
     "prisma:generate:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- prisma generate",
     "prisma:migrate:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- prisma migrate dev",
+    "prisma:seed:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- prisma db seed",
     "prisma:generate:test": "cross-env NODE_ENV=test dotenv -e .env.test -- prisma generate",
     "prisma:migrate:test": "cross-env NODE_ENV=test dotenv -e .env.test -- prisma migrate dev"
   },

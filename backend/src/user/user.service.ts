@@ -35,7 +35,6 @@ export class UserService extends BaseService<
         data: {
           ...userData,
           password: await this.hashPassword(password),
-          isAdmin: false,
         },
       });
 
@@ -95,7 +94,6 @@ export class UserService extends BaseService<
       id: user.id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin || false,
     };
   }
 
