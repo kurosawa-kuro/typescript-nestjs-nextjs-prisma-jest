@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { UserDetails } from '@/types/models';
+import Image from 'next/image';
 
 export default function UserProfile() {
   const router = useRouter();
@@ -48,20 +49,36 @@ export default function UserProfile() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
-      {flashMessage && (
-        <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
-          {flashMessage}
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-md w-full">
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-center">
+          <Image 
+            src={`http://localhost:3001/uploads/${userDetails.avatarPath}`}
+            alt="User Avatar"
+            width={120}
+            height={120}
+            className="rounded-full border-4 border-white mx-auto"
+          />
         </div>
-      )}
-      <h1 className="text-3xl font-bold mb-4 text-black">User Profile</h1>
-      <div className="mb-4 text-black">
-        <p>Name: <span className="inline-block w-32">{userDetails.name}</span></p>
-        <p>Email: <span className="inline-block w-32">{userDetails.email}</span></p>
-        <p>Avatar: <span className="inline-block w-32">{userDetails.avatarPath || 'No avatar'}</span></p>
-        <p>Created At: <span className="inline-block w-32">{new Date(userDetails.createdAt).toLocaleDateString()}</span></p>
-        <p>Updated At: <span className="inline-block w-32">{new Date(userDetails.updatedAt).toLocaleDateString()}</span></p>
+        <div className="p-6">
+          <h1 className="text-2xl font-bold text-center mb-4">User Profile</h1>
+          <div className="space-y-3">
+            <ProfileItem label="Name" value={userDetails.name} />
+            <ProfileItem label="Email" value={userDetails.email} />
+            <ProfileItem label="Created At" value={new Date(userDetails.createdAt).toLocaleDateString()} />
+            <ProfileItem label="Updated At" value={new Date(userDetails.updatedAt).toLocaleDateString()} />
+          </div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function ProfileItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between items-center border-b pb-2">
+      <span className="font-semibold text-gray-600">{label}:</span>
+      <span className="text-gray-800">{value}</span>
     </div>
   );
 }
