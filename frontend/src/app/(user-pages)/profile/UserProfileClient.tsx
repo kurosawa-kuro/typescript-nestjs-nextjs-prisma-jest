@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
+import { useUserProfileStore } from '@/store/UserProfileStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { UserDetails } from '@/types/models';
 import Image from 'next/image';
@@ -14,19 +15,30 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
   const router = useRouter();
   const { user: authUser, isLoading, error } = useAuthStore();
   const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
+  const { user, setUser, updateUser } = useUserProfileStore();
   
+  useEffect(() => {
+    setUser(initialUserDetails);
+  }, [initialUserDetails, setUser]);
+
   const {
-    user,
     fileInputRef,
     handleAvatarClick,
     handleAvatarChange
-  } = useAvatarUpload(initialUserDetails, setFlashMessage, setFlashMessage);
+  } = useAvatarUpload(
+    (successMessage) => setFlashMessage(successMessage),
+    (errorMessage) => setFlashMessage(errorMessage)
+  );
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(user.name);
-  const [editedEmail, setEditedEmail] = useState(user.email);
+  const [editedName, setEditedName] = useState(user?.name || '');
+  const [editedEmail, setEditedEmail] = useState(user?.email || '');
 
-  const { updateUserProfile } = useUserProfileUpdate(user, setFlashMessage, setFlashMessage, setEditedName, setEditedEmail);
+  const { updateUserProfile, isLoading: isLoadingUpdate } = useUserProfileUpdate(
+    user,
+    setFlashMessage,
+    setFlashMessage
+  );
 
   useEffect(() => {
     if (!isLoading && !authUser) {
@@ -45,21 +57,26 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
 
   const handleEdit = () => {
     setIsEditing(true);
+    setEditedName(user?.name || '');
+    setEditedEmail(user?.email || '');
   };
 
   const handleSave = async () => {
     const updatedUser = await updateUserProfile({ name: editedName, email: editedEmail });
-    setIsEditing(false);
-    setFlashMessage('User profile updated successfully');
+    if (updatedUser) {
+      updateUser(updatedUser);
+      setIsEditing(false);
+      setFlashMessage('User profile updated successfully');
+    }
   };
 
   const handleCancel = () => {
-    setEditedName(user.name);
-    setEditedEmail(user.email);
+    setEditedName(user?.name || '');
+    setEditedEmail(user?.email || '');
     setIsEditing(false);
   };
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return <LoadingSpinner />;
   }
 
