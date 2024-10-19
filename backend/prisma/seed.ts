@@ -8,7 +8,7 @@ export async function seed() {
   // 既存のデータを削除
   await prisma.$transaction(async (prisma) => {
     // テーブル名のリスト
-    const tables = ['Micropost', 'User'];
+    const tables = ['Micropost', 'User', 'Category', 'Role'];
   
     for (const table of tables) {
       // データを削除
