@@ -1,9 +1,10 @@
 import { useRef } from 'react';
 import { ClientSideApiService } from '@/services/ClientSideApiService';
-import { UserDetails } from '@/types/models';
 import { useUserProfileStore } from '@/store/UserProfileStore';
 
-export function useAvatarUpload(onSuccess: (message: string) => void, onError: (message: string) => void) {
+type MessageCallback = (message: string) => void;
+
+export function useAvatarUpload(onSuccess: MessageCallback, onError: MessageCallback) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, updateUser } = useUserProfileStore();
 
@@ -12,18 +13,13 @@ export function useAvatarUpload(onSuccess: (message: string) => void, onError: (
   };
 
   const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('handleAvatarChange');
     const file = event.target.files?.[0];
-    console.log('file', file);
     if (!file || !user) return;
 
     const formData = new FormData();
     formData.append('avatar', file);
 
     try {
-      console.log('try');
-      console.log('user.id', user.id);
-      console.log('formData', formData);
       const updatedUser = await ClientSideApiService.updateAvatar(user.id, formData);
       updateUser(updatedUser);
       onSuccess('Avatar updated successfully');
