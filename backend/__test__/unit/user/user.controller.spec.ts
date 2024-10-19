@@ -3,13 +3,14 @@ import { UserService } from '../../../src/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
 import { User } from '@prisma/client';
 import { mockUser, createMockUser } from '../../mocks/user.mock';
+import { ParseIntPipe } from '@nestjs/common';
 
 describe('UserController', () => {
   let controller: UserController;
   let userService: UserService;
 
   beforeEach(async () => {
-    const mockUserService = createMockService(['create', 'all']);
+    const mockUserService = createMockService(['create', 'all', 'updateAvatar']);
     const module = await setupTestModule(
       [UserController],
       [{ provide: UserService, useValue: mockUserService }],
@@ -51,6 +52,34 @@ describe('UserController', () => {
 
       expect(await controller.index()).toBe(expectedResult);
       expect(userService.all).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateAvatar', () => {
+    it('should update user avatar', async () => {
+      const userId = 1;
+      const filename = 'new-avatar.jpg';
+      const mockFile = {
+        filename: filename,
+      } as Express.Multer.File;
+
+      const updatedUser: User = {
+        ...mockUser,
+        avatarPath: filename,
+      };
+
+      jest.spyOn(userService, 'updateAvatar').mockResolvedValue(updatedUser);
+
+      const result = await controller.updateAvatar(userId, mockFile);
+
+      expect(result).toEqual(updatedUser);
+      expect(userService.updateAvatar).toHaveBeenCalledWith(userId, filename);
+    });
+
+    it('should throw an error if file is not provided', async () => {
+      const userId = 1;
+
+      await expect(controller.updateAvatar(userId, undefined)).rejects.toThrow();
     });
   });
 });
