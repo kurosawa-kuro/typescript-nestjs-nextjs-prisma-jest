@@ -5,9 +5,6 @@ import { User } from '@prisma/client';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
-// Add this type definition
-type CreateInput = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
-
 describe('UserService', () => {
   let userService: UserService;
   let prismaService: PrismaService;
@@ -48,14 +45,19 @@ describe('UserService', () => {
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  describe('createUser', () => {
+  describe('create', () => {
+    const registerDto = {
+      email: 'new@example.com',
+      name: 'New User',
+      password: 'password123',
+    };
+    const hashedPassword = 'hashedPassword123';
+
+    beforeEach(() => {
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
+    });
+
     it('should create a new user', async () => {
-      const registerDto = {
-        email: 'new@example.com',
-        name: 'New User',
-        password: 'password123',
-      };
-      const hashedPassword = 'hashedPassword123';
       const createdUser = {
         id: 1,
         ...registerDto,
@@ -65,8 +67,6 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
       (prismaService.user.create as jest.Mock).mockResolvedValue(createdUser);
 
       const result = await userService.create(registerDto);
@@ -89,12 +89,6 @@ describe('UserService', () => {
     });
 
     it('should throw BadRequestException if email is already in use', async () => {
-      const registerDto = {
-        email: 'existing@example.com',
-        name: 'Existing User',
-        password: 'password123',
-      };
-
       (prismaService.user.create as jest.Mock).mockRejectedValue({
         code: 'P2002',
         meta: { target: ['email'] }
@@ -105,12 +99,6 @@ describe('UserService', () => {
     });
 
     it('should throw the original error for other errors', async () => {
-      const registerDto = {
-        email: 'new@example.com',
-        name: 'New User',
-        password: 'password123',
-      };
-
       const originalError = new Error('Some other error');
       (prismaService.user.create as jest.Mock).mockRejectedValue(originalError);
 
@@ -119,11 +107,11 @@ describe('UserService', () => {
   });
 
   describe('validateUser', () => {
-    it('should return user if credentials are valid', async () => {
-      const password = 'password123';
-      const hashedPassword = 'hashedPassword123';
-      const user = { ...mockUser, password: hashedPassword };
+    const password = 'password123';
+    const hashedPassword = 'hashedPassword123';
 
+    it('should return user if credentials are valid', async () => {
+      const user = { ...mockUser, password: hashedPassword };
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
 
@@ -137,7 +125,7 @@ describe('UserService', () => {
     it('should return null if user is not found', async () => {
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const result = await userService.validateUser('nonexistent@example.com', 'password123');
+      const result = await userService.validateUser('nonexistent@example.com', password);
 
       expect(result).toBeNull();
     });
@@ -173,11 +161,11 @@ describe('UserService', () => {
   });
 
   describe('updateAvatar', () => {
-    it('should update user avatar path', async () => {
-      const userId = 1;
-      const filename = 'new-avatar.jpg';
-      const updatedUser = { ...mockUser, avatarPath: filename };
+    const userId = 1;
+    const filename = 'new-avatar.jpg';
 
+    it('should update user avatar path', async () => {
+      const updatedUser = { ...mockUser, avatarPath: filename };
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (prismaService.user.update as jest.Mock).mockResolvedValue(updatedUser);
 
@@ -192,9 +180,6 @@ describe('UserService', () => {
     });
 
     it('should throw NotFoundException if user is not found', async () => {
-      const userId = 999;
-      const filename = 'new-avatar.jpg';
-
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(userService.updateAvatar(userId, filename)).rejects.toThrow(NotFoundException);
@@ -204,10 +189,7 @@ describe('UserService', () => {
     });
 
     it('should throw an error if update fails', async () => {
-      const userId = 1;
-      const filename = 'new-avatar.jpg';
       const updateError = new Error('Update failed');
-
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (prismaService.user.update as jest.Mock).mockRejectedValue(updateError);
 
