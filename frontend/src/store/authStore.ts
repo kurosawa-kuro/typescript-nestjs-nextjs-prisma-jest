@@ -1,22 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { AuthState, LoginResponse, TokenUser } from '../types/models';
+import { AuthState, LoginResponse, TokenUser, UserDetails } from '../types/models';
 import { ClientSideApiService } from '../services/ClientSideApiService';
 import { useFlashMessageStore } from './flashMessageStore';
-
-interface AuthActions {
-  login: (email: string, password: string) => Promise<LoginResponse | null>;
-  logout: () => Promise<void>;
-  resetStore: () => void;
-  setUser: (user: TokenUser | null) => void;
-  setLoading: (isLoading: boolean) => void;
-  setError: (error: string | null) => void;
-}
+import { getUserDetails as getUserDetailsAction } from '@/app/actions/users';
 
 const initialState: Omit<AuthState, 'resetStore' | 'login' | 'logout'> = {
   user: null,
   isLoading: false,
   error: null,
+  getUserDetails: async () => null,
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -50,6 +43,27 @@ export const useAuthStore = create<AuthState>()(
       setUser: (user: TokenUser | null) => set({ user }),
       setLoading: (isLoading: boolean) => set({ isLoading }),
       setError: (error: string | null) => set({ error }),
+      getUserDetails: async (id: number) => {
+        try {
+          const response = await getUserDetailsAction(id);
+          if (response) {
+            const userDetails: UserDetails = {
+              id: Number(response.id),
+              name: response.name,
+              email: response.email,
+              isAdmin: response.isAdmin,
+              avatarPath: response.avatarPath || null,
+              createdAt: response.createdAt || new Date().toISOString(),
+              updatedAt: response.updatedAt || new Date().toISOString(),
+            };
+            return userDetails;
+          }
+          return null;
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+          return null;
+        }
+      },
     }),
     {
       name: 'auth-storage',

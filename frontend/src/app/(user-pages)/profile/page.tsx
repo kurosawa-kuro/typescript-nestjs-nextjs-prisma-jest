@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { UserDetails } from '@/types/models';
 
-export default function UserPages() {
+export default function UserProfile() {
   const router = useRouter();
-  const { user, isLoading } = useAuthStore();
+  const { user, isLoading, getUserDetails } = useAuthStore();
   const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
   useEffect(() => {
     if (!isLoading) {
@@ -18,22 +20,30 @@ export default function UserPages() {
       } else if (user.isAdmin) {
         router.push('/admin');
       } else {
-        // ログイン成功時にフラッシュメッセージを設定
-        setFlashMessage('ログインに成功しました');
+        fetchUserDetails();
       }
     }
-  }, [user, isLoading, router, setFlashMessage]);
+  }, [user, isLoading, router]);
+
+  const fetchUserDetails = async () => {
+    if (user && user.id) {
+      const details = await getUserDetails(Number(user.id));
+      if (details) {
+        setUserDetails(details);
+      }
+    }
+  };
 
   useEffect(() => {
     if (flashMessage) {
       const timer = setTimeout(() => {
         setFlashMessage(null);
-      }, 5000); // 5秒後にメッセージを消す
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [flashMessage, setFlashMessage]);
 
-  if (isLoading) {
+  if (isLoading || !userDetails) {
     return <LoadingSpinner />;
   }
 
@@ -46,8 +56,11 @@ export default function UserPages() {
       )}
       <h1 className="text-3xl font-bold mb-4 text-black">User Profile</h1>
       <div className="mb-4 text-black">
-        <p>Name: <span className="inline-block w-32">{user?.name || '\u00A0'}</span></p>
-        <p>Email: <span className="inline-block w-32">{user?.email || '\u00A0'}</span></p>
+        <p>Name: <span className="inline-block w-32">{userDetails.name}</span></p>
+        <p>Email: <span className="inline-block w-32">{userDetails.email}</span></p>
+        <p>Avatar: <span className="inline-block w-32">{userDetails.avatarPath || 'No avatar'}</span></p>
+        <p>Created At: <span className="inline-block w-32">{new Date(userDetails.createdAt).toLocaleDateString()}</span></p>
+        <p>Updated At: <span className="inline-block w-32">{new Date(userDetails.updatedAt).toLocaleDateString()}</span></p>
       </div>
     </div>
   );

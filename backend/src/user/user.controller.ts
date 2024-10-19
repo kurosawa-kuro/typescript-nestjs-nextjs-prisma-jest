@@ -30,6 +30,7 @@ export class UserController extends BaseController<User> {
   @Public()
   @Get(':id')
   async show(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    console.log('ユーザー詳細取得');
     return this.userService.findById(id);
   }
 
