@@ -17,4 +17,8 @@ export const ClientSideApiService = {
       headers: { 'Content-Type': 'multipart/form-data' },
       rawBody: true,
     }),
+
+  updateUserProfile: async (userId: number, updatedFields: Partial<UserDetails>) => {
+    return ApiClient.put<UserDetails>(`/users/${userId}`, updatedFields);
+  },
 };

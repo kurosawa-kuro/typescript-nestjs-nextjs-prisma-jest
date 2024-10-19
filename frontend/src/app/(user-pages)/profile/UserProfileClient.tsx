@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
@@ -8,6 +8,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import { UserDetails } from '@/types/models';
 import Image from 'next/image';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
+import { useUserProfileUpdate } from '@/hooks/useUserProfileUpdate';
 
 export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails }) {
   const router = useRouter();
@@ -20,6 +21,12 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
     handleAvatarClick,
     handleAvatarChange
   } = useAvatarUpload(initialUserDetails, setFlashMessage, setFlashMessage);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(user.name);
+  const [editedEmail, setEditedEmail] = useState(user.email);
+
+  const { updateUserProfile } = useUserProfileUpdate(user, setFlashMessage, setFlashMessage, setEditedName, setEditedEmail);
 
   useEffect(() => {
     if (!isLoading && !authUser) {
@@ -35,6 +42,22 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
       return () => clearTimeout(timer);
     }
   }, [flashMessage, setFlashMessage]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    const updatedUser = await updateUserProfile({ name: editedName, email: editedEmail });
+    setIsEditing(false);
+    setFlashMessage('User profile updated successfully');
+  };
+
+  const handleCancel = () => {
+    setEditedName(user.name);
+    setEditedEmail(user.email);
+    setIsEditing(false);
+  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -81,10 +104,36 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
         <div className="p-6">
           <h1 className="text-2xl font-bold text-center mb-4">User Profile</h1>
           <div className="space-y-3">
-            <ProfileItem label="Name" value={user.name} />
-            <ProfileItem label="Email" value={user.email} />
-            <ProfileItem label="Created At" value={new Date(user.createdAt).toLocaleDateString()} />
-            <ProfileItem label="Updated At" value={new Date(user.updatedAt).toLocaleDateString()} />
+            {isEditing ? (
+              <>
+                <input
+                  type="text"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+                <input
+                  type="email"
+                  value={editedEmail}
+                  onChange={(e) => setEditedEmail(e.target.value)}
+                  className="w-full p-2 border rounded"
+                />
+                <div className="flex justify-end space-x-2">
+                  <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded">Save</button>
+                  <button onClick={handleCancel} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <ProfileItem label="Name" value={user.name} />
+                <ProfileItem label="Email" value={user.email} />
+                <ProfileItem label="Created At" value={new Date(user.createdAt).toLocaleDateString()} />
+                <ProfileItem label="Updated At" value={new Date(user.updatedAt).toLocaleDateString()} />
+                <div className="flex justify-end mt-4">
+                  <button onClick={handleEdit} className="bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
