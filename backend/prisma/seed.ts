@@ -35,7 +35,12 @@ export async function seed() {
       email: 'admin@example.com',
       password: await bcrypt.hash('password', 10),
       userRoles: {
-        create: [{ roleId: roles.find(r => r.name === 'admin')!.id }]
+        create: [
+          { roleId: roles.find(r => r.name === 'admin')!.id },
+          { roleId: roles.find(r => r.name === 'read_only_admin')!.id },
+          { roleId: roles.find(r => r.name === 'general')!.id }
+        ],
+        
       }
     },
   })
@@ -60,7 +65,9 @@ export async function seed() {
         password: await bcrypt.hash('password', 10),
         avatarPath: 'bob_avatar.png',
         userRoles: {
-          create: [{ roleId: roles.find(r => r.name === 'general')!.id }]
+          create: [{ roleId: roles.find(r => r.name === 'general')!.id },
+            { roleId: roles.find(r => r.name ==='read_only_admin')!.id }
+          ]
         }
       },
     }),

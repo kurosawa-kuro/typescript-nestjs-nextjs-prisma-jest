@@ -9,9 +9,15 @@ import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
 import { UserInfo } from '../types/auth.types';
 
+// 新しい型を定義
+type UserWithoutPassword = Omit<User, 'password'>;
+type UserWithRoles = UserWithoutPassword & {
+  userRoles: string[];
+};
+
 @Injectable()
 export class UserService extends BaseService<
-  User,
+  UserWithoutPassword,
   Prisma.UserCreateInput,
   Prisma.UserUpdateInput,
   Prisma.UserWhereUniqueInput,
@@ -48,9 +54,29 @@ export class UserService extends BaseService<
   }
 
   // Read (R)
-  override async all(): Promise<User[]> {
-    const users = await this.prisma.user.findMany();
-    return users.map(({ password: _, ...user }) => user) as User[];
+  override async all(): Promise<UserWithRoles[]> {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatarPath: true,
+        createdAt: true,
+        updatedAt: true,
+        userRoles: {
+          select: {
+            role: {
+              select: {
+                name: true
+              }
+            }
+          }
+        }
+      }
+    }).then(users => users.map(user => ({
+      ...user,
+      userRoles: user.userRoles.map(ur => ur.role.name)
+    })));
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
