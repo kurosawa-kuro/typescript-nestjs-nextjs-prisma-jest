@@ -176,7 +176,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 {
-  "userId": 2
+  "userId": 3
 }
 
 ### チームからメンバーを削除

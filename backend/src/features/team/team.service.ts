@@ -40,7 +40,7 @@ export class TeamService extends BaseService<
 
   // Read (R)
   override async all(): Promise<Team[]> {
-    return this.prisma.team.findMany({
+    const teams = await this.prisma.team.findMany({
       include: {
         members: {
           include: {
@@ -56,6 +56,14 @@ export class TeamService extends BaseService<
         },
       },
     });
+
+    return teams.map(team => ({
+      ...team,
+      members: team.members.map(member => ({
+        ...member.user,
+        joinedAt: member.joinedAt,
+      })),
+    })) as Team[];
   }
 
   // Update (U)
@@ -76,8 +84,22 @@ export class TeamService extends BaseService<
   // Using the default destroy method from BaseService
 
   // Team Member operations
-  async addMember(teamId: number, userId: number): Promise<Team> {
-    return this.prisma.team.update({
+  async addMember(teamId: number, userId: number): Promise<Team & { members: any[] }> {
+    // Check if the member already exists in the team
+    const existingMember = await this.prisma.teamMember.findUnique({
+      where: {
+        userId_teamId: {
+          userId,
+          teamId,
+        },
+      },
+    });
+
+    if (existingMember) {
+      throw new BadRequestException('User is already a member of this team');
+    }
+
+    const result = await this.prisma.team.update({
       where: { id: teamId },
       data: {
         members: {
@@ -101,10 +123,18 @@ export class TeamService extends BaseService<
         },
       },
     });
+
+    return {
+      ...result,
+      members: result.members.map(member => ({
+        ...member.user,
+        joinedAt: member.joinedAt,
+      })),
+    };
   }
 
-  async removeMember(teamId: number, userId: number): Promise<Team> {
-    return this.prisma.team.update({
+  async removeMember(teamId: number, userId: number): Promise<Team & { members: any[] }> {
+    const result = await this.prisma.team.update({
       where: { id: teamId },
       data: {
         members: {
@@ -131,5 +161,13 @@ export class TeamService extends BaseService<
         },
       },
     });
+
+    return {
+      ...result,
+      members: result.members.map(member => ({
+        ...member.user,
+        joinedAt: member.joinedAt,
+      })),
+    };
   }
 }
