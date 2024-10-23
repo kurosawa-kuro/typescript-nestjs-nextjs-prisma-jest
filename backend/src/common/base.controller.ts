@@ -19,7 +19,7 @@ export abstract class BaseController<T> {
 
   @Get(':id')
   async show(@Param('id') id: number): Promise<T> {
-    const item = await this.service.findOne(id);
+    const item = await this.service.findById(id);
     if (!item) {
       throw new NotFoundException(`Item with id ${id} not found`);
     }

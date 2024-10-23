@@ -24,7 +24,7 @@ export abstract class BaseService<
 
   async findById(id: number): Promise<T> {
     const entity = (await this.getRepository().findUnique({
-      where: { id } as WhereUniqueInput,
+      where: { id: Number(id) } as WhereUniqueInput,
     })) as T | null;
     if (!entity) {
       this.handleNotFound(id);
