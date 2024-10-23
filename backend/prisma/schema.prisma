@@ -12,18 +12,21 @@ datasource db {
 
 // ユーザー関連モデル
 model User {
-  id               Int          @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   name             String
-  email            String       @unique
+  email            String        @unique
   password         String
-  avatarPath       String       @default("default_avatar.png")
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  avatarPath       String        @default("default_avatar.png")
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
   microposts       Micropost[]
   userRoles        UserRole[]
-  followers        Follow[]     @relation("Followers")
-  following        Follow[]     @relation("Following")
+  followers        Follow[]      @relation("Followers")
+  following        Follow[]      @relation("Following")
   teamMemberships  TeamMember[]
+  profile          UserProfile?
+  comments         Comment[]
+  likes            Like[]
 }
 
 model Follow {
@@ -84,14 +87,17 @@ model TeamMember {
 
 // 投稿関連モデル
 model Micropost {
-  id         Int                @id @default(autoincrement())
+  id         Int                 @id @default(autoincrement())
   userId     Int
   title      String
   imagePath  String?
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   categories MicropostCategory[]
+  comments   Comment[]           // Add this line
+  likes      Like[]              // Add this line
+  hashtags   HashtagMicropost[]  // Add this line
 }
 
 model Category {
@@ -111,4 +117,55 @@ model MicropostCategory {
   category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([micropostId, categoryId])
+}
+
+// Add this new model
+model UserProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  bio         String?
+  location    String?
+  website     String?
+  birthDate   DateTime?
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+// Add this new model
+model Comment {
+  id         Int       @id @default(autoincrement())
+  content    String
+  userId     Int
+  micropostId Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+}
+
+// Add this new model if not already defined
+model Like {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  micropostId Int
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, micropostId])
+}
+
+// Add these new models
+model Hashtag {
+  id         Int                @id @default(autoincrement())
+  name       String             @unique
+  microposts HashtagMicropost[]
+}
+
+model HashtagMicropost {
+  hashtagId   Int
+  micropostId Int
+  hashtag     Hashtag   @relation(fields: [hashtagId], references: [id])
+  micropost   Micropost @relation(fields: [micropostId], references: [id])
+
+  @@id([hashtagId, micropostId])
 }
