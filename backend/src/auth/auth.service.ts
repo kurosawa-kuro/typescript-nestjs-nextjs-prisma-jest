@@ -44,11 +44,9 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
-    const userWithRoles = await this.userService.getUserWithRoles(user.id);
-    const userInfo = this.userService.mapUserToUserInfo(userWithRoles);
 
-    const token = await this.signToken(userInfo);
-    return { token, user: userInfo };
+    const token = await this.signToken(user);
+    return { token, user };
   }
 
   async logout(res: Response) {
