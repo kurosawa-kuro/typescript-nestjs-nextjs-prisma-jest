@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/core/database/prisma.service';
-import { Follow, Prisma } from '@prisma/client';
+import { Follow, Prisma, User } from '@prisma/client';
 
 @Injectable()
 export class FollowService {
@@ -26,15 +26,26 @@ export class FollowService {
     });
   }
 
-  async getFollowers(userId: number): Promise<Follow[]> {
-    return this.prisma.follow.findMany({
+  async getFollowers(userId: number): Promise<Partial<User>[]> {
+    const followers = await this.prisma.follow.findMany({
       where: {
         followedId: userId,
       },
-      include: {
-        follower: true,
+      select: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatarPath: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
     });
+
+    return followers.map(({ follower }) => follower);
   }
 
   async getFollowing(userId: number): Promise<Follow[]> {
