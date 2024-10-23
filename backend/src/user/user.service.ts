@@ -34,7 +34,7 @@ export class UserService extends BaseService<
   }
 
   // Create (C)
-  override async create(data: Prisma.UserCreateInput): Promise<Partial<User>> {
+  override async create(data: Prisma.UserCreateInput): Promise<UserInfo> {
     try {
       const { password, ...userData } = data;
       const user = await this.prisma.user.create({
@@ -60,8 +60,6 @@ export class UserService extends BaseService<
           },
         },
       });
-
-      console.log('create user', user);
 
       return this.mapUserToUserInfo({
         ...user,
@@ -243,21 +241,5 @@ export class UserService extends BaseService<
       avatarPath: user.avatarPath,
       userRoles: user.userRoles.map((role) => role.name),
     };
-  }
-
-  async getUserWithRoles(userId: number): Promise<UserWithRoleObjects> {
-    const userWithRoles = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-
-    if (!userWithRoles) throw new NotFoundException('User not found');
-    return this.mapUserToUserWithRoles(userWithRoles);
   }
 }
