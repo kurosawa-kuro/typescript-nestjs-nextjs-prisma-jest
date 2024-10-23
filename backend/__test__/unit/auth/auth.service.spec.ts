@@ -231,15 +231,6 @@ describe('AuthService', () => {
     configService.get.mockReturnValue(mockSecret);
   }
 
-  function expectCommonAssertions() {
-    expect(jwtService.signAsync).toHaveBeenCalledWith(
-      { id: mockUser.id, email: mockUser.email },
-      {
-        secret: mockSecret,
-        expiresIn: '1d'
-      }
-    );
-  }
 
   function createMockRequest(cookies = {}, headers = {}): Request {
     return {
