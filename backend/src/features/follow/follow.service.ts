@@ -6,62 +6,51 @@ import { User } from '@prisma/client';
 export class FollowService {
   constructor(private prisma: PrismaService) {}
 
-  async follow(followerId: number, followedId: number): Promise<Partial<User>[]> {
-    const existingFollow = await this.prisma.follow.findUnique({
+  private async findFollowRelation(followerId: number, followedId: number) {
+    return this.prisma.follow.findUnique({
       where: {
-        followerId_followedId: {
-          followerId,
-          followedId,
-        },
+        followerId_followedId: { followerId, followedId },
       },
     });
+  }
+
+  private async createFollowRelation(followerId: number, followedId: number) {
+    return this.prisma.follow.create({
+      data: { followerId, followedId },
+    });
+  }
+
+  private async deleteFollowRelation(followerId: number, followedId: number) {
+    return this.prisma.follow.delete({
+      where: {
+        followerId_followedId: { followerId, followedId },
+      },
+    });
+  }
+
+  async follow(followerId: number, followedId: number): Promise<Partial<User>[]> {
+    const existingFollow = await this.findFollowRelation(followerId, followedId);
 
     if (!existingFollow) {
-      // Create the follow relationship only if it doesn't exist
-      await this.prisma.follow.create({
-        data: {
-          followerId,
-          followedId,
-        },
-      });
+      await this.createFollowRelation(followerId, followedId);
     }
 
-    // フォローしているユーザーをレスポンス
-    return await this.getFollowing(followerId);
+    return this.getFollowing(followerId);
   }
 
   async unfollow(followerId: number, followedId: number): Promise<Partial<User>[]> {
-    // フォロー関係が存在するか確認
-    const existingFollow = await this.prisma.follow.findUnique({
-      where: {
-        followerId_followedId: {
-          followerId,
-          followedId,
-        },
-      },
-    });
+    const existingFollow = await this.findFollowRelation(followerId, followedId);
 
     if (existingFollow) {
-      // フォロー関係が存在する場合のみ削除
-      await this.prisma.follow.delete({
-        where: {
-          followerId_followedId: {
-            followerId,
-            followedId,
-          },
-        },
-      });
+      await this.deleteFollowRelation(followerId, followedId);
     }
 
-    // フォロー解除後のフォローしているユーザーリストを返す
-    return await this.getFollowing(followerId);
+    return this.getFollowing(followerId);
   }
 
   async getFollowers(userId: number): Promise<Partial<User>[]> {
     const followers = await this.prisma.follow.findMany({
-      where: {
-        followedId: userId,
-      },
+      where: { followedId: userId },
       select: {
         follower: {
           select: {
@@ -79,9 +68,7 @@ export class FollowService {
 
   async getFollowing(userId: number): Promise<Partial<User>[]> {
     const following = await this.prisma.follow.findMany({
-      where: {
-        followerId: userId,
-      },
+      where: { followerId: userId },
       select: {
         followed: {
           select: {
@@ -98,15 +85,7 @@ export class FollowService {
   }
 
   async isFollowing(followerId: number, followedId: number): Promise<boolean> {
-    const follow = await this.prisma.follow.findUnique({
-      where: {
-        followerId_followedId: {
-          followerId: followerId,
-          followedId: followedId
-        }
-      },
-    });
-    
+    const follow = await this.findFollowRelation(followerId, followedId);
     return !!follow;
   }
 }
