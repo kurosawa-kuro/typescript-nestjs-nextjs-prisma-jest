@@ -61,6 +61,7 @@ export class UserService extends BaseService<
         },
       });
 
+      console.log('create user', user);
       return this.mapUserToUserInfo({
         ...user,
         userRoles: user.userRoles.map((ur) => ur.role),

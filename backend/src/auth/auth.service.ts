@@ -28,7 +28,6 @@ export class AuthService {
     data: Prisma.UserCreateInput,
   ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.create(data);
-    console.log('register user', user);
     const token = await this.jwtService.signAsync(user, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: '1d',

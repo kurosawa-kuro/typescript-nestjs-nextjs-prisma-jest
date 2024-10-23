@@ -17,7 +17,7 @@ export interface UserInfo {
   name: string;
   email: string;
   avatarPath: string | null;
-  userRoles?: string[]; // Add this line
+  userRoles?: string[];
 }
 
 export interface LoginDto {
