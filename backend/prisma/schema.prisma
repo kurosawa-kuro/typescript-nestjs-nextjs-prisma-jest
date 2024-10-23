@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ユーザー関連モデル
+// ユーザー関連モデル（必須）
 model User {
   id               Int           @id @default(autoincrement())
   name             String
@@ -19,36 +19,40 @@ model User {
   avatarPath       String        @default("default_avatar.png")
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
+  profile          UserProfile?
+  role             Role          @relation(fields: [roleId], references: [id])
+  roleId           Int
+  // 以下は任意の関連
   microposts       Micropost[]
-  userRoles        UserRole[]
   followers        Follow[]      @relation("Followers")
   following        Follow[]      @relation("Following")
   teamMemberships  TeamMember[]
-  profile          UserProfile?
   comments         Comment[]
   likes            Like[]
 }
 
 model UserProfile {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int       @unique
   bio         String?
   location    String?
   website     String?
   birthDate   DateTime?
-  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
-
 
 model Role {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  userRoles   UserRole[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
 }
 
+// 以下は任意のモデル
 model Follow {
   followerId  Int
   followedId  Int
@@ -61,18 +65,6 @@ model Follow {
   @@index([followedId])
 }
 
-// 役割関連モデル
-model UserRole {
-  userId     Int
-  roleId     Int
-  assignedAt DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([userId, roleId])
-}
-
-// チーム関連モデル
 model Team {
   id        Int          @id @default(autoincrement())
   name      String
@@ -105,29 +97,9 @@ model Micropost {
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  categories MicropostCategory[]
   comments   Comment[]
   likes      Like[]
   hashtags   HashtagMicropost[]
-}
-
-model Category {
-  id         Int                 @id @default(autoincrement())
-  title      String
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-  microposts MicropostCategory[]
-}
-
-model MicropostCategory {
-  micropostId Int
-  categoryId  Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  micropost   Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@id([micropostId, categoryId])
 }
 
 model Comment {
