@@ -206,14 +206,7 @@ export class UserService extends BaseService<
   // No specific delete method in this service, using the one from BaseService
 
   // Helper methods
-  mapUserToUserInfo(user: UserWithRoleObjects): any {
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      userRoles: user.userRoles.map(ur => ur.name)
-    };
-  }
+
 
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
@@ -225,6 +218,15 @@ export class UserService extends BaseService<
     hashedPassword: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
+  }
+
+  mapUserToUserInfo(user: UserWithRoleObjects): any {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      userRoles: user.userRoles.map(ur => ur.name)
+    };
   }
 
   async getUserWithRoles(userId: number): Promise<UserWithRoleObjects> {
