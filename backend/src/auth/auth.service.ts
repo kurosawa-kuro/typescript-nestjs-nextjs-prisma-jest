@@ -36,23 +36,16 @@ export class AuthService {
     return { token, user: userInfo };
   }
 
-  async login(LoginDto: LoginDto): Promise<{ token: string; user: UserWithoutPassword & { userRoles: string[] } }> {
+  async login(loginDto: LoginDto): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.validateUser(
-      LoginDto.email,
-      LoginDto.password,
+      loginDto.email,
+      loginDto.password,
     );
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
     const userWithRoles = await this.userService.getUserWithRoles(user.id);
-    console.log('login userWithRoles', userWithRoles);
-    const userWithoutPassword = Object.fromEntries(
-      Object.entries(userWithRoles).filter(([key]) => key !== 'password')
-    );
-    const userInfo = {
-      ...userWithoutPassword,
-      userRoles: userWithRoles.userRoles.map(role => role.name)
-    } as UserWithoutPassword & { userRoles: string[] };
+    const userInfo = this.userService.mapUserToUserInfo(userWithRoles);
 
     const token = await this.signToken(userInfo);
     return { token, user: userInfo };

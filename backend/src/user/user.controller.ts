@@ -13,11 +13,7 @@ import { BaseController } from '../common/base.controller';
 import { Public } from '../auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from '../common/multer-config';
-
-type UserWithoutPassword = Omit<User, 'password'>;
-type UserWithRoles = UserWithoutPassword & {
-  userRoles: { roleId: number; roleName: string }[];
-};
+import { UserWithoutPassword, UserWithRoles, UserInfo } from '../types/auth.types';
 
 @Controller('users')
 export class UserController extends BaseController<User> {
@@ -50,13 +46,13 @@ export class UserController extends BaseController<User> {
 
   // ユーザーの権限をAdminに変更
   @Put(':id/admin')
-  async updateAdmin(@Param('id', ParseIntPipe) id: number): Promise<User> {
+  async updateAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserInfo> {
     return this.userService.updateUserRole(id, 'add');
   }
 
   // ユーザーの権限をAdminを外す
   @Put(':id/admin/remove')
-  async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<User> {
+  async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserInfo> {
     return this.userService.updateUserRole(id, 'remove');
   }
 }

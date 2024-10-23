@@ -7,27 +7,7 @@ import { PrismaService } from '../database/prisma.service';
 import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { UserInfo } from '../types/auth.types';
-
-// 新しい型を定義
-type UserWithoutPassword = {
-  id: number;
-  name: string;
-  email: string;
-  avatarPath: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type UserWithStringRoles = UserWithoutPassword & {
-  userRoles: string[];
-};
-
-type UserWithRoleObjects = UserWithoutPassword & {
-  userRoles: Role[];
-};
-
-type UserWithRoles = Omit<User, 'password'> & { userRoles: string[] };
+import { UserWithoutPassword, UserWithStringRoles, UserWithRoleObjects, UserInfo, UserWithRoles } from '../types/auth.types';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -156,7 +136,7 @@ export class UserService extends BaseService<
     });
   }
 
-  async updateUserRole(id: number, action: 'add' | 'remove', roleName: string = 'admin'): Promise<User> {
+  async updateUserRole(id: number, action: 'add' | 'remove', roleName: string = 'admin'): Promise<UserInfo> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
@@ -172,11 +152,11 @@ export class UserService extends BaseService<
     }
 
     if (action === 'add' && user.userRoles.length > 0) {
-      return user; // User already has the role
+      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
     }
 
     if (action === 'remove' && user.userRoles.length === 0) {
-      return user; // User doesn't have the role
+      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -220,12 +200,21 @@ export class UserService extends BaseService<
     return bcrypt.compare(password, hashedPassword);
   }
 
-  mapUserToUserInfo(user: UserWithRoleObjects): any {
+  private mapUserToUserWithRoles(user: any): UserWithRoleObjects {
+    const { password, userRoles, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      userRoles: userRoles.map(ur => ur.role)
+    };
+  }
+
+  mapUserToUserInfo(user: UserWithRoleObjects): UserInfo {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-      userRoles: user.userRoles.map(ur => ur.name)
+      avatarPath: user.avatarPath,
+      userRoles: user.userRoles.map(role => role.name)
     };
   }
 
@@ -242,11 +231,6 @@ export class UserService extends BaseService<
     });
 
     if (!userWithRoles) throw new NotFoundException('User not found');
-    const { password, ...userWithoutPassword } = userWithRoles;
-    console.log('getUserWithRoles userWithoutPassword', userWithoutPassword);
-    return {
-      ...userWithoutPassword,
-      userRoles: userWithRoles.userRoles.map(ur => ur.role)
-    };
+    return this.mapUserToUserWithRoles(userWithRoles);
   }
 }
