@@ -106,28 +106,27 @@ Content-Type: {{contentType}}
 ### フォロー関連エンドポイント
 
 ### ユーザーをフォローする
-POST {{baseUrl}}/follow/2
+POST {{baseUrl}}/follow/13
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### ユーザーのフォローを解除する
-DELETE {{baseUrl}}/follow/2
+DELETE {{baseUrl}}/follow/13
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### ユーザーのフォロワーリストを取得する
-GET {{baseUrl}}/follow/followers/2
+GET {{baseUrl}}/follow/followers/4
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### ユーザーがフォローしているユーザーリストを取得する
-GET {{baseUrl}}/follow/following/2
+GET {{baseUrl}}/follow/following/4
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### 現在のユーザーが指定されたユーザーをフォローしているかどうかを確認する
-GET {{baseUrl}}/follow/is-following/2
-Content-Type: {{contentType}}
+GET {{baseUrl}}/follow/is-following/12
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### チーム関連エンドポイント
