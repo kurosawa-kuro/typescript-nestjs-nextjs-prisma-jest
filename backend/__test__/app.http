@@ -90,8 +90,7 @@ Content-Type: {{contentType}}
 
 {
   "name": "John Doe",
-  "email": "{{randomEmail}}",
-  "isAdmin": false
+  "email": "{{randomEmail}}"
 }
 
 ###  ユーザー権限情報をAdminに変更

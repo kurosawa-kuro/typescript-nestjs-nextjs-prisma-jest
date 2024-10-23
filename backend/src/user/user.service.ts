@@ -4,15 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { User, Prisma } from '@prisma/client';
+import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
 import {
   UserWithoutPassword,
-  UserWithStringRoles,
-  UserWithRoleObjects,
   UserInfo,
-  UserWithRoles,
 } from '../types/auth.types';
 
 @Injectable()
@@ -61,11 +58,7 @@ export class UserService extends BaseService<
         },
       });
 
-      console.log('create user', user);
-      return this.mapUserToUserInfo({
-        ...user,
-        userRoles: user.userRoles.map((ur) => ur.role),
-      });
+      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
     } catch (error) {
       if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
         throw new BadRequestException('Email already exists');
@@ -75,7 +68,7 @@ export class UserService extends BaseService<
   }
 
   // Read (R)
-  override async all(): Promise<UserWithStringRoles[]> {
+  override async all(): Promise<UserWithoutPassword[]> {
     return this.prisma.user
       .findMany({
         select: {
@@ -107,31 +100,20 @@ export class UserService extends BaseService<
   async validateUser(
     email: string,
     password: string,
-  ): Promise<UserWithRoles | null> {
-    const userWithRoles = await this.prisma.user.findUnique({
+  ): Promise<UserInfo | null> {
+    const user = await this.prisma.user.findUnique({
       where: { email },
       include: {
         userRoles: {
           include: {
-            role: {
-              select: {
-                name: true,
-              },
-            },
+            role: true,
           },
         },
       },
     });
 
-    if (
-      userWithRoles &&
-      (await this.verifyPassword(password, userWithRoles.password))
-    ) {
-      const { password: _, ...userWithoutPassword } = userWithRoles;
-      return {
-        ...userWithoutPassword,
-        userRoles: userWithRoles.userRoles.map((ur) => ur.role.name),
-      };
+    if (user && (await this.verifyPassword(password, user.password))) {
+      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
     }
 
     return null;
@@ -201,7 +183,7 @@ export class UserService extends BaseService<
     });
 
     // Map the updatedUser to match UserWithRoleObjects structure
-    const mappedUser: UserWithRoleObjects = {
+    const mappedUser: UserWithoutPassword & { userRoles: Role[] } = {
       ...updatedUser,
       userRoles: updatedUser.userRoles.map((ur) => ur.role),
     };
@@ -226,7 +208,7 @@ export class UserService extends BaseService<
     return bcrypt.compare(password, hashedPassword);
   }
 
-  private mapUserToUserWithRoles(user: any): UserWithRoleObjects {
+  private mapUserToUserWithRoles(user: any): UserWithoutPassword & { userRoles: Role[] } {
     const { password: _, userRoles, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
@@ -234,7 +216,7 @@ export class UserService extends BaseService<
     };
   }
 
-  mapUserToUserInfo(user: UserWithRoleObjects): UserInfo {
+  mapUserToUserInfo(user: UserWithoutPassword & { userRoles: Role[] }): UserInfo {
     return {
       id: user.id,
       name: user.name,

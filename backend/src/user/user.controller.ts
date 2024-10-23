@@ -13,24 +13,18 @@ import { BaseController } from '../common/base.controller';
 import { Public } from '../auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from '../common/multer-config';
-import { UserInfo } from '../types/auth.types';
+import { UserInfo, UserWithoutPassword } from '../types/auth.types';
 
 @Controller('users')
-export class UserController extends BaseController<User> {
+export class UserController extends BaseController<UserWithoutPassword> {
   constructor(private readonly userService: UserService) {
     super(userService);
   }
 
-  // 新しい型を定義
-
   @Public()
   @Get()
-  override async index(): Promise<User[]> {
-    const users = await this.userService.all();
-    return users.map((user) => ({
-      ...user,
-      password: undefined,
-    }));
+  override async index(): Promise<UserWithoutPassword[]> {
+    return this.userService.all();
   }
 
   @Public()
