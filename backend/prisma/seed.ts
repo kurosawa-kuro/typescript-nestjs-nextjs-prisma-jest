@@ -6,15 +6,10 @@ const prisma = new PrismaClient()
 export async function seed() {
   // 既存のデータを削除
   await prisma.$transaction(async (prisma) => {
-    // テーブル名のリスト
-    const tables = ['Follow', 'Micropost', 'UserRole', 'Role', 'User'];
-
+    const tables = ['TeamMember', 'Team', 'Follow', 'Micropost', 'UserRole', 'Role', 'User'];
     for (const table of tables) {
-      // データを削除
       await prisma.$executeRawUnsafe(`DELETE FROM "${table}"`);
-      
-      // IDシーケンスをリセット ただしFollowとUserRoleはidが無いので対象外
-      if (table !== 'UserRole' && table !== 'Follow') {
+      if (!['TeamMember', 'UserRole', 'Follow'].includes(table)) {
         await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`);
       }
     }
@@ -34,32 +29,14 @@ export async function seed() {
       email: 'admin@example.com',
       password: await bcrypt.hash('password', 10),
       userRoles: {
-        create: [
-          { roleId: roles.find(r => r.name === 'admin')!.id },
-          { roleId: roles.find(r => r.name === 'read_only_admin')!.id },
-          { roleId: roles.find(r => r.name === 'general')!.id }
-        ],
-      }
-    },
-  })
-
-  await prisma.user.create({
-    data: {
-      name: 'Alice',
-      email: 'alice@example.com',
-      password: await bcrypt.hash('password', 10),
-      avatarPath: `alice_avatar.png`,
-      userRoles: {
-        create: [
-          { roleId: roles.find(r => r.name === 'general')!.id }
-        ],
+        create: roles.map(role => ({ roleId: role.id }))
       }
     },
   })
 
   // Regular users
   const userNames = [
-    'Bob', 'Charlie', 'Diana', 'Ethan', 'Fiona', 'George', 'Hannah',
+    'Alice', 'Bob', 'Charlie', 'Diana', 'Ethan', 'Fiona', 'George', 'Hannah',
     'Ian', 'Julia', 'Kevin', 'Laura', 'Michael', 'Nora', 'Oscar', 'Pamela',
     'Quentin', 'Rachel', 'Samuel', 'Tina'
   ]
@@ -120,5 +97,36 @@ export async function seed() {
       )
   ))
 
-  console.log('Seed data inserted successfully, including 20 users and their relationships')
+  // Teams
+  const teamNames = ['Red Team', 'Blue Team', 'Green Team', 'Yellow Team', 'Purple Team']
+  const teams = await Promise.all(teamNames.map(name => 
+    prisma.team.create({
+      data: {
+        name,
+        isPrivate: Math.random() > 0.5,  // ランダムに公開/非公開を設定
+      }
+    })
+  ))
+
+  // Team Members
+  await Promise.all(users.map(user => 
+    prisma.teamMember.create({
+      data: {
+        userId: user.id,
+        teamId: teams[Math.floor(Math.random() * teams.length)].id,  // ランダムにチームを割り当て
+      }
+    })
+  ))
+
+  // 管理者をすべてのチームに所属させる
+  await Promise.all(teams.map(team => 
+    prisma.teamMember.create({
+      data: {
+        userId: adminUser.id,
+        teamId: team.id,
+      }
+    })
+  ))
+
+  console.log('Seed data inserted successfully, including 20 users, their relationships, and teams')
 }
