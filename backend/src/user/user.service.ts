@@ -27,6 +27,8 @@ type UserWithRoleObjects = UserWithoutPassword & {
   userRoles: Role[];
 };
 
+type UserWithRoles = Omit<User, 'password'> & { userRoles: string[] };
+
 @Injectable()
 export class UserService extends BaseService<
   UserWithoutPassword,
@@ -113,7 +115,7 @@ export class UserService extends BaseService<
     })));
   }
 
-  async validateUser(email: string, password: string): Promise<User | null> {
+  async validateUser(email: string, password: string): Promise<UserWithRoles | null> {
     const userWithRoles = await this.prisma.user.findUnique({
       where: { email },
       include: {
@@ -129,13 +131,12 @@ export class UserService extends BaseService<
       }
     });
 
-    if (userWithRoles) {
-      const user = {
-        ...userWithRoles,
+    if (userWithRoles && await this.verifyPassword(password, userWithRoles.password)) {
+      const { password: _, ...userWithoutPassword } = userWithRoles;
+      return {
+        ...userWithoutPassword,
         userRoles: userWithRoles.userRoles.map(ur => ur.role.name)
       };
-      console.log('validateUseruser', user);
-      return user;
     }
 
     return null;
@@ -172,6 +173,7 @@ export class UserService extends BaseService<
     return bcrypt.hash(password, 10);
   }
 
+  // Todo: パスワードの検証
   private async verifyPassword(
     password: string,
     hashedPassword: string,
