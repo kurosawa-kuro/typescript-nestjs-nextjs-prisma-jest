@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DevelopService } from '@/develop/develop.service';
+import { DevelopService } from '@/features/develop/develop.service';
 import { PrismaService } from '@/core/database/prisma.service';
 import { seed } from '../../../prisma/seed';
 

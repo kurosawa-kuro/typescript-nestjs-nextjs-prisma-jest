@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../../src/auth/auth.service';
-import { UserService } from '../../../src/user/user.service';
+import { AuthService } from '@/features/auth/auth.service';
+import { UserService } from '@/features/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { BadRequestException } from '@nestjs/common';
-import { UserInfo, LoginDto, RegisterDto } from '../../../src/shared/types/auth.types';
-import { User } from '@prisma/client';
+import { UserInfo  } from '@/features/auth/decorators/user.decorator';
+import { RegisterDto, LoginDto } from '@/shared/types/auth.types';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -1,6 +1,5 @@
-import { MicropostController } from '../../../src/micropost/micropost.controller';
-import { MicropostService } from '../../../src/micropost/micropost.service';
-import { Micropost } from '@prisma/client';
+import { MicropostController } from '@/features/micropost/micropost.controller';
+import { MicropostService } from '@/features/micropost/micropost.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { setupTestModule, createMockService } from '../test-utils';
 

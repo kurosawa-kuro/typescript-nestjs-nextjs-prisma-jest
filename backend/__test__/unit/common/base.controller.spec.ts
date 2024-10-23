@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BaseController } from '../../../src/common/base.controller';
+import { BaseController } from '@/core/common/base.controller';
 import { NotFoundException } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 

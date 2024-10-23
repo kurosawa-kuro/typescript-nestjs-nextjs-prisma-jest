@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TestController } from '../../../src/features/test/test.controller';
-import { AuthGuard } from '../../../src/auth/guards/auth.guard';
-import { UserInfo } from '@/auth/decorators/user.decorator';
+import { TestController } from '@/features/test/test.controller';
+import { AuthGuard } from '@/features/auth/guards/auth.guard';
+import { UserInfo } from '@/features/auth/decorators/user.decorator';
 import { Reflector } from '@nestjs/core';
-import { AuthService } from '../../../src/auth/auth.service';
+import { AuthService } from '@/features/auth/auth.service';
 
 describe('TestController', () => {
   let controller: TestController;
@@ -55,7 +55,13 @@ describe('TestController', () => {
 
   describe('getProfile', () => {
     it('should return welcome message with user name', () => {
-      const mockUser: UserInfo = { id: 1, name: 'John Doe', isAdmin: false };
+      const mockUser: UserInfo = { 
+        id: 1, 
+        name: 'John Doe', 
+        email: 'john.doe@example.com', 
+        userRoles: ['general'], 
+        avatarPath: '/path/to/avatar.jpg'
+      };
       expect(controller.getProfile(mockUser)).toEqual({
         message: 'Welcome John Doe!',
       });
@@ -64,7 +70,13 @@ describe('TestController', () => {
 
   describe('adminOnly', () => {
     it('should return admin message and secret data', () => {
-      const mockAdminUser: UserInfo = { id: 1, name: 'Admin User', isAdmin: true };
+      const mockAdminUser: UserInfo = { 
+        id: 1, 
+        name: 'Admin User', 
+        email: 'admin@example.com',
+        userRoles: ['admin'],
+        avatarPath: '/path/to/admin-avatar.jpg'
+      };
       expect(controller.adminOnly(mockAdminUser)).toEqual({
         message: 'Welcome Admin Admin User!',
         secretData: 'This is confidential information.',

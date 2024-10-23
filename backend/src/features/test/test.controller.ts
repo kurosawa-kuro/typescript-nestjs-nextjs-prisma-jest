@@ -8,7 +8,9 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 interface UserInfo {
   id: number;
   name: string;
-  isAdmin: boolean;
+  email: string;
+  userRoles: string[];
+  avatarPath: string;
 }
 
 @Controller('test')

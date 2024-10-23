@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from '../../../src/user/user.service';
-import { PrismaService } from '../../../src/core/database/prisma.service';
-import { UserWithoutPassword, UserInfo } from '../../../src/shared/types/auth.types';
+import { UserService } from '@/features/user/user.service';
+import { PrismaService } from '@/core/database/prisma.service';
+import { UserWithoutPassword, UserInfo } from '@/shared/types/auth.types';
 import { User, Prisma, Role } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 

@@ -1,9 +1,9 @@
-import { UserController } from '../../../src/user/user.controller';
-import { UserService } from '../../../src/user/user.service';
+import { UserController } from '@/features/user/user.controller';
+import { UserService } from '@/features/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
 import { User } from '@prisma/client';
 import { mockUser  } from '../../mocks/user.mock';
-import { UserInfo, UserWithoutPassword } from '../../../src/shared/types/auth.types';
+import { UserInfo, UserWithoutPassword } from '@/shared/types/auth.types';
 
 describe('UserController', () => {
   let controller: UserController;
