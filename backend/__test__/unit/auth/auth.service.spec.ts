@@ -5,6 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { BadRequestException } from '@nestjs/common';
+import { UserInfo, LoginDto, RegisterDto } from '../../../src/types/auth.types';
+import { User } from '@prisma/client';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -17,17 +19,18 @@ describe('AuthService', () => {
     name: 'Test User',
     email: 'test@example.com',
     password: 'hashedpassword123',
-    isAdmin: false,
     avatarPath: '',
+    userRoles: [ "general"],
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   };
 
-  const mockUserInfo = {
+  const mockUserInfo: UserInfo = {
     id: 1,
-    email: 'test@example.com',
     name: 'Test User',
-    isAdmin: false,
+    email: 'test@example.com',
+    avatarPath: '',
+    userRoles: [ "general"],
   };
 
   const mockToken = 'mock_token';
@@ -57,34 +60,51 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('should return a token and user info', async () => {
-      const mockRegisterDto = { 
-        username: 'testuser', 
-        password: 'password123', 
+      const mockRegisterDto: RegisterDto = { 
         name: 'Test User', 
-        email: 'test@example.com' 
+        email: 'test@example.com',
+        password: 'password123',
       };
   
       userService.create.mockResolvedValue(mockUser);
   
       const result = await service.register(mockRegisterDto);
-
-      expect(result).toEqual({ token: mockToken, user: mockUserInfo });
+  
+      expect(result).toEqual({
+        token: mockToken,
+        user: mockUser
+      });
       expect(userService.create).toHaveBeenCalledWith(mockRegisterDto);
-      expectCommonAssertions();
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        mockUser,
+        {
+          secret: mockSecret,
+          expiresIn: '1d'
+        }
+      );
     });
   });
 
   describe('login', () => {
     it('should return a token and user info', async () => {
-      const mockCredentials = { email: 'test@example.com', password: 'password123' };
+      const mockCredentials: LoginDto = { email: 'test@example.com', password: 'password123' };
 
       userService.validateUser.mockResolvedValue(mockUser);
 
       const result = await service.login(mockCredentials);
 
-      expect(result).toEqual({ token: mockToken, user: mockUserInfo });
+      expect(result).toEqual({
+        token: mockToken,
+        user: mockUser
+      });
       expect(userService.validateUser).toHaveBeenCalledWith(mockCredentials.email, mockCredentials.password);
-      expectCommonAssertions();
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        mockUser,
+        {
+          secret: mockSecret,
+          expiresIn: '1d'
+        }
+      );
     });
 
     it('should throw BadRequestException for invalid credentials', async () => {
@@ -212,9 +232,8 @@ describe('AuthService', () => {
   }
 
   function expectCommonAssertions() {
-    expect(userService.mapUserToUserInfo).toHaveBeenCalledWith(mockUser);
     expect(jwtService.signAsync).toHaveBeenCalledWith(
-      mockUserInfo,
+      { id: mockUser.id, email: mockUser.email },
       {
         secret: mockSecret,
         expiresIn: '1d'
