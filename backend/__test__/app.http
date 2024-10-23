@@ -94,7 +94,7 @@ Content-Type: {{contentType}}
   "isAdmin": false
 }
 
-###  ユーザー権限情報
+###  ユーザー権限情報をAdminに変更
 PUT {{baseUrl}}/users/2/admin
 Content-Type: {{contentType}}
 
@@ -103,7 +103,7 @@ Content-Type: {{contentType}}
 }
 
 
-###  ユーザー権限情報を外す
+###  ユーザー権限情報をAdminを外す
 PUT {{baseUrl}}/users/2/admin/remove
 Content-Type: {{contentType}}
 

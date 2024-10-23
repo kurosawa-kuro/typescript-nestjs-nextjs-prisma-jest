@@ -156,38 +156,12 @@ export class UserService extends BaseService<
     });
   }
 
-  async updateAdmin(id: number): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data: {
-        userRoles: {
-          create: {
-            role: {
-              connect: { name: 'admin' } // Assuming 'admin' is the name of the admin role
-            }
-          }
-        }
-      },
-      include: {
-        userRoles: {
-          include: {
-            role: true
-          }
-        }
-      }
-    });
-  }
-
-  // ユーザーの権限をAdminを外す
-  async removeAdmin(id: number): Promise<User> {
-    // First, check if the user has the admin role
+  async updateUserRole(id: number, action: 'add' | 'remove', roleName: string = 'admin'): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
         userRoles: {
-          where: {
-            role: { name: 'admin' }
-          },
+          where: { role: { name: roleName } },
           include: { role: true }
         }
       }
@@ -197,23 +171,20 @@ export class UserService extends BaseService<
       throw new NotFoundException('User not found');
     }
 
-    if (user.userRoles.length === 0) {
-      // User doesn't have admin role, so no need to remove it
-      return user;
+    if (action === 'add' && user.userRoles.length > 0) {
+      return user; // User already has the role
     }
 
-    // If the user has the admin role, remove it
+    if (action === 'remove' && user.userRoles.length === 0) {
+      return user; // User doesn't have the role
+    }
+
     return this.prisma.user.update({
       where: { id },
       data: {
-        userRoles: {
-          delete: {
-            userId_roleId: {
-              userId: id,
-              roleId: user.userRoles[0].role.id
-            }
-          }
-        }
+        userRoles: action === 'add'
+          ? { create: { role: { connect: { name: roleName } } } }
+          : { delete: { userId_roleId: { userId: id, roleId: user.userRoles[0].role.id } } }
       },
       include: {
         userRoles: {
