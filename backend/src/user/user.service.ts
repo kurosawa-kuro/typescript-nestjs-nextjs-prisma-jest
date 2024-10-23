@@ -178,6 +178,51 @@ export class UserService extends BaseService<
     });
   }
 
+  // ユーザーの権限をAdminを外す
+  async removeAdmin(id: number): Promise<User> {
+    // First, check if the user has the admin role
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        userRoles: {
+          where: {
+            role: { name: 'admin' }
+          },
+          include: { role: true }
+        }
+      }
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.userRoles.length === 0) {
+      // User doesn't have admin role, so no need to remove it
+      return user;
+    }
+
+    // If the user has the admin role, remove it
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        userRoles: {
+          delete: {
+            userId_roleId: {
+              userId: id,
+              roleId: user.userRoles[0].role.id
+            }
+          }
+        }
+      },
+      include: {
+        userRoles: {
+          include: { role: true }
+        }
+      }
+    });
+  }
+
   // Delete (D)
   // No specific delete method in this service, using the one from BaseService
 

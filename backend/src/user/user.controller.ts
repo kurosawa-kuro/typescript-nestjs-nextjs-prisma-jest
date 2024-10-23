@@ -62,4 +62,10 @@ export class UserController extends BaseController<User> {
   async updateAdmin(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.userService.updateAdmin(id);
   }
+
+  // ユーザーの権限をAdminを外す
+  @Put(':id/admin/remove')
+  async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.userService.removeAdmin(id);
+  }
 }
