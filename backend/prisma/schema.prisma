@@ -10,26 +10,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ユーザー関連モデル（必須）
+// ユーザー関連モデル
 model User {
   id               Int           @id @default(autoincrement())
   name             String
   email            String        @unique
   password         String
+  roleId           Int
+  avatarPath       String        @default("default_avatar.png")
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   profile          UserProfile?
   role             Role          @relation(fields: [roleId], references: [id])
-  roleId           Int
-  avatarPath       String        @default("default_avatar.png")
-  // 以下は任意の関連
   microposts       Micropost[]
   followers        Follow[]      @relation("Followers")
   following        Follow[]      @relation("Following")
   teamMemberships  TeamMember[]
   comments         Comment[]
   likes            Like[]
-  userSkills       UserSkill[]
+  skills           UserSkill[]
   careers          Career[]
 }
 
@@ -55,19 +54,18 @@ model Role {
   users       User[]
 }
 
-// 以下は任意のモデル
 model Follow {
+  id          Int      @id @default(autoincrement())
+  follower    User     @relation("Following", fields: [followerId], references: [id])
   followerId  Int
-  followedId  Int
-  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
-  followed    User     @relation("Followers", fields: [followedId], references: [id], onDelete: Cascade)
+  following   User     @relation("Followers", fields: [followingId], references: [id])
+  followingId Int
   createdAt   DateTime @default(now())
 
-  @@id([followerId, followedId])
-  @@index([followerId])
-  @@index([followedId])
+  @@unique([followerId, followingId])
 }
 
+// チーム関連モデル
 model Team {
   id        Int          @id @default(autoincrement())
   name      String
@@ -142,11 +140,11 @@ model HashtagMicropost {
   @@id([hashtagId, micropostId])
 }
 
-// スキルマスター
+// スキル関連モデル
 model Skill {
   id              Int           @id @default(autoincrement())
   name            String        @unique
-  category        String        // 言語, フレームワーク, インフラ, ツール等
+  category        String
   description     String?       @db.Text
   isPopular       Boolean       @default(false)
   createdAt       DateTime      @default(now())
@@ -155,16 +153,15 @@ model Skill {
   careerSkills    CareerSkill[]
 }
 
-// ユーザースキル管理
 model UserSkill {
   id              Int       @id @default(autoincrement())
   userId          Int
   skillId         Int
-  experienceYears Float     // 経験年数
-  level           Int       // 1-5などのスキルレベル
-  lastUsedAt      DateTime? // 最終使用日
-  isMain          Boolean   @default(false) // メインスキルかどうか
-  description     String?   @db.Text  // 具体的な経験の説明
+  experienceYears Float
+  level           Int
+  lastUsedAt      DateTime?
+  isMain          Boolean   @default(false)
+  description     String?   @db.Text
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -175,30 +172,29 @@ model UserSkill {
   @@index([skillId])
 }
 
-// 職歴
+// キャリア関連モデル
 model Career {
-  id              Int           @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   userId          Int
   companyName     String
-  department      String?       // 部署
-  position        String        // 役職
-  employmentType  String        // 正社員, 契約社員, フリーランス等
+  department      String?
+  position        String
+  employmentType  String
   startDate       DateTime
   endDate         DateTime?
-  isCurrent       Boolean       @default(false)
-  description     String        @db.Text // 業務内容
-  achievements    String?       @db.Text // 成果・実績
-  teamSize        Int?          // チーム規模
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skills          CareerSkill[] // 使用したスキル
-  projects        CareerProject[] // 携わったプロジェクト
+  isCurrent       Boolean         @default(false)
+  description     String          @db.Text
+  achievements    String?         @db.Text
+  teamSize        Int?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills          CareerSkill[]
+  projects        CareerProject[]
 
   @@index([userId])
 }
 
-// 職歴で使用したスキル
 model CareerSkill {
   id              Int       @id @default(autoincrement())
   careerId        Int
@@ -213,7 +209,6 @@ model CareerSkill {
   @@index([skillId])
 }
 
-// プロジェクト経験
 model CareerProject {
   id              Int       @id @default(autoincrement())
   careerId        Int

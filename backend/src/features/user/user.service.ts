@@ -152,17 +152,9 @@ export class UserService extends BaseService<
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
-        userRoles:
-          action === 'add'
-            ? { create: { role: { connect: { name: roleName } } } }
-            : {
-                delete: {
-                  userId_roleId: {
-                    userId: id,
-                    roleId: user.userRoles[0].role.id,
-                  },
-                },
-              },
+        userRoles: action === 'add'
+          ? { create: { role: { connect: { name: roleName } } } }
+          : { delete: { roleId_userId: { roleId: user.userRoles[0].role.id, userId: id } } }
       },
       include: {
         userRoles: {
