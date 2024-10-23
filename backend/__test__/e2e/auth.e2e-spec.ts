@@ -2,7 +2,7 @@
 
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { PrismaService } from '@/database/prisma.service';
+import { PrismaService } from '@/core/database/prisma.service';
 import { setupTestApp, cleanupDatabase, createTestUser } from './test-utils';
 
 describe('AuthController (e2e)', () => {

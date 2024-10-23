@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TestController } from '../../../src/test/test.controller';
+import { TestController } from '../../../src/features/test/test.controller';
 import { AuthGuard } from '../../../src/auth/guards/auth.guard';
 import { UserInfo } from '@/auth/decorators/user.decorator';
 import { Reflector } from '@nestjs/core';

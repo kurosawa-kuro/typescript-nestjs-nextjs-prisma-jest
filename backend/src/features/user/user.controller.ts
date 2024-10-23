@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
-import { BaseController } from '../common/base.controller';
-import { Public } from '../auth/decorators/public.decorator';
+import { BaseController } from '@/core/common/base.controller';
+import { Public } from '@/features/auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerConfig, multerOptions } from '../common/multer-config';
-import { UserInfo, UserWithoutPassword } from '../types/auth.types';
+import { multerConfig, multerOptions } from '@/core/common/multer-config';
+import { UserInfo, UserWithoutPassword } from '@/shared/types/auth.types';
 
 @Controller('users')
 export class UserController extends BaseController<UserWithoutPassword> {

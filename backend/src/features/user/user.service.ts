@@ -3,11 +3,11 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '@/core/database/prisma.service';
 import { User, Prisma, Role } from '@prisma/client';
-import { BaseService } from '../common/base.service';
+import { BaseService } from '@/core/common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { UserWithoutPassword, UserInfo } from '../types/auth.types';
+import { UserWithoutPassword, UserInfo } from '@/shared/types/auth.types';
 
 @Injectable()
 export class UserService extends BaseService<

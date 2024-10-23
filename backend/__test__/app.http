@@ -1,22 +1,20 @@
 @baseUrl = http://localhost:3001
 @contentType = application/json
-
-### Variables (環境設定)
 @randomEmail = {{$datetime iso8601}}_{{$randomInt 1000 9999}}@example.com
 
 ### 開発者向けエンドポイント
 
-###  データベースをリセット
+### データベースをリセット
 POST {{baseUrl}}/develop/reset_db
 Content-Type: {{contentType}}
 
-###  デモユーザーでログイン
+### デモユーザーでログイン
 POST {{baseUrl}}/develop/demo_user_login
 Content-Type: {{contentType}}
 
 ### 認証関連エンドポイント
 
-###  ユーザー登録
+### ユーザー登録
 POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
@@ -26,7 +24,7 @@ Content-Type: {{contentType}}
   "password": "password"
 }
 
-###  ユーザーログイン
+### ユーザーログイン
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -35,27 +33,16 @@ Content-Type: {{contentType}}
   "password": "password"
 }
 
-###  ユーザー登録
-POST {{baseUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "name": "Alice",
-  "email": "{{randomEmail}}",
-  "password": "password"
-}
-
-
-###  ユーザーログアウト
+### ユーザーログアウト
 POST {{baseUrl}}/auth/logout
 Content-Type: {{contentType}}
 
-###  me
+### me
 GET {{baseUrl}}/auth/me
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IkFsaWNlIiwiZW1haWwiOiJhbGljZUBleGFtcGxlLmNvbSIsImlzQWRtaW4iOmZhbHNlLCJpYXQiOjE3MjkxNzI0NjQsImV4cCI6MTcyOTI1ODg2NH0.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
-###  管理者ログイン
+### 管理者ログイン
 POST {{baseUrl}}/auth/login
 Content-Type: {{contentType}}
 
@@ -66,7 +53,7 @@ Content-Type: {{contentType}}
 
 ### ユーザー管理エンドポイント
 
-###  ユーザーを作成
+### ユーザーを作成
 POST {{baseUrl}}/users
 Content-Type: {{contentType}}
 
@@ -76,16 +63,16 @@ Content-Type: {{contentType}}
   "password": "password"
 }
 
-###  ユーザー一覧を取得
+### ユーザー一覧を取得
 GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
-###  ユーザー詳細を取得
+### ユーザー詳細を取得
 GET {{baseUrl}}/users/2
 Content-Type: {{contentType}}
 
-###  ユーザー情報を変更
-Put {{baseUrl}}/users/4
+### ユーザー情報を変更
+PUT {{baseUrl}}/users/4
 Content-Type: {{contentType}}
 
 {
@@ -93,24 +80,15 @@ Content-Type: {{contentType}}
   "email": "{{randomEmail}}"
 }
 
-###  ユーザー権限情報をAdminに変更
+### ユーザー権限情報をAdminに変更
 PUT {{baseUrl}}/users/2/admin
 Content-Type: {{contentType}}
 
-{
-
-}
-
-
-###  ユーザー権限情報をAdminを外す
+### ユーザー権限情報からAdminを外す
 PUT {{baseUrl}}/users/2/admin/remove
 Content-Type: {{contentType}}
 
-{
-
-}
-
-###  ユーザー avatar情報を変更
+### ユーザーavatar情報を変更
 PUT {{baseUrl}}/users/2/avatar
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
@@ -121,32 +99,8 @@ Content-Type: image/jpeg
 < ./backend/uploads/test.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-
-###  マイクロポスト一覧を取得
+### マイクロポスト一覧を取得
 GET {{baseUrl}}/microposts
-Content-Type: {{contentType}}
-
-### テストエンドポイント
-
-###  公開テスト
-GET {{baseUrl}}/test/public
-Content-Type: {{contentType}}
-
-###  保護されたテスト
-GET {{baseUrl}}/test/protected
-Content-Type: {{contentType}}
-
-###  プロフィールテスト（認証なし）
-GET {{baseUrl}}/test/profile
-Content-Type: {{contentType}}
-
-###  プロフィールテスト（Bearerトークン付き）
-GET {{baseUrl}}/test/profile
-Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMjAyNC0xMC0xNVQxMjowNzoxNy4zMzBaXzI3MzkiLCJpZCI6MTIsImlhdCI6MTcyODk5Njg1MCwiZXhwIjoxNzI5MDAwNDUwfQ.w6v_HMo3HZPXDqjvc9Gt_wzgr_crEtsjGXinIKEDwW8
-
-### 管理者テスト
-GET {{baseUrl}}/test/admin
 Content-Type: {{contentType}}
 
 ### フォロー関連エンドポイント
@@ -154,24 +108,107 @@ Content-Type: {{contentType}}
 ### ユーザーをフォローする
 POST {{baseUrl}}/follow/2
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### ユーザーのフォローを解除する
 DELETE {{baseUrl}}/follow/2
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### ユーザーのフォロワーリストを取得する
 GET {{baseUrl}}/follow/followers/2
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### ユーザーがフォローしているユーザーリストを取得する
 GET {{baseUrl}}/follow/following/2
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### 現在のユーザーが指定されたユーザーをフォローしているかどうかを確認する
 GET {{baseUrl}}/follow/is-following/2
 Content-Type: {{contentType}}
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チーム関連エンドポイント
+
+### チームを作成
+POST {{baseUrl}}/teams
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "name": "New Team",
+  "isPrivate": false
+}
+
+### チーム一覧を取得
+GET {{baseUrl}}/teams
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チーム詳細を取得
+GET {{baseUrl}}/teams/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チーム情報を更新
+PUT {{baseUrl}}/teams/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "name": "Updated Team Name",
+  "isPrivate": true
+}
+
+### チームのプライバシー設定を更新
+PUT {{baseUrl}}/teams/1/privacy
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "isPrivate": true
+}
+
+### チームにメンバーを追加
+POST {{baseUrl}}/teams/1/members
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "userId": 2
+}
+
+### チームからメンバーを削除
+DELETE {{baseUrl}}/teams/1/members/2
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チームを削除
+DELETE {{baseUrl}}/teams/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### テストエンドポイント
+
+### 公開テスト
+GET {{baseUrl}}/test/public
+Content-Type: {{contentType}}
+
+### 保護されたテスト
+GET {{baseUrl}}/test/protected
+Content-Type: {{contentType}}
+
+### プロフィールテスト（認証なし）
+GET {{baseUrl}}/test/profile
+Content-Type: {{contentType}}
+
+### プロフィールテスト（Bearerトークン付き）
+GET {{baseUrl}}/test/profile
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### 管理者テスト
+GET {{baseUrl}}/test/admin
+Content-Type: {{contentType}}

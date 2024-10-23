@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { BadRequestException } from '@nestjs/common';
-import { UserInfo, LoginDto, RegisterDto } from '../../../src/types/auth.types';
+import { UserInfo, LoginDto, RegisterDto } from '../../../src/shared/types/auth.types';
 import { User } from '@prisma/client';
 
 describe('AuthService', () => {

@@ -6,7 +6,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DevelopService } from './develop.service';
-import { Public } from '@/auth/decorators/public.decorator';
+import { Public } from '@/features/auth/decorators/public.decorator';
 
 // カスタムデコレータを作成
 function DevelopmentOrTestOnly() {

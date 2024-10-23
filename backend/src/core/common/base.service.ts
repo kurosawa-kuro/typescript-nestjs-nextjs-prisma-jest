@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from '@/core/database/prisma.service';
 
 export abstract class BaseService<
   T,

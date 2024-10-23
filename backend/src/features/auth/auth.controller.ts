@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { User } from './decorators/user.decorator';
 import { Response } from 'express';
-import { LoginDto, UserInfo } from '../types/auth.types';
+import { LoginDto, UserInfo } from '@/shared/types/auth.types';
 import { AuthGuard } from './guards/auth.guard';
 import { Prisma } from '@prisma/client';
 

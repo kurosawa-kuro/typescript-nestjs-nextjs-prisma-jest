@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, RegisterDto, UserInfo } from '../types/auth.types';
+import { LoginDto, RegisterDto, UserInfo } from '@/shared/types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 

@@ -10,77 +10,105 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ユーザー関連モデル
 model User {
-  id            Int         @id @default(autoincrement()) // ユーザーの一意識別子
-  name          String      // ユーザーの表示名
-  email         String      @unique // ユーザーのメールアドレス（一意）
-  password      String      // ハッシュ化されたパスワード
-  avatarPath    String      @default("default_avatar.png") // プロフィール画像のパス
-  microposts    Micropost[] // ユーザーの投稿一覧
-  userRoles     UserRole[]  // ユーザーの役割一覧
-  followers     Follow[]    @relation("Followers") // このユーザーをフォローしているユーザー一覧
-  following     Follow[]    @relation("Following") // このユーザーがフォローしているユーザー一覧
-  createdAt     DateTime    @default(now()) // アカウント作成日時
-  updatedAt     DateTime    @updatedAt // アカウント更新日時
+  id               Int          @id @default(autoincrement())
+  name             String
+  email            String       @unique
+  password         String
+  avatarPath       String       @default("default_avatar.png")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  microposts       Micropost[]
+  userRoles        UserRole[]
+  followers        Follow[]     @relation("Followers")
+  following        Follow[]     @relation("Following")
+  teamMemberships  TeamMember[]
 }
 
 model Follow {
-  followerId  Int      // フォローするユーザーのID
-  followedId  Int      // フォローされるユーザーのID
-  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade) // フォローする側のユーザー
-  followed    User     @relation("Followers", fields: [followedId], references: [id], onDelete: Cascade) // フォローされる側のユーザー
-  createdAt   DateTime @default(now()) // フォロー関係が作成された日時
+  followerId  Int
+  followedId  Int
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  followed    User     @relation("Followers", fields: [followedId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 
-  @@id([followerId, followedId]) // フォロー関係の一意性を保証する複合主キー
-  @@index([followerId]) // フォローしているユーザーの検索を最適化
-  @@index([followedId]) // フォロワーの検索を最適化
+  @@id([followerId, followedId])
+  @@index([followerId])
+  @@index([followedId])
 }
 
-model Micropost {
-  id         Int                @id @default(autoincrement()) // 投稿の一意識別子
-  userId     Int                // 投稿者のユーザーID
-  title      String            // 投稿のタイトル
-  imagePath  String?           // 投稿に添付された画像のパス（オプション）
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade) // 投稿者との関連
-  categories MicropostCategory[] // 投稿に関連付けられたカテゴリー一覧
-  createdAt  DateTime          @default(now()) // 投稿作成日時
-  updatedAt  DateTime          @updatedAt // 投稿更新日時
-}
-
-model Category {
-  id         Int                @id @default(autoincrement()) // カテゴリーの一意識別子
-  title      String            // カテゴリーの名前
-  microposts MicropostCategory[] // このカテゴリーに属する投稿一覧
-  createdAt  DateTime          @default(now()) // カテゴリー作成日時
-  updatedAt  DateTime          @updatedAt // カテゴリー更新日時
-}
-
-model MicropostCategory {
-  micropostId Int       // 投稿ID
-  categoryId  Int       // カテゴリーID
-  micropost   Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade) // 関連する投稿
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade) // 関連するカテゴリー
-
-  @@id([micropostId, categoryId]) // 投稿とカテゴリーの関連の一意性を保証する複合主キー
-  createdAt DateTime @default(now()) // 関連付け作成日時
-  updatedAt DateTime @updatedAt // 関連付け更新日時
-}
-
+// 役割関連モデル
 model Role {
-  id          Int        @id @default(autoincrement()) // 役割の一意識別子
-  name        String     @unique // 役割の名前（一意）
-  description String?    // 役割の説明（オプション）
-  userRoles   UserRole[] // この役割を持つユーザー一覧
-  createdAt   DateTime   @default(now()) // 役割作成日時
-  updatedAt   DateTime   @updatedAt // 役割更新日時
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userRoles   UserRole[]
 }
 
 model UserRole {
-  userId     Int      // ユーザーID
-  roleId     Int      // 役割ID
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade) // 関連するユーザー
-  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade) // 関連する役割
-  assignedAt DateTime @default(now()) // 役割が割り当てられた日時
+  userId     Int
+  roleId     Int
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  @@id([userId, roleId]) // ユーザーと役割の関連の一意性を保証する複合主キー
+  @@id([userId, roleId])
+}
+
+// チーム関連モデル
+model Team {
+  id        Int          @id @default(autoincrement())
+  name      String
+  isPrivate Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  members   TeamMember[]
+
+  @@index([name])
+}
+
+model TeamMember {
+  userId   Int
+  teamId   Int
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
+
+// 投稿関連モデル
+model Micropost {
+  id         Int                @id @default(autoincrement())
+  userId     Int
+  title      String
+  imagePath  String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categories MicropostCategory[]
+}
+
+model Category {
+  id         Int                @id @default(autoincrement())
+  title      String
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  microposts MicropostCategory[]
+}
+
+model MicropostCategory {
+  micropostId Int
+  categoryId  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  micropost   Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([micropostId, categoryId])
 }
