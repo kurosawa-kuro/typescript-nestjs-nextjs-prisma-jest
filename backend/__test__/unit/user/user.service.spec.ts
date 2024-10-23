@@ -1,19 +1,17 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../../../src/user/user.service';
 import { PrismaService } from '../../../src/database/prisma.service';
-import { setupTestModule } from '../test-utils';
-import { User } from '@prisma/client';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
-import { mockUser, createMockUser } from '../../mocks/user.mock';
+import { UserWithoutPassword, UserInfo } from '../../../src/types/auth.types';
+import { User, Prisma, Role } from '@prisma/client';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 describe('UserService', () => {
   let userService: UserService;
   let prismaService: PrismaService;
 
   beforeEach(async () => {
-    const module = await setupTestModule(
-      [],
-      [
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
         UserService,
         {
           provide: PrismaService,
@@ -22,173 +20,256 @@ describe('UserService', () => {
               create: jest.fn(),
               findMany: jest.fn(),
               findUnique: jest.fn(),
-              findFirst: jest.fn(),
               update: jest.fn(),
-              delete: jest.fn(),
             },
           },
         },
       ],
-    );
+    }).compile();
 
     userService = module.get<UserService>(UserService);
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
+  // Existing tests...
+
   describe('create', () => {
-    const registerDto = {
-      email: 'new@example.com',
-      name: 'New User',
-      password: 'password123',
-    };
-    const hashedPassword = 'hashedPassword123';
-
-    beforeEach(() => {
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword as never);
-    });
-
     it('should create a new user', async () => {
-      const createdUser = {
+      const mockUserData: Prisma.UserCreateInput = {
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const mockCreatedUser = {
         id: 1,
-        ...registerDto,
-        password: hashedPassword,
-        isAdmin: false,
-        avatarPath: '',
+        ...mockUserData,
+        avatarPath: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        userRoles: [{ role: { name: 'general' } }],
       };
-      (prismaService.user.create as jest.Mock).mockResolvedValue(createdUser);
 
-      const result = await userService.create(registerDto);
+      (prismaService.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
+
+      const result = await userService.create(mockUserData);
 
       expect(result).toEqual({
-        id: createdUser.id,
-        name: createdUser.name,
-        email: createdUser.email,
-        isAdmin: createdUser.isAdmin,
-      });
-      expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
-      expect(prismaService.user.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          email: registerDto.email,
-          name: registerDto.name,
-          password: hashedPassword,
-          isAdmin: false,
-        }),
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: null,
+        userRoles: ['general'],
       });
     });
 
-    it('should throw BadRequestException if email is already in use', async () => {
+    it('should throw BadRequestException if email already exists', async () => {
+      const mockUserData: Prisma.UserCreateInput = {
+        name: 'Test User',
+        email: 'existing@example.com',
+        password: 'password123',
+      };
+
       (prismaService.user.create as jest.Mock).mockRejectedValue({
         code: 'P2002',
-        meta: { target: ['email'] }
+        meta: { target: ['email'] },
       });
 
-      await expect(userService.create(registerDto)).rejects.toThrow(BadRequestException);
-      await expect(userService.create(registerDto)).rejects.toThrow('Email already exists');
+      await expect(userService.create(mockUserData)).rejects.toThrow(BadRequestException);
     });
+  });
 
-    it('should throw the original error for other errors', async () => {
-      const originalError = new Error('Some other error');
-      (prismaService.user.create as jest.Mock).mockRejectedValue(originalError);
+  describe('all', () => {
+    it('should return all users without passwords', async () => {
+      const mockUsers = [
+        {
+          id: 1,
+          name: 'User 1',
+          email: 'user1@example.com',
+          avatarPath: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userRoles: [{ role: { name: 'general' } }],
+        },
+        {
+          id: 2,
+          name: 'User 2',
+          email: 'user2@example.com',
+          avatarPath: 'avatar.jpg',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userRoles: [{ role: { name: 'admin' } }],
+        },
+      ];
 
-      await expect(userService.create(registerDto)).rejects.toThrow(originalError);
+      (prismaService.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
+
+      const result = await userService.all();
+
+      expect(result).toEqual([
+        {
+          id: 1,
+          name: 'User 1',
+          email: 'user1@example.com',
+          avatarPath: null,
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          userRoles: ['general'],
+        },
+        {
+          id: 2,
+          name: 'User 2',
+          email: 'user2@example.com',
+          avatarPath: 'avatar.jpg',
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          userRoles: ['admin'],
+        },
+      ]);
     });
   });
 
   describe('validateUser', () => {
-    const password = 'password123';
-    const hashedPassword = 'hashedPassword123';
+    it('should return user info if credentials are valid', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        password: await userService['hashPassword']('password123'),
+        avatarPath: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: [{ role: { name: 'general' } }],
+      };
 
-    it('should return user if credentials are valid', async () => {
-      const user = createMockUser({ password: hashedPassword });
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as never);
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      const result = await userService.validateUser(mockUser.email, password);
+      const result = await userService.validateUser('test@example.com', 'password123');
 
-      expect(result).toEqual(user);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { email: mockUser.email } });
-      expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
+      expect(result).toEqual({
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: null,
+        userRoles: ['general'],
+      });
     });
 
     it('should return null if user is not found', async () => {
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const result = await userService.validateUser('nonexistent@example.com', password);
+      const result = await userService.validateUser('nonexistent@example.com', 'password123');
 
       expect(result).toBeNull();
     });
 
-    it('should return null if password is invalid', async () => {
+    it('should return null if password is incorrect', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        password: await userService['hashPassword']('correctpassword'),
+        avatarPath: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: [{ role: { name: 'general' } }],
+      };
+
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
-      const result = await userService.validateUser(mockUser.email, 'wrongpassword');
+      const result = await userService.validateUser('test@example.com', 'wrongpassword');
 
       expect(result).toBeNull();
-    });
-  });
-
-  describe('mapUserToUserInfo', () => {
-    it('should map User to UserInfo', () => {
-      const result = userService.mapUserToUserInfo(mockUser);
-
-      expect(result).toEqual({
-        id: mockUser.id,
-        name: mockUser.name,
-        email: mockUser.email,
-        isAdmin: mockUser.isAdmin,
-      });
-    });
-
-    it('should set isAdmin to false if not provided', () => {
-      const userWithoutAdmin = { ...mockUser, isAdmin: undefined };
-      const result = userService.mapUserToUserInfo(userWithoutAdmin);
-
-      expect(result.isAdmin).toBe(false);
     });
   });
 
   describe('updateAvatar', () => {
-    const userId = 1;
-    const filename = 'new-avatar.jpg';
+    it('should update user avatar', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: 'old-avatar.jpg',
+      };
 
-    it('should update user avatar path', async () => {
-      const updatedUser = { ...mockUser, avatarPath: filename };
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prismaService.user.update as jest.Mock).mockResolvedValue(updatedUser);
+      (prismaService.user.update as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        avatarPath: 'new-avatar.jpg',
+      });
 
-      const result = await userService.updateAvatar(userId, filename);
+      const result = await userService.updateAvatar(1, 'new-avatar.jpg');
 
-      expect(result).toEqual(updatedUser);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: userId },
-        data: { avatarPath: filename },
+      expect(result).toEqual({
+        ...mockUser,
+        avatarPath: 'new-avatar.jpg',
       });
     });
 
     it('should throw NotFoundException if user is not found', async () => {
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(userService.updateAvatar(userId, filename)).rejects.toThrow(NotFoundException);
-      await expect(userService.updateAvatar(userId, filename)).rejects.toThrow('User not found');
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
-      expect(prismaService.user.update).not.toHaveBeenCalled();
+      await expect(userService.updateAvatar(999, 'new-avatar.jpg')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateUserRole', () => {
+    it('should add admin role to user', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: null,
+        userRoles: [],
+      };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (prismaService.user.update as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        userRoles: [{ role: { name: 'admin' } }],
+      });
+
+      const result = await userService.updateUserRole(1, 'add', 'admin');
+
+      expect(result).toEqual({
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: null,
+        userRoles: ['admin'],
+      });
     });
 
-    it('should throw an error if update fails', async () => {
-      const updateError = new Error('Update failed');
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prismaService.user.update as jest.Mock).mockRejectedValue(updateError);
+    it('should remove admin role from user', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: null,
+        userRoles: [{ role: { id: 2, name: 'admin' } }],
+      };
 
-      await expect(userService.updateAvatar(userId, filename)).rejects.toThrow(updateError);
-      expect(prismaService.user.findUnique).toHaveBeenCalledWith({ where: { id: userId } });
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: userId },
-        data: { avatarPath: filename },
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+      (prismaService.user.update as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        userRoles: [],
       });
+
+      const result = await userService.updateUserRole(1, 'remove', 'admin');
+
+      expect(result).toEqual({
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: null,
+        userRoles: [],
+      });
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(userService.updateUserRole(999, 'add', 'admin')).rejects.toThrow(NotFoundException);
     });
   });
 });

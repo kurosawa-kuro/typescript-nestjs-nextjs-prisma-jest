@@ -5,10 +5,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, UserInfo } from '../types/auth.types';
+import { LoginDto, RegisterDto, UserInfo } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
-import { Prisma, User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -25,28 +24,24 @@ export class AuthService {
 
   // Authentication methods
   async register(
-    data: Prisma.UserCreateInput,
+    data: RegisterDto,
   ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.create(data);
-    const userInfo = this.userService.mapUserToUserInfo(user as User);
-    const token = await this.jwtService.signAsync(userInfo, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: '1d',
-    });
-    return { token, user: userInfo };
+    const token = await this.signToken(user);
+    return { token, user };
   }
 
-  async login(LoginDto: LoginDto): Promise<{ token: string; user: UserInfo }> {
+  async login(loginDto: LoginDto): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.validateUser(
-      LoginDto.email,
-      LoginDto.password,
+      loginDto.email,
+      loginDto.password,
     );
     if (!user) {
       throw new BadRequestException('Invalid credentials');
     }
-    const userInfo = this.userService.mapUserToUserInfo(user);
-    const token = await this.signToken(userInfo);
-    return { token, user: userInfo };
+
+    const token = await this.signToken(user);
+    return { token, user };
   }
 
   async logout(res: Response) {

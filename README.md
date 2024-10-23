@@ -7,8 +7,10 @@ npm run test:cov
 npm run test:e2e
 
 課題
-認証、認可
 管理画面
+ロール機能
+フォローイング機能
+チーム機能
 Zod
 
 
@@ -30,3 +32,12 @@ http://localhost:3000/admin/users
 
 チーム機能
 どうせならフォローイングシステムも作る
+
+
+UserRoleのレスポンスを修正
+
+    "userRoles": [
+      "admin",
+      "read_only_admin",
+      "general"
+    ]

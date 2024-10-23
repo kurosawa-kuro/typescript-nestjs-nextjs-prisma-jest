@@ -1,9 +1,15 @@
-// Todo: TokenUserに変更
+// backend\src\types\auth.types.ts
+
+import { User } from '@prisma/client';
+
+export type UserWithoutPassword = Omit<User, 'password'>;
+
 export interface UserInfo {
   id: number;
   name: string;
   email: string;
-  isAdmin: boolean;
+  avatarPath: string | null;
+  userRoles: string[];
 }
 
 export interface LoginDto {

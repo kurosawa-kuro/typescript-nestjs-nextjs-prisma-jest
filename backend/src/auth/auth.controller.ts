@@ -26,10 +26,10 @@ export class AuthController {
   @Post('login')
   @Public()
   async login(
-    @Body() LoginDto: LoginDto,
+    @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
-    const { token, user } = await this.authService.login(LoginDto);
+  ): Promise<{ message: string; token: string; user: UserInfo }> {
+    const { token, user } = await this.authService.login(loginDto);
     this.authService.setTokenCookie(res, token);
     return { message: 'Login successful', token, user };
   }

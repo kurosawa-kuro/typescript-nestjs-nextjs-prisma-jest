@@ -3,6 +3,7 @@ import { UserService } from '../../../src/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
 import { User } from '@prisma/client';
 import { mockUser  } from '../../mocks/user.mock';
+import { UserInfo, UserWithoutPassword } from '../../../src/types/auth.types';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -24,22 +25,31 @@ describe('UserController', () => {
   });
 
   describe('create', () => {
-    it('should create a user', async () => {
-      const userData: Omit<User, 'id'> = {
+    it('should create a new user', async () => {
+      const mockUser: UserWithoutPassword = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        avatarPath: '/path/to/avatar.jpg',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const expectedResult: UserInfo = {
+        ...mockUser,
+        userRoles: ['general'], // Replace isAdmin with userRoles
+      };
+
+      const createUserDto = {
         name: mockUser.name,
         email: mockUser.email,
-        password: mockUser.password,
-        isAdmin: mockUser.isAdmin,
-        avatarPath: mockUser.avatarPath,
-        createdAt: mockUser.createdAt,
-        updatedAt: mockUser.updatedAt,
+        password: 'password123',
       };
-      const expectedResult: User = mockUser;
 
       jest.spyOn(userService, 'create').mockResolvedValue(expectedResult);
 
-      expect(await controller.create(userData)).toBe(expectedResult);
-      expect(userService.create).toHaveBeenCalledWith(userData);
+      expect(await controller.create(createUserDto)).toBe(expectedResult);
+      expect(userService.create).toHaveBeenCalledWith(createUserDto);
     });
   });
 

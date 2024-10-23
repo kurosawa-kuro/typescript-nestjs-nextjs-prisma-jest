@@ -73,8 +73,7 @@ Content-Type: {{contentType}}
 {
   "name": "John Doe",
   "email": "{{randomEmail}}",
-  "password": "password",
-  "isAdmin": false
+  "password": "password"
 }
 
 ###  ユーザー一覧を取得
@@ -86,13 +85,29 @@ GET {{baseUrl}}/users/2
 Content-Type: {{contentType}}
 
 ###  ユーザー情報を変更
-Put {{baseUrl}}/users/3
+Put {{baseUrl}}/users/4
 Content-Type: {{contentType}}
 
 {
   "name": "John Doe",
-  "email": "{{randomEmail}}",
-  "isAdmin": false
+  "email": "{{randomEmail}}"
+}
+
+###  ユーザー権限情報をAdminに変更
+PUT {{baseUrl}}/users/2/admin
+Content-Type: {{contentType}}
+
+{
+
+}
+
+
+###  ユーザー権限情報をAdminを外す
+PUT {{baseUrl}}/users/2/admin/remove
+Content-Type: {{contentType}}
+
+{
+
 }
 
 ###  ユーザー avatar情報を変更

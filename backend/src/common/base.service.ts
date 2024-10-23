@@ -24,7 +24,7 @@ export abstract class BaseService<
 
   async findById(id: number): Promise<T> {
     const entity = (await this.getRepository().findUnique({
-      where: { id } as WhereUniqueInput,
+      where: { id: Number(id) } as WhereUniqueInput,
     })) as T | null;
     if (!entity) {
       this.handleNotFound(id);
@@ -35,7 +35,7 @@ export abstract class BaseService<
   async update(id: number, updateDto: UpdateInput): Promise<T> {
     try {
       return await this.getRepository().update({
-        where: { id },
+        where: { id: Number(id) },
         data: updateDto,
       });
     } catch (error) {
@@ -47,9 +47,12 @@ export abstract class BaseService<
       throw error;
     }
   }
+
   async destroy(id: number): Promise<void> {
     try {
-      await this.getRepository().delete({ where: { id } as WhereUniqueInput });
+      await this.getRepository().delete({
+        where: { id: Number(id) } as WhereUniqueInput,
+      });
     } catch (error) {
       if (error.code === 'P2025') {
         this.handleNotFound(id);
