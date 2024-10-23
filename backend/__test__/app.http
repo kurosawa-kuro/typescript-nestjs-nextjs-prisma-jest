@@ -175,3 +175,63 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6I
 GET {{baseUrl}}/follow/is-following/2
 Content-Type: {{contentType}}
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+
+### チーム関連エンドポイント
+
+### チームを作成
+POST {{baseUrl}}/teams
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+    
+{
+  "name": "New Team",
+  "isPrivate": false
+}
+
+### チーム一覧を取得
+GET {{baseUrl}}/teams
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チーム詳細を取得
+GET {{baseUrl}}/teams/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チーム情報を更新
+PUT {{baseUrl}}/teams/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "name": "Updated Team Name",
+  "isPrivate": true
+}
+
+### チームのプライバシー設定を更新
+PUT {{baseUrl}}/teams/1/privacy
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "isPrivate": true
+}
+
+### チームにメンバーを追加
+POST {{baseUrl}}/teams/1/members
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "userId": 2
+}
+
+### チームからメンバーを削除
+DELETE {{baseUrl}}/teams/1/members/2
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### チームを削除
+DELETE {{baseUrl}}/teams/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE

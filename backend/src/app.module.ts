@@ -13,6 +13,7 @@ import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './core/logger/winston.config';
 import { AllExceptionFilter } from './core/filters/all-exception.filter';
 import { FollowModule } from './features/follow/follow.module';
+import { TeamModule } from './features/team/team.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { FollowModule } from './features/follow/follow.module';
     DevelopModule,
     AuthModule,
     FollowModule,
+    TeamModule,
   ],
   controllers: [TestController],
   providers: [
