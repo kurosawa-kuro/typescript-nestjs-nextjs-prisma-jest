@@ -38,15 +38,6 @@ export class UserController extends BaseController<User> {
     }));
   }
 
-  // ユーザー詳細取得 Public Get
-  // @Public()
-  // @Get(':id')
-  // async show(@Param('id', ParseIntPipe) id: number): Promise<User> {
-  //   console.log('ユーザー詳細取得');
-  //   return this.userService.findById(id);
-  // }
-
-
   @Public()
   @Put(':id/avatar')
   @UseInterceptors(FileInterceptor('avatar', { ...multerConfig, ...multerOptions }))
