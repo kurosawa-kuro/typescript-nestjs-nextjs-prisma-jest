@@ -156,6 +156,28 @@ export class UserService extends BaseService<
     });
   }
 
+  async updateAdmin(id: number): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        userRoles: {
+          create: {
+            role: {
+              connect: { name: 'admin' } // Assuming 'admin' is the name of the admin role
+            }
+          }
+        }
+      },
+      include: {
+        userRoles: {
+          include: {
+            role: true
+          }
+        }
+      }
+    });
+  }
+
   // Delete (D)
   // No specific delete method in this service, using the one from BaseService
 

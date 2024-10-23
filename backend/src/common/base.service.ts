@@ -31,11 +31,7 @@ export abstract class BaseService<
     }
     return entity as T;
   }
-
-  async findOne(id: number): Promise<T> {
-    return this.findById(id);
-  }
-
+  
   async update(id: number, updateDto: UpdateInput): Promise<T> {
     try {
       return await this.getRepository().update({

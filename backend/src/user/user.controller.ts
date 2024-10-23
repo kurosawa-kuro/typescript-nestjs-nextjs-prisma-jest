@@ -56,4 +56,10 @@ export class UserController extends BaseController<User> {
   ): Promise<User> {
     return this.userService.updateAvatar(id, file.filename);
   }
+
+  // ユーザーの権限をAdminに変更
+  @Put(':id/admin')
+  async updateAdmin(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return this.userService.updateAdmin(id);
+  }
 }

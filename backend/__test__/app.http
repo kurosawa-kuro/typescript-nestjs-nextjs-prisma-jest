@@ -95,13 +95,11 @@ Content-Type: {{contentType}}
 }
 
 ###  ユーザー権限情報
-Put {{baseUrl}}/users/4
+PUT {{baseUrl}}/users/2/admin
 Content-Type: {{contentType}}
 
 {
-  "name": "John Doe",
-  "email": "{{randomEmail}}",
-  "isAdmin": false
+
 }
 
 ###  ユーザー avatar情報を変更
