@@ -13,7 +13,7 @@ import { BaseController } from '../common/base.controller';
 import { Public } from '../auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from '../common/multer-config';
-import { UserWithoutPassword, UserWithRoles, UserInfo } from '../types/auth.types';
+import { UserInfo } from '../types/auth.types';
 
 @Controller('users')
 export class UserController extends BaseController<User> {
@@ -23,20 +23,21 @@ export class UserController extends BaseController<User> {
 
   // 新しい型を定義
 
-
   @Public()
   @Get()
   override async index(): Promise<User[]> {
     const users = await this.userService.all();
-    return users.map(user => ({
+    return users.map((user) => ({
       ...user,
-      password: undefined
+      password: undefined,
     }));
   }
 
   @Public()
   @Put(':id/avatar')
-  @UseInterceptors(FileInterceptor('avatar', { ...multerConfig, ...multerOptions }))
+  @UseInterceptors(
+    FileInterceptor('avatar', { ...multerConfig, ...multerOptions }),
+  )
   async updateAvatar(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,

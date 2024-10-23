@@ -4,10 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { User, Prisma, Role } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { UserWithoutPassword, UserWithStringRoles, UserWithRoleObjects, UserInfo, UserWithRoles } from '../types/auth.types';
+import {
+  UserWithoutPassword,
+  UserWithStringRoles,
+  UserWithRoleObjects,
+  UserInfo,
+  UserWithRoles,
+} from '../types/auth.types';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -40,26 +46,26 @@ export class UserService extends BaseService<
               role: {
                 connectOrCreate: {
                   where: { name: 'general' },
-                  create: { name: 'general' }
-                }
-              }
-            }
-          }
+                  create: { name: 'general' },
+                },
+              },
+            },
+          },
         },
         include: {
           userRoles: {
             include: {
-              role: true
-            }
-          }
-        }
+              role: true,
+            },
+          },
+        },
       });
 
       console.log('create user', user);
 
       return this.mapUserToUserInfo({
         ...user,
-        userRoles: user.userRoles.map(ur => ur.role)
+        userRoles: user.userRoles.map((ur) => ur.role),
       });
     } catch (error) {
       if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
@@ -71,31 +77,38 @@ export class UserService extends BaseService<
 
   // Read (R)
   override async all(): Promise<UserWithStringRoles[]> {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        avatarPath: true,
-        createdAt: true,
-        updatedAt: true,
-        userRoles: {
-          select: {
-            role: {
-              select: {
-                name: true
-              }
-            }
-          }
-        }
-      }
-    }).then(users => users.map(user => ({
-      ...user,
-      userRoles: user.userRoles.map(ur => ur.role.name)
-    })));
+    return this.prisma.user
+      .findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          avatarPath: true,
+          createdAt: true,
+          updatedAt: true,
+          userRoles: {
+            select: {
+              role: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .then((users) =>
+        users.map((user) => ({
+          ...user,
+          userRoles: user.userRoles.map((ur) => ur.role.name),
+        })),
+      );
   }
 
-  async validateUser(email: string, password: string): Promise<UserWithRoles | null> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<UserWithRoles | null> {
     const userWithRoles = await this.prisma.user.findUnique({
       where: { email },
       include: {
@@ -103,19 +116,22 @@ export class UserService extends BaseService<
           include: {
             role: {
               select: {
-                name: true
-              }
-            }
-          }
-        }
-      }
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (userWithRoles && await this.verifyPassword(password, userWithRoles.password)) {
+    if (
+      userWithRoles &&
+      (await this.verifyPassword(password, userWithRoles.password))
+    ) {
       const { password: _, ...userWithoutPassword } = userWithRoles;
       return {
         ...userWithoutPassword,
-        userRoles: userWithRoles.userRoles.map(ur => ur.role.name)
+        userRoles: userWithRoles.userRoles.map((ur) => ur.role.name),
       };
     }
 
@@ -136,15 +152,19 @@ export class UserService extends BaseService<
     });
   }
 
-  async updateUserRole(id: number, action: 'add' | 'remove', roleName: string = 'admin'): Promise<UserInfo> {
+  async updateUserRole(
+    id: number,
+    action: 'add' | 'remove',
+    roleName: string = 'admin',
+  ): Promise<UserInfo> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
         userRoles: {
           where: { role: { name: roleName } },
-          include: { role: true }
-        }
-      }
+          include: { role: true },
+        },
+      },
     });
 
     if (!user) {
@@ -162,21 +182,29 @@ export class UserService extends BaseService<
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
-        userRoles: action === 'add'
-          ? { create: { role: { connect: { name: roleName } } } }
-          : { delete: { userId_roleId: { userId: id, roleId: user.userRoles[0].role.id } } }
+        userRoles:
+          action === 'add'
+            ? { create: { role: { connect: { name: roleName } } } }
+            : {
+                delete: {
+                  userId_roleId: {
+                    userId: id,
+                    roleId: user.userRoles[0].role.id,
+                  },
+                },
+              },
       },
       include: {
         userRoles: {
-          include: { role: true }
-        }
-      }
+          include: { role: true },
+        },
+      },
     });
 
     // Map the updatedUser to match UserWithRoleObjects structure
     const mappedUser: UserWithRoleObjects = {
       ...updatedUser,
-      userRoles: updatedUser.userRoles.map(ur => ur.role)
+      userRoles: updatedUser.userRoles.map((ur) => ur.role),
     };
 
     return this.mapUserToUserInfo(mappedUser);
@@ -186,7 +214,6 @@ export class UserService extends BaseService<
   // No specific delete method in this service, using the one from BaseService
 
   // Helper methods
-
 
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
@@ -201,10 +228,10 @@ export class UserService extends BaseService<
   }
 
   private mapUserToUserWithRoles(user: any): UserWithRoleObjects {
-    const { password, userRoles, ...userWithoutPassword } = user;
+    const { password: _, userRoles, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
-      userRoles: userRoles.map(ur => ur.role)
+      userRoles: userRoles.map((ur) => ur.role),
     };
   }
 
@@ -214,19 +241,19 @@ export class UserService extends BaseService<
       name: user.name,
       email: user.email,
       avatarPath: user.avatarPath,
-      userRoles: user.userRoles.map(role => role.name)
+      userRoles: user.userRoles.map((role) => role.name),
     };
   }
 
   async getUserWithRoles(userId: number): Promise<UserWithRoleObjects> {
     const userWithRoles = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { 
+      include: {
         userRoles: {
           include: {
-            role: true
-          }
-        }
+            role: true,
+          },
+        },
       },
     });
 

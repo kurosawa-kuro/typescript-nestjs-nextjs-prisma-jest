@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginDto, UserInfo, UserWithRoleObjects, UserWithStringRoles, UserWithoutPassword } from '../types/auth.types';
+import { LoginDto, UserInfo } from '../types/auth.types';
 import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 import { Prisma } from '@prisma/client';
@@ -28,12 +28,20 @@ export class AuthService {
     data: Prisma.UserCreateInput,
   ): Promise<{ token: string; user: UserInfo }> {
     const user = await this.userService.create(data);
-    const userInfo = this.userService.mapUserToUserInfo(user as any);
-    const token = await this.jwtService.signAsync(userInfo, {
+    const token = await this.jwtService.signAsync(user, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: '1d',
     });
-    return { token, user: userInfo };
+    return { 
+      token, 
+      user: { 
+        id: user.id!, 
+        email: user.email!, 
+        name: user.name!, 
+        userRoles: ["general"],
+        avatarPath: user.avatarPath || null
+      } 
+    };
   }
 
   async login(loginDto: LoginDto): Promise<{ token: string; user: UserInfo }> {
@@ -46,6 +54,7 @@ export class AuthService {
     }
 
     const token = await this.signToken(user);
+
     return { token, user };
   }
 

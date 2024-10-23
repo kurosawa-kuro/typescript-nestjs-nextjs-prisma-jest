@@ -31,7 +31,7 @@ export abstract class BaseService<
     }
     return entity as T;
   }
-  
+
   async update(id: number, updateDto: UpdateInput): Promise<T> {
     try {
       return await this.getRepository().update({
@@ -50,7 +50,9 @@ export abstract class BaseService<
 
   async destroy(id: number): Promise<void> {
     try {
-      await this.getRepository().delete({ where: { id: Number(id) } as WhereUniqueInput });
+      await this.getRepository().delete({
+        where: { id: Number(id) } as WhereUniqueInput,
+      });
     } catch (error) {
       if (error.code === 'P2025') {
         this.handleNotFound(id);
