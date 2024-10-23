@@ -8,7 +8,7 @@ npm run test:e2e
 
 課題
 管理画面
-ロール機能
+ロール機能 → BackはDone
 フォローイング機能
 チーム機能
 Zod
@@ -41,3 +41,5 @@ UserRoleのレスポンスを修正
       "read_only_admin",
       "general"
     ]
+
+    follow

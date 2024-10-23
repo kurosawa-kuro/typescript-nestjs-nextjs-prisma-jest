@@ -148,3 +148,30 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMjAyNC0xM
 ### 管理者テスト
 GET {{baseUrl}}/test/admin
 Content-Type: {{contentType}}
+
+### フォロー関連エンドポイント
+
+### ユーザーをフォローする
+POST {{baseUrl}}/follow/2
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+
+### ユーザーのフォローを解除する
+DELETE {{baseUrl}}/follow/2
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+
+### ユーザーのフォロワーリストを取得する
+GET {{baseUrl}}/follow/followers/2
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+
+### ユーザーがフォローしているユーザーリストを取得する
+GET {{baseUrl}}/follow/following/2
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
+
+### 現在のユーザーが指定されたユーザーをフォローしているかどうかを確認する
+GET {{baseUrl}}/follow/is-following/2
+Content-Type: {{contentType}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiIsImVtYWlsIjoiYm9iQGV4YW1wbGUuY29tIiwiaWF0IjoxNzI5MTcyNDY0LCJleHAiOjE3MjkyNTg4NjR9.7zOgO0yTczmvYxAwNqk5HOzweO293ogLD2YW9qAAdDg
