@@ -1,4 +1,4 @@
-import { AllExceptionFilter } from '../../../src/filters/all-exception.filter';
+import { AllExceptionFilter } from '../../../src/core/filters/all-exception.filter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DevelopService } from '@/develop/develop.service';
-import { PrismaService } from '@/database/prisma.service';
+import { PrismaService } from '@/core/database/prisma.service';
 import { seed } from '../../../prisma/seed';
 
 // seedをモック化

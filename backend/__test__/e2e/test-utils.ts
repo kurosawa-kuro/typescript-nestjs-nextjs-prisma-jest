@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { AppModule } from '@/app.module';
-import { PrismaService } from '@/database/prisma.service';
+import { PrismaService } from '@/core/database/prisma.service';
 import { User, Micropost } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import * as request from 'supertest';

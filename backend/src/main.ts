@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { AllExceptionFilter } from './filters/all-exception.filter';
+import { AllExceptionFilter } from './core/filters/all-exception.filter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';

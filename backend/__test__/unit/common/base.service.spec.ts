@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BaseService } from '../../../src/common/base.service';
-import { PrismaService } from '../../../src/database/prisma.service';
+import { PrismaService } from '../../../src/core/database/prisma.service';
 import { NotFoundException } from '@nestjs/common';
 
 // テスト用のモックエンティティ
