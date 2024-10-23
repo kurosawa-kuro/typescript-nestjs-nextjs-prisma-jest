@@ -73,8 +73,7 @@ Content-Type: {{contentType}}
 {
   "name": "John Doe",
   "email": "{{randomEmail}}",
-  "password": "password",
-  "isAdmin": false
+  "password": "password"
 }
 
 ###  ユーザー一覧を取得
