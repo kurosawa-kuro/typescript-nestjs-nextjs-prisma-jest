@@ -149,14 +149,6 @@ export class UserService extends BaseService<
       throw new NotFoundException('User not found');
     }
 
-    if (action === 'add' && user.userRoles.length > 0) {
-      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
-    }
-
-    if (action === 'remove' && user.userRoles.length === 0) {
-      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
-    }
-
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
