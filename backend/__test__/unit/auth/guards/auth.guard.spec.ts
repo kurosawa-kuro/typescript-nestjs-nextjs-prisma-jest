@@ -71,18 +71,45 @@ describe('AuthGuard', () => {
       );
     });
 
-    it('should allow access for authenticated non-admin user on non-admin route', async () => {
+    it('should allow access for authenticated general user on non-admin route', async () => {
       reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(false);
-      authService.getUserFromToken.mockResolvedValue({ id: 1, isAdmin: false, name: 'Test User', email: 'test@example.com' });
+      authService.getUserFromToken.mockResolvedValue({ 
+        id: 1, 
+        userRoles: ['general'], 
+        name: 'Test User', 
+        email: 'test@example.com',
+        avatarPath: '/path/to/avatar.jpg'
+      });
 
       const result = await guard.canActivate(mockExecutionContext);
 
       expect(result).toBe(true);
     });
 
-    it('should throw UnauthorizedException for non-admin user on admin route', async () => {
+    it('should throw UnauthorizedException for general user on admin route', async () => {
       reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
-      authService.getUserFromToken.mockResolvedValue({ id: 1, isAdmin: false, name: 'Test User', email: 'test@example.com' });
+      authService.getUserFromToken.mockResolvedValue({ 
+        id: 1, 
+        userRoles: ['general'], 
+        name: 'Test User', 
+        email: 'test@example.com',
+        avatarPath: '/path/to/avatar.jpg'
+      });
+
+      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw UnauthorizedException for read_only_admin on admin route', async () => {
+      reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
+      authService.getUserFromToken.mockResolvedValue({ 
+        id: 2, 
+        userRoles: ['read_only_admin'], 
+        name: 'Read Only Admin', 
+        email: 'readonly@example.com',
+        avatarPath: '/path/to/avatar.jpg'
+      });
 
       await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
         UnauthorizedException,
@@ -91,7 +118,13 @@ describe('AuthGuard', () => {
 
     it('should allow access for admin user on admin route', async () => {
       reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
-      authService.getUserFromToken.mockResolvedValue({ id: 1, isAdmin: true, name: 'Admin User', email: 'admin@example.com' });
+      authService.getUserFromToken.mockResolvedValue({ 
+        id: 3, 
+        userRoles: ['admin'], 
+        name: 'Admin User', 
+        email: 'admin@example.com',
+        avatarPath: '/path/to/avatar.jpg'
+      });
 
       const result = await guard.canActivate(mockExecutionContext);
 
