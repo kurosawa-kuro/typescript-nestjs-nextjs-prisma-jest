@@ -7,10 +7,7 @@ import { PrismaService } from '../database/prisma.service';
 import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '../common/base.service';
 import * as bcrypt from 'bcryptjs';
-import {
-  UserWithoutPassword,
-  UserInfo,
-} from '../types/auth.types';
+import { UserWithoutPassword, UserInfo } from '../types/auth.types';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -208,7 +205,9 @@ export class UserService extends BaseService<
     return bcrypt.compare(password, hashedPassword);
   }
 
-  private mapUserToUserWithRoles(user: any): UserWithoutPassword & { userRoles: Role[] } {
+  private mapUserToUserWithRoles(
+    user: any,
+  ): UserWithoutPassword & { userRoles: Role[] } {
     const { password: _, userRoles, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
@@ -216,7 +215,9 @@ export class UserService extends BaseService<
     };
   }
 
-  mapUserToUserInfo(user: UserWithoutPassword & { userRoles: Role[] }): UserInfo {
+  mapUserToUserInfo(
+    user: UserWithoutPassword & { userRoles: Role[] },
+  ): UserInfo {
     return {
       id: user.id,
       name: user.name,
