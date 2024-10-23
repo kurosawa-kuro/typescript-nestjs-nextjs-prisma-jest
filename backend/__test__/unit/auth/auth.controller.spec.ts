@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../../../src/auth/auth.controller';
 import { AuthService } from '../../../src/auth/auth.service';
 import { Response } from 'express';
+import { UserInfo } from '../../../src/types/auth.types';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -75,7 +76,13 @@ describe('AuthController', () => {
 
   describe('me', () => {
     it('should return user information', async () => {
-      const mockUserInfo = { id: 1, name: 'Test User', email: 'test@example.com', isAdmin: false };
+      const mockUserInfo: UserInfo = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['general'],
+        avatarPath: '/path/to/avatar.jpg'
+      };
       const result = await authController.me(mockUserInfo);
 
       expect(result).toEqual(mockUserInfo);

@@ -23,7 +23,7 @@ describe('BaseController', () => {
   beforeEach(async () => {
     mockService = {
       all: jest.fn(),
-      findOne: jest.fn(),
+      findById: jest.fn(), // Changed from findOne to findById
       create: jest.fn(),
       update: jest.fn(),
       destroy: jest.fn(),
@@ -59,14 +59,14 @@ describe('BaseController', () => {
   describe('show', () => {
     it('should return a single item', async () => {
       const result: TestModel = { id: 1, name: 'Test' };
-      mockService.findOne.mockResolvedValue(result);
+      mockService.findById.mockResolvedValue(result); // Changed from findOne to findById
 
       expect(await controller.show(1)).toBe(result);
-      expect(mockService.findOne).toHaveBeenCalledWith(1);
+      expect(mockService.findById).toHaveBeenCalledWith(1); // Changed from findOne to findById
     });
 
     it('should throw NotFoundException when item is not found', async () => {
-      mockService.findOne.mockResolvedValue(null);
+      mockService.findById.mockResolvedValue(null); // Changed from findOne to findById
 
       await expect(controller.show(1)).rejects.toThrow(NotFoundException);
     });
