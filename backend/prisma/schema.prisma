@@ -16,7 +16,6 @@ model User {
   name             String
   email            String        @unique
   password         String
-  avatarPath       String        @default("default_avatar.png")
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   profile          UserProfile?
@@ -29,12 +28,15 @@ model User {
   teamMemberships  TeamMember[]
   comments         Comment[]
   likes            Like[]
+  userSkills       UserSkill[]
+  careers          Career[]
 }
 
 model UserProfile {
   id          Int       @id @default(autoincrement())
   user        User      @relation(fields: [userId], references: [id])
   userId      Int       @unique
+  avatarPath  String    @default("default_avatar.png")
   bio         String?
   location    String?
   website     String?
@@ -137,4 +139,93 @@ model HashtagMicropost {
   micropost   Micropost @relation(fields: [micropostId], references: [id])
 
   @@id([hashtagId, micropostId])
+}
+
+// スキルマスター
+model Skill {
+  id              Int           @id @default(autoincrement())
+  name            String        @unique
+  category        String        // 言語, フレームワーク, インフラ, ツール等
+  description     String?       @db.Text
+  isPopular       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  userSkills      UserSkill[]
+  careerSkills    CareerSkill[]
+}
+
+// ユーザースキル管理
+model UserSkill {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  skillId         Int
+  experienceYears Float     // 経験年数
+  level           Int       // 1-5などのスキルレベル
+  lastUsedAt      DateTime? // 最終使用日
+  isMain          Boolean   @default(false) // メインスキルかどうか
+  description     String?   @db.Text  // 具体的な経験の説明
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+}
+
+// 職歴
+model Career {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  companyName     String
+  department      String?       // 部署
+  position        String        // 役職
+  employmentType  String        // 正社員, 契約社員, フリーランス等
+  startDate       DateTime
+  endDate         DateTime?
+  isCurrent       Boolean       @default(false)
+  description     String        @db.Text // 業務内容
+  achievements    String?       @db.Text // 成果・実績
+  teamSize        Int?          // チーム規模
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills          CareerSkill[] // 使用したスキル
+  projects        CareerProject[] // 携わったプロジェクト
+
+  @@index([userId])
+}
+
+// 職歴で使用したスキル
+model CareerSkill {
+  id              Int       @id @default(autoincrement())
+  careerId        Int
+  skillId         Int
+  level           Int?      // スキルの活用レベル
+  description     String?   @db.Text // スキルの具体的な活用方法
+  career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([careerId, skillId])
+  @@index([careerId])
+  @@index([skillId])
+}
+
+// プロジェクト経験
+model CareerProject {
+  id              Int       @id @default(autoincrement())
+  careerId        Int
+  name            String
+  description     String    @db.Text
+  role            String    // プロジェクトでの役割
+  responsibilities String?  @db.Text // 担当業務
+  startDate       DateTime
+  endDate         DateTime?
+  teamSize        Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
+
+  @@index([careerId])
 }
