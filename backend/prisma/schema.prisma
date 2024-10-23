@@ -21,6 +21,7 @@ model User {
   profile          UserProfile?
   role             Role          @relation(fields: [roleId], references: [id])
   roleId           Int
+  avatarPath       String        @default("default_avatar.png")
   // 以下は任意の関連
   microposts       Micropost[]
   followers        Follow[]      @relation("Followers")
