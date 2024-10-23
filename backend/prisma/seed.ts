@@ -8,14 +8,14 @@ export async function seed() {
   // 既存のデータを削除
   await prisma.$transaction(async (prisma) => {
     // テーブル名のリスト
-    const tables = [ 'Micropost', 'UserRole','Role', 'User',   'Role'];
-  
+    const tables = ['Follow', 'Micropost', 'UserRole', 'Role', 'User'];
+
     for (const table of tables) {
       // データを削除
       await prisma.$executeRawUnsafe(`DELETE FROM "${table}"`);
       
-      // IDシーケンスをリセット ただしUserRole idが無いので対象外
-      if (table !== 'UserRole') {
+      // IDシーケンスをリセット ただしFollowとUserRoleはidが無いので対象外
+      if (table !== 'UserRole' && table !== 'Follow') {
         await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`);
       }
     }
@@ -192,5 +192,44 @@ export async function seed() {
     }),
   ])
 
-  console.log('Seed data inserted successfully')
+  // Followのシードデータを追加
+  await Promise.all([
+    // Aliceが他のユーザーをフォロー
+    prisma.follow.create({
+      data: {
+        followerId: users[0].id, // Alice
+        followedId: users[1].id, // Bob
+      },
+    }),
+    prisma.follow.create({
+      data: {
+        followerId: users[0].id, // Alice
+        followedId: users[2].id, // Charlie
+      },
+    }),
+
+    // Bobが他のユーザーをフォロー
+    prisma.follow.create({
+      data: {
+        followerId: users[1].id, // Bob
+        followedId: users[0].id, // Alice
+      },
+    }),
+
+    // Charlieが他のユーザーをフォロー
+    prisma.follow.create({
+      data: {
+        followerId: users[2].id, // Charlie
+        followedId: users[0].id, // Alice
+      },
+    }),
+    prisma.follow.create({
+      data: {
+        followerId: users[2].id, // Charlie
+        followedId: users[1].id, // Bob
+      },
+    }),
+  ]);
+
+  console.log('Seed data inserted successfully, including Follow relationships')
 }

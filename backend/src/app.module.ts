@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './logger/winston.config';
 import { AllExceptionFilter } from './filters/all-exception.filter';
+import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AllExceptionFilter } from './filters/all-exception.filter';
     MicropostModule,
     DevelopModule,
     AuthModule,
+    FollowModule,
   ],
   controllers: [TestController],
   providers: [
