@@ -179,7 +179,7 @@ export class UserService extends BaseService<
       return user; // User doesn't have the role
     }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
         userRoles: action === 'add'
@@ -192,6 +192,14 @@ export class UserService extends BaseService<
         }
       }
     });
+
+    // Map the updatedUser to match UserWithRoleObjects structure
+    const mappedUser: UserWithRoleObjects = {
+      ...updatedUser,
+      userRoles: updatedUser.userRoles.map(ur => ur.role)
+    };
+
+    return this.mapUserToUserInfo(mappedUser);
   }
 
   // Delete (D)
@@ -203,7 +211,7 @@ export class UserService extends BaseService<
       id: user.id,
       name: user.name,
       email: user.email,
-      userRoles: user.userRoles.map(ur => ur)
+      userRoles: user.userRoles.map(ur => ur.name)
     };
   }
 
