@@ -1,103 +1,105 @@
-import { UserController } from '@/features/user/user.controller';
-import { UserService } from '@/features/user/user.service';
-import { setupTestModule, createMockService } from '../../test-utils';
-import { User } from '@prisma/client';
-import { mockUser  } from '../../../mocks/user.mock';
-import { UserInfo, UserWithoutPassword, UserWithProfile } from '@/shared/types/auth.types';
+import { Test, TestingModule } from '@nestjs/testing';
+import { FollowController } from '@/features/follow/follow.controller';
+import { FollowService } from '@/features/follow/follow.service';
+import { AuthGuard } from '@/features/auth/guards/auth.guard';
+import { ExecutionContext } from '@nestjs/common';
 
-describe('UserController', () => {
-  let controller: UserController;
-  let userService: UserService;
+describe('FollowController', () => {
+  let followController: FollowController;
+  let followService: FollowService;
 
   beforeEach(async () => {
-    const mockUserService = createMockService(['create', 'all', 'updateAvatar']);
-    const module = await setupTestModule(
-      [UserController],
-      [{ provide: UserService, useValue: mockUserService }],
-    );
-
-    controller = module.get<UserController>(UserController);
-    userService = module.get<UserService>(UserService);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe('create', () => {
-    it('should create a new user', async () => {
-      const mockUser: UserWithoutPassword = {
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      const expectedResult: UserInfo = {
-        ...mockUser,
-        userRoles: ['general'], // Replace isAdmin with userRoles
-      };
-
-      const createUserDto = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: 'password123',
-      };
-
-      jest.spyOn(userService, 'create').mockResolvedValue(expectedResult);
-
-      expect(await controller.create(createUserDto)).toBe(expectedResult);
-      expect(userService.create).toHaveBeenCalledWith(createUserDto);
-    });
-  });
-
-  describe('index', () => {
-    it('should return an array of users without passwords', async () => {
-      const expectedResult: UserWithoutPassword[] = [
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [FollowController],
+      providers: [
         {
-          ...mockUser,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          provide: FollowService,
+          useValue: {
+            follow: jest.fn(),
+            unfollow: jest.fn(),
+            getFollowers: jest.fn(),
+            getFollowing: jest.fn(),
+            isFollowing: jest.fn(),
+          },
         },
-      ];
+      ],
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({
+        canActivate: (context: ExecutionContext) => {
+          const request = context.switchToHttp().getRequest();
+          request.user = { id: 1 }; // Mock user
+          return true;
+        },
+      })
+      .compile();
 
-      jest.spyOn(userService, 'all').mockResolvedValue(expectedResult);
+    followController = module.get<FollowController>(FollowController);
+    followService = module.get<FollowService>(FollowService);
+  });
 
-      expect(await controller.index()).toBe(expectedResult);
-      expect(userService.all).toHaveBeenCalled();
+  describe('follow', () => {
+    it('should call followService.follow with correct parameters', async () => {
+      const followedId = '2';
+      const mockResult = [{ id: 2, name: 'Followed User' }];
+      (followService.follow as jest.Mock).mockResolvedValue(mockResult);
+
+      const result = await followController.follow({ id: 1 }, followedId);
+
+      expect(followService.follow).toHaveBeenCalledWith(1, parseInt(followedId));
+      expect(result).toEqual(mockResult);
     });
   });
 
-  describe('updateAvatar', () => {
-    it('should update user avatar', async () => {
-      const userId = 1;
-      const filename = 'new-avatar.jpg';
-      const mockFile = {
-        filename: filename,
-      } as Express.Multer.File;
+  describe('unfollow', () => {
+    it('should call followService.unfollow with correct parameters', async () => {
+      const followedId = '2';
+      const mockResult = [];
+      (followService.unfollow as jest.Mock).mockResolvedValue(mockResult);
 
-      const updatedUser: UserWithProfile = {
-        ...mockUser,
-        password: 'mockPassword', // Add this line
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userRoles: ['general'], // Add this line
-        profile: { avatarPath: filename },
-      };
+      const result = await followController.unfollow({ id: 1 }, followedId);
 
-      jest.spyOn(userService, 'updateAvatar').mockResolvedValue(updatedUser);
-
-      const result = await controller.updateAvatar(userId, mockFile);
-
-      expect(result).toEqual(updatedUser);
-      expect(userService.updateAvatar).toHaveBeenCalledWith(userId, filename);
+      expect(followService.unfollow).toHaveBeenCalledWith(1, parseInt(followedId));
+      expect(result).toEqual(mockResult);
     });
+  });
 
-    it('should throw an error if file is not provided', async () => {
-      const userId = 1;
+  describe('getFollowers', () => {
+    it('should call followService.getFollowers with correct parameters', async () => {
+      const userId = '1';
+      const mockResult = [{ id: 2, name: 'Follower User' }];
+      (followService.getFollowers as jest.Mock).mockResolvedValue(mockResult);
 
-      await expect(controller.updateAvatar(userId, undefined)).rejects.toThrow();
+      const result = await followController.getFollowers(userId);
+
+      expect(followService.getFollowers).toHaveBeenCalledWith(parseInt(userId));
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('getFollowing', () => {
+    it('should call followService.getFollowing with correct parameters', async () => {
+      const userId = '1';
+      const mockResult = [{ id: 2, name: 'Following User' }];
+      (followService.getFollowing as jest.Mock).mockResolvedValue(mockResult);
+
+      const result = await followController.getFollowing(userId);
+
+      expect(followService.getFollowing).toHaveBeenCalledWith(parseInt(userId));
+      expect(result).toEqual(mockResult);
+    });
+  });
+
+  describe('isFollowing', () => {
+    it('should call followService.isFollowing with correct parameters', async () => {
+      const followedId = '2';
+      const mockResult = true;
+      (followService.isFollowing as jest.Mock).mockResolvedValue(mockResult);
+
+      const result = await followController.isFollowing({ id: 1 }, followedId);
+
+      expect(followService.isFollowing).toHaveBeenCalledWith(1, parseInt(followedId));
+      expect(result).toEqual(mockResult);
     });
   });
 });
