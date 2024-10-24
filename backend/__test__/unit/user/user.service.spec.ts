@@ -22,6 +22,10 @@ describe('UserService', () => {
               findUnique: jest.fn(),
               update: jest.fn(),
             },
+            userProfile: {
+              create: jest.fn(),
+              update: jest.fn(),
+            },
           },
         },
       ],
@@ -40,6 +44,17 @@ describe('UserService', () => {
         email: 'test@example.com',
         password: 'password123',
       };
+
+      const mockCreatedUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'hashedpassword123',
+        userRoles: [{ role: { name: 'general' } }],
+        profile: { avatarPath: 'default.png' },
+      };
+
+      (prismaService.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
 
       const result = await userService.create(mockUserData);
 
@@ -77,19 +92,19 @@ describe('UserService', () => {
           id: 1,
           name: 'User 1',
           email: 'user1@example.com',
-          avatarPath: null,
           createdAt: new Date(),
           updatedAt: new Date(),
           userRoles: [{ role: { name: 'general' } }],
+          profile: { avatarPath: 'avatar.jpg' },
         },
         {
           id: 2,
           name: 'User 2',
           email: 'user2@example.com',
-          avatarPath: 'avatar.jpg',
           createdAt: new Date(),
           updatedAt: new Date(),
           userRoles: [{ role: { name: 'admin' } }],
+          profile: { avatarPath: 'avatar.jpg' },
         },
       ];
 
@@ -104,7 +119,7 @@ describe('UserService', () => {
           email: 'user1@example.com',
           userRoles: ['general'],
           profile: {
-            avatarPath: 'default.png',
+            avatarPath: 'avatar.jpg',
           },
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
@@ -113,10 +128,12 @@ describe('UserService', () => {
           id: 2,
           name: 'User 2',
           email: 'user2@example.com',
-          avatarPath: 'avatar.jpg',
+          userRoles: ['admin'],
+          profile: {
+            avatarPath: 'avatar.jpg',
+          },
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
-          userRoles: ['admin'],
         },
       ]);
     });
@@ -133,6 +150,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         userRoles: [{ role: { name: 'general' } }],
+        profile: { avatarPath: null },
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
@@ -143,7 +161,9 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: null,
+        profile: {
+          avatarPath: 'default.png',
+        },
         userRoles: ['general'],
       });
     });
@@ -182,20 +202,23 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: 'old-avatar.jpg',
+        profile: { avatarPath: 'old-avatar.jpg' },
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (prismaService.user.update as jest.Mock).mockResolvedValue({
         ...mockUser,
-        avatarPath: 'new-avatar.jpg',
+        profile: { avatarPath: 'new-avatar.jpg' },
       });
+
+      // Mock the userProfile.create method
+      (prismaService.userProfile.create as jest.Mock).mockResolvedValue({ avatarPath: 'new-avatar.jpg' });
 
       const result = await userService.updateAvatar(1, 'new-avatar.jpg');
 
       expect(result).toEqual({
         ...mockUser,
-        avatarPath: 'new-avatar.jpg',
+        profile: { avatarPath: 'new-avatar.jpg' },
       });
     });
 
@@ -212,7 +235,7 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: null,
+        profile: { avatarPath: null },
         userRoles: [],
       };
 
@@ -228,7 +251,9 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: null,
+        profile: {
+          avatarPath: 'default.png',
+        },
         userRoles: ['admin'],
       });
     });
