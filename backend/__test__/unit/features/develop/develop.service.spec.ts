@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DevelopService } from '@/features/develop/develop.service';
 import { PrismaService } from '@/core/database/prisma.service';
-import { seed } from '../../../prisma/seed';
+import { seed } from '../../../../prisma/seed';
 
 // seedをモック化
-jest.mock('../../../prisma/seed', () => ({
+jest.mock('../../../../prisma/seed', () => ({
   seed: jest.fn(),
 }));
 

@@ -4,7 +4,7 @@ import { AuthGuard } from '@/features/auth/guards/auth.guard';
 import { UserInfo } from '@/shared/types/auth.types';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '@/features/auth/auth.service';
-import { mockUserInfo } from '../../mocks/user.mock';
+import { mockUserInfo } from '../../../mocks/user.mock';
 
 describe('TestController', () => {
   let controller: TestController;

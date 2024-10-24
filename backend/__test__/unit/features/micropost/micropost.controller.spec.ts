@@ -1,7 +1,7 @@
 import { MicropostController } from '@/features/micropost/micropost.controller';
 import { MicropostService } from '@/features/micropost/micropost.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { setupTestModule, createMockService } from '../test-utils';
+import { setupTestModule, createMockService } from '../../test-utils';
 
 describe('MicropostController', () => {
   let controller: MicropostController;
