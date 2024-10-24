@@ -5,7 +5,7 @@ export interface UserInfo {
   name: string;
   email: string;
   userRoles: string[];
-  avatarPath: string;
+  profile?: { avatarPath?: string };
 }
 
 export const User = createParamDecorator(

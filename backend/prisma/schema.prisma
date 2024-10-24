@@ -16,7 +16,6 @@ model User {
   name             String
   email            String        @unique
   password         String
-  avatarPath       String        @default("default_avatar.png")
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   profile          UserProfile?

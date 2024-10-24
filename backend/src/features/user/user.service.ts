@@ -72,9 +72,13 @@ export class UserService extends BaseService<
           id: true,
           name: true,
           email: true,
-          avatarPath: true,
           createdAt: true,
           updatedAt: true,
+          profile: {
+            select: {
+              avatarPath: true,
+            },
+          },
           userRoles: {
             select: {
               role: {
@@ -89,6 +93,7 @@ export class UserService extends BaseService<
       .then((users) =>
         users.map((user) => ({
           ...user,
+          profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
           userRoles: user.userRoles.map((ur) => ur.role.name),
         })),
       );
@@ -106,11 +111,15 @@ export class UserService extends BaseService<
             role: true,
           },
         },
+        profile: true,
       },
     });
 
     if (user && (await this.verifyPassword(password, user.password))) {
-      return this.mapUserToUserInfo(this.mapUserToUserWithRoles(user));
+      return this.mapUserToUserInfo({
+        ...this.mapUserToUserWithRoles(user),
+        profile: user.profile,
+      });
     }
 
     return null;
@@ -120,14 +129,25 @@ export class UserService extends BaseService<
   async updateAvatar(id: number, filename: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { id },
+      include: { profile: true },
     });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return this.prisma.user.update({
-      where: { id },
-      data: { avatarPath: filename },
-    });
+    if (user.profile) {
+      await this.prisma.userProfile.update({
+        where: { userId: id },
+        data: { avatarPath: filename },
+      });
+    } else {
+      await this.prisma.userProfile.create({
+        data: {
+          userId: id,
+          avatarPath: filename,
+        },
+      });
+    }
+    return this.prisma.user.findUnique({ where: { id } });
   }
 
   async updateUserRole(
@@ -200,13 +220,13 @@ export class UserService extends BaseService<
   }
 
   mapUserToUserInfo(
-    user: UserWithoutPassword & { userRoles: Role[] },
+    user: UserWithoutPassword & { userRoles: Role[]; profile?: { avatarPath?: string } },
   ): UserInfo {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-      avatarPath: user.avatarPath,
+      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
       userRoles: user.userRoles.map((role) => role.name),
     };
   }

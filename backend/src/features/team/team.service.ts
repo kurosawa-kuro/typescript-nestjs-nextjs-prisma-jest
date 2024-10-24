@@ -49,7 +49,11 @@ export class TeamService extends BaseService<
                 id: true,
                 name: true,
                 email: true,
-                avatarPath: true,
+                profile: {
+                  select: {
+                    avatarPath: true,
+                  },
+                },
               },
             },
           },
@@ -116,7 +120,11 @@ export class TeamService extends BaseService<
                 id: true,
                 name: true,
                 email: true,
-                avatarPath: true,
+                profile: {
+                  select: {
+                    avatarPath: true,
+                  },
+                },
               },
             },
           },
@@ -154,7 +162,11 @@ export class TeamService extends BaseService<
                 id: true,
                 name: true,
                 email: true,
-                avatarPath: true,
+                profile: {
+                  select: {
+                    avatarPath: true,
+                  },
+                },
               },
             },
           },

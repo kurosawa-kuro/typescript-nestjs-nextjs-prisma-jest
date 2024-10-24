@@ -4,12 +4,13 @@ import { User } from '@prisma/client';
 
 export type UserWithoutPassword = Omit<User, 'password'>;
 
+// UserInfoにUserProfileのavatarPathを追加
 export interface UserInfo {
   id: number;
   name: string;
   email: string;
-  avatarPath: string | null;
   userRoles: string[];
+  profile?: { avatarPath?: string };
 }
 
 export interface LoginDto {
