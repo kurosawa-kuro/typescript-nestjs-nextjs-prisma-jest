@@ -1,103 +1,92 @@
-import { UserController } from '@/features/user/user.controller';
-import { UserService } from '@/features/user/user.service';
-import { setupTestModule, createMockService } from '../../test-utils';
-import { User } from '@prisma/client';
-import { mockUser  } from '../../../mocks/user.mock';
-import { UserInfo, UserWithoutPassword, UserWithProfile } from '@/shared/types/auth.types';
+import { Test, TestingModule } from '@nestjs/testing';
+import { TeamController } from '@/features/team/team.controller';
+import { TeamService } from '@/features/team/team.service';
+import { Prisma } from '@prisma/client';
 
-describe('UserController', () => {
-  let controller: UserController;
-  let userService: UserService;
+describe('TeamController', () => {
+  let teamController: TeamController;
+  let teamService: TeamService;
 
   beforeEach(async () => {
-    const mockUserService = createMockService(['create', 'all', 'updateAvatar']);
-    const module = await setupTestModule(
-      [UserController],
-      [{ provide: UserService, useValue: mockUserService }],
-    );
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [TeamController],
+      providers: [
+        {
+          provide: TeamService,
+          useValue: {
+            all: jest.fn(),
+            create: jest.fn(),
+            updateTeamPrivacy: jest.fn(),
+            addMember: jest.fn(),
+            removeMember: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
 
-    controller = module.get<UserController>(UserController);
-    userService = module.get<UserService>(UserService);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe('create', () => {
-    it('should create a new user', async () => {
-      const mockUser: UserWithoutPassword = {
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      const expectedResult: UserInfo = {
-        ...mockUser,
-        userRoles: ['general'], // Replace isAdmin with userRoles
-      };
-
-      const createUserDto = {
-        name: mockUser.name,
-        email: mockUser.email,
-        password: 'password123',
-      };
-
-      jest.spyOn(userService, 'create').mockResolvedValue(expectedResult);
-
-      expect(await controller.create(createUserDto)).toBe(expectedResult);
-      expect(userService.create).toHaveBeenCalledWith(createUserDto);
-    });
+    teamController = module.get<TeamController>(TeamController);
+    teamService = module.get<TeamService>(TeamService);
   });
 
   describe('index', () => {
-    it('should return an array of users without passwords', async () => {
-      const expectedResult: UserWithoutPassword[] = [
-        {
-          ...mockUser,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+    it('should return all teams', async () => {
+      const mockTeams = [{ id: 1, name: 'Test Team' }];
+      (teamService.all as jest.Mock).mockResolvedValue(mockTeams);
 
-      jest.spyOn(userService, 'all').mockResolvedValue(expectedResult);
+      const result = await teamController.index();
 
-      expect(await controller.index()).toBe(expectedResult);
-      expect(userService.all).toHaveBeenCalled();
+      expect(result).toEqual(mockTeams);
+      expect(teamService.all).toHaveBeenCalled();
     });
   });
 
-  describe('updateAvatar', () => {
-    it('should update user avatar', async () => {
-      const userId = 1;
-      const filename = 'new-avatar.jpg';
-      const mockFile = {
-        filename: filename,
-      } as Express.Multer.File;
+  describe('create', () => {
+    it('should create a new team', async () => {
+      const mockTeam = { id: 1, name: 'New Team' };
+      const createInput: Prisma.TeamCreateInput = { name: 'New Team' };
+      (teamService.create as jest.Mock).mockResolvedValue(mockTeam);
 
-      const updatedUser: UserWithProfile = {
-        ...mockUser,
-        password: 'mockPassword', // Add this line
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userRoles: ['general'], // Add this line
-        profile: { avatarPath: filename },
-      };
+      const result = await teamController.create(createInput);
 
-      jest.spyOn(userService, 'updateAvatar').mockResolvedValue(updatedUser);
-
-      const result = await controller.updateAvatar(userId, mockFile);
-
-      expect(result).toEqual(updatedUser);
-      expect(userService.updateAvatar).toHaveBeenCalledWith(userId, filename);
+      expect(result).toEqual(mockTeam);
+      expect(teamService.create).toHaveBeenCalledWith(createInput);
     });
+  });
 
-    it('should throw an error if file is not provided', async () => {
-      const userId = 1;
+  describe('updateTeamPrivacy', () => {
+    it('should update team privacy', async () => {
+      const mockTeam = { id: 1, name: 'Test Team', description: 'Private team' };
+      (teamService.updateTeamPrivacy as jest.Mock).mockResolvedValue(mockTeam);
 
-      await expect(controller.updateAvatar(userId, undefined)).rejects.toThrow();
+      const result = await teamController.updateTeamPrivacy(1, true);
+
+      expect(result).toEqual(mockTeam);
+      expect(teamService.updateTeamPrivacy).toHaveBeenCalledWith(1, true);
+    });
+  });
+
+  describe('addMember', () => {
+    it('should add a member to the team', async () => {
+      const mockTeam = { id: 1, name: 'Test Team', members: [] };
+      (teamService.addMember as jest.Mock).mockResolvedValue(mockTeam);
+
+      const result = await teamController.addMember(1, 2);
+
+      expect(result).toEqual(mockTeam);
+      expect(teamService.addMember).toHaveBeenCalledWith(1, 2);
+    });
+  });
+
+  describe('removeMember', () => {
+    it('should remove a member from the team', async () => {
+      const mockTeam = { id: 1, name: 'Test Team', members: [] };
+      (teamService.removeMember as jest.Mock).mockResolvedValue(mockTeam);
+
+      const result = await teamController.removeMember(1, 2);
+
+      expect(result).toEqual(mockTeam);
+      expect(teamService.removeMember).toHaveBeenCalledWith(1, 2);
     });
   });
 });
+
