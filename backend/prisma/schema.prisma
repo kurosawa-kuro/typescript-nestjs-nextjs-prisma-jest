@@ -16,20 +16,19 @@ model User {
   name             String
   email            String        @unique
   password         String
-  roleId           Int
   avatarPath       String        @default("default_avatar.png")
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   profile          UserProfile?
-  role             Role          @relation(fields: [roleId], references: [id])
+  userRoles        UserRole[]    // 追加
   microposts       Micropost[]
-  followers        Follow[]      @relation("Followers")
-  following        Follow[]      @relation("Following")
   teamMemberships  TeamMember[]
   comments         Comment[]
   likes            Like[]
   skills           UserSkill[]
   careers          Career[]
+  followers        Follow[]      @relation("Followers")
+  following        Follow[]      @relation("Following")
 }
 
 model UserProfile {
@@ -46,23 +45,27 @@ model UserProfile {
 }
 
 model Role {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users       User[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userRoles   UserRole[] // 追加
 }
 
-model Follow {
-  id          Int      @id @default(autoincrement())
-  follower    User     @relation("Following", fields: [followerId], references: [id])
-  followerId  Int
-  following   User     @relation("Followers", fields: [followingId], references: [id])
-  followingId Int
-  createdAt   DateTime @default(now())
+// 追加: UserRole中間テーブル
+model UserRole {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  roleId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  @@unique([followerId, followingId])
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
 }
 
 // チーム関連モデル
@@ -100,7 +103,7 @@ model Micropost {
   user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments   Comment[]
   likes      Like[]
-  hashtags   HashtagMicropost[]
+  categories CategoryMicropost[]
 }
 
 model Comment {
@@ -123,21 +126,6 @@ model Like {
   micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
 
   @@unique([userId, micropostId])
-}
-
-model Hashtag {
-  id         Int                @id @default(autoincrement())
-  name       String             @unique
-  microposts HashtagMicropost[]
-}
-
-model HashtagMicropost {
-  hashtagId   Int
-  micropostId Int
-  hashtag     Hashtag   @relation(fields: [hashtagId], references: [id])
-  micropost   Micropost @relation(fields: [micropostId], references: [id])
-
-  @@id([hashtagId, micropostId])
 }
 
 // スキル関連モデル
@@ -224,4 +212,38 @@ model CareerProject {
   career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
 
   @@index([careerId])
+}
+
+// Follow モデルを追加
+model Follow {
+  id          Int      @id @default(autoincrement())
+  follower    User     @relation("Following", fields: [followerId], references: [id])
+  followerId  Int
+  following   User     @relation("Followers", fields: [followingId], references: [id])
+  followingId Int
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// CategoryMicropost モデルを追加
+model CategoryMicropost {
+  id           Int       @id @default(autoincrement())
+  micropostId  Int
+  categoryId   Int
+  micropost    Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([micropostId, categoryId])
+  @@index([micropostId])
+  @@index([categoryId])
+}
+
+// Category モデルも追加
+model Category {
+  id         Int                 @id @default(autoincrement())
+  name       String              @unique
+  microposts CategoryMicropost[]
 }
