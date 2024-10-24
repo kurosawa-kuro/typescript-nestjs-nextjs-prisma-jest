@@ -66,46 +66,15 @@ model Role {
   userRoles   UserRole[]
 }
 
-model UserSkill {
-  id              Int       @id @default(autoincrement())
-  userId          Int
-  skillId         Int
-  experienceYears Float
-  level           Int
-  lastUsedAt      DateTime?
-  isMain          Boolean   @default(false)
-  description     String?   @db.Text
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, skillId])
-  @@index([userId])
-  @@index([skillId])
+model Team {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  members     TeamMember[]
 }
 
-model Career {
-  id              Int             @id @default(autoincrement())
-  userId          Int
-  companyName     String
-  department      String?
-  position        String
-  employmentType  String
-  startDate       DateTime
-  endDate         DateTime?
-  isCurrent       Boolean         @default(false)
-  description     String          @db.Text
-  achievements    String?         @db.Text
-  teamSize        Int?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skills          CareerSkill[]
-  projects        CareerProject[]
-
-  @@index([userId])
-}
 
 model TeamMember {
   userId   Int
@@ -146,6 +115,26 @@ model Micropost {
   categories CategoryMicropost[]
 }
 
+
+model CategoryMicropost {
+  id           Int       @id @default(autoincrement())
+  micropostId  Int
+  categoryId   Int
+  micropost    Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([micropostId, categoryId])
+  @@index([micropostId])
+  @@index([categoryId])
+}
+
+// Category モデルも追加
+model Category {
+  id         Int                 @id @default(autoincrement())
+  name       String              @unique
+  microposts CategoryMicropost[]
+}
+
 model Comment {
   id         Int       @id @default(autoincrement())
   content    String
@@ -168,13 +157,9 @@ model Like {
   @@unique([userId, micropostId])
 }
 
-// その他のモデル
 model Skill {
   id              Int           @id @default(autoincrement())
   name            String        @unique
-  category        String
-  description     String?       @db.Text
-  isPopular       Boolean       @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   userSkills      UserSkill[]
@@ -185,8 +170,6 @@ model CareerSkill {
   id              Int       @id @default(autoincrement())
   careerId        Int
   skillId         Int
-  level           Int?
-  description     String?   @db.Text
   career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
   skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
@@ -199,12 +182,6 @@ model CareerProject {
   id              Int       @id @default(autoincrement())
   careerId        Int
   name            String
-  description     String    @db.Text
-  role            String
-  responsibilities String?  
-  startDate       DateTime
-  endDate         DateTime?
-  teamSize        Int?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
@@ -212,32 +189,29 @@ model CareerProject {
   @@index([careerId])
 }
 
-// CategoryMicropost モデルを追加
-model CategoryMicropost {
-  id           Int       @id @default(autoincrement())
-  micropostId  Int
-  categoryId   Int
-  micropost    Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
-  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+model UserSkill {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  skillId         Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  @@unique([micropostId, categoryId])
-  @@index([micropostId])
-  @@index([categoryId])
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
 }
 
-// Category モデルも追加
-model Category {
-  id         Int                 @id @default(autoincrement())
-  name       String              @unique
-  microposts CategoryMicropost[]
-}
+model Career {
+  id              Int             @id @default(autoincrement())
+  userId          Int
+  companyName     String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills          CareerSkill[]
+  projects        CareerProject[]
 
-// Add this new model
-model Team {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  members     TeamMember[]
+  @@index([userId])
 }
