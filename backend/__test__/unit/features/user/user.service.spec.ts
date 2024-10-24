@@ -4,6 +4,7 @@ import { PrismaService } from '@/core/database/prisma.service';
 import { UserWithoutPassword, UserInfo } from '@/shared/types/auth.types';
 import { User, Prisma, Role } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { mockCreatedUser } from '../../../mocks/user.mock';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -43,15 +44,6 @@ describe('UserService', () => {
         name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
-      };
-
-      const mockCreatedUser = {
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'hashedpassword123',
-        userRoles: [{ role: { name: 'general' } }],
-        profile: { avatarPath: 'default.png' },
       };
 
       (prismaService.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);

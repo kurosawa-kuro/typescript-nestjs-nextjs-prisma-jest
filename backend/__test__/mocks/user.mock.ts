@@ -13,6 +13,15 @@ export const mockUser: UserWithProfile = {
   },
 };
 
+export const mockCreatedUser = {
+  id: 1,
+  name: 'Test User',
+  email: 'test@example.com',
+  password: 'hashedpassword123',
+  userRoles: [{ role: { name: 'general' } }],
+  profile: { avatarPath: 'default.png' },
+};
+
 export const mockUserInfo: UserInfo = {
   id: 1,
   name: 'Test User',
