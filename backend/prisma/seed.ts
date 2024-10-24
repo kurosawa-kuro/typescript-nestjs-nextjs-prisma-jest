@@ -3,194 +3,188 @@ import * as bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient()
 
+async function createEntities<T>(count: number, createFn: (index: number) => Promise<T>): Promise<T[]> {
+  return Promise.all(Array(count).fill(null).map((_, index) => createFn(index)))
+}
+
+async function createRandomEntities<T>(
+  minCount: number,
+  maxCount: number,
+  createFn: (index: number) => Promise<T>
+): Promise<T[]> {
+  const count = Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount
+  return createEntities(count, createFn)
+}
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10)
+}
+
 export async function seed() {
-  // 既存のデータを削除
-  await prisma.$transaction(async (prisma) => {
-    const tables = [
-      'TeamMember', 'Team', 'Follow', 'Like', 'Comment', 'CategoryMicropost', 'Micropost', 
-      'CareerProject', 'CareerSkill', 'Career', 'UserSkill', 'Skill',
-      'UserRole', 'Role', 'UserProfile', 'User', 'Category'
-    ];
-    for (const table of tables) {
-      await prisma.$executeRawUnsafe(`DELETE FROM "${table}"`);
-      if (!['TeamMember', 'UserRole', 'Follow', 'UserProfile', 'CategoryMicropost', 'CareerSkill', 'UserSkill', 'Like'].includes(table)) {
-        await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`);
-      }
-    }
-  });
+  // Clear existing data
+  const tables = [
+    'TeamMember', 'Team', 'Follow', 'Like', 'Comment', 'CategoryMicropost', 'Micropost', 
+    'CareerProject', 'CareerSkill', 'Career', 'UserSkill', 'Skill',
+    'UserRole', 'Role', 'UserProfile', 'User', 'Category'
+  ]
+  await prisma.$transaction(
+    tables.map(table => prisma.$executeRawUnsafe(`DELETE FROM "${table}"`))
+      .concat(tables.filter(table => !['TeamMember', 'UserRole', 'Follow', 'UserProfile', 'CategoryMicropost', 'CareerSkill', 'UserSkill', 'Like'].includes(table))
+        .map(table => prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`)))
+  )
 
-  // Roles
-  const roles = await Promise.all([
-    prisma.role.create({ data: { name: 'general', description: '一般ユーザー' } }),
-    prisma.role.create({ data: { name: 'read_only_admin', description: '閲覧限定アドミン' } }),
-    prisma.role.create({ data: { name: 'admin', description: 'フルアクセス権限を持つアドミン' } }),
-  ])
+  // Create roles
+  const roleData = [
+    { name: 'general', description: '一般ユーザー' },
+    { name: 'read_only_admin', description: '閲覧限定アドミン' },
+    { name: 'admin', description: 'フルアクセス権限を持つアドミン' },
+  ]
+  const roles = await createEntities(roleData.length, (i) => prisma.role.create({ data: roleData[i] }))
 
-  // Admin user
+  // Create admin user
   const adminUser = await prisma.user.create({
     data: {
       name: 'Admin',
       email: 'admin@example.com',
-      password: await bcrypt.hash('password', 10),
-      userRoles: {
-        create: roles.map(role => ({ roleId: role.id }))
-      },
-      profile: {
-        create: {
-          avatarPath: 'admin_avatar.png',
-        },
-      },
+      password: await hashPassword('password'),
+      userRoles: { create: roles.map(role => ({ roleId: role.id })) },
+      profile: { create: { avatarPath: 'admin_avatar.png' } },
     },
   })
 
-  // Regular users
+  // Create regular users
   const userNames = [
     'Alice', 'Bob', 'Charlie', 'Diana', 'Ethan', 'Fiona', 'George', 'Hannah',
     'Ian', 'Julia', 'Kevin', 'Laura', 'Michael', 'Nora', 'Oscar', 'Pamela',
     'Quentin', 'Rachel', 'Samuel', 'Tina'
   ]
-
-  const users = await Promise.all(userNames.map(async (name, index) => {
+  const users = await createEntities(userNames.length, async (i) => {
+    const name = userNames[i]
     return prisma.user.create({
       data: {
         name,
         email: `${name.toLowerCase()}@example.com`,
-        password: await bcrypt.hash('password', 10),
-        profile: {
-          create: {
-            avatarPath: `${name.toLowerCase()}_avatar.png`,
-          },
-        },
+        password: await hashPassword('password'),
+        profile: { create: { avatarPath: `${name.toLowerCase()}_avatar.png` } },
         userRoles: {
           create: [
             { roleId: roles.find(r => r.name === 'general')!.id },
-            ...(index % 5 === 0 ? [{ roleId: roles.find(r => r.name === 'read_only_admin')!.id }] : [])
+            ...(i % 5 === 0 ? [{ roleId: roles.find(r => r.name === 'read_only_admin')!.id }] : [])
           ]
         }
       },
     })
-  }))
+  })
 
-  // Categories
-  const categories = await Promise.all([
-    prisma.category.create({ data: { name: 'Art' } }),
-    prisma.category.create({ data: { name: 'Technology' } }),
-    prisma.category.create({ data: { name: 'Animal' } }),
-  ])
+  // Create categories
+  const categoryNames = ['Art', 'Technology', 'Animal']
+  const categories = await createEntities(categoryNames.length, (i) => 
+    prisma.category.create({ data: { name: categoryNames[i] } })
+  )
 
-  // Microposts
+  // Create microposts
   await Promise.all(users.flatMap((user, index) => 
-    Array(3).fill(null).map((_, postIndex) => 
+    createEntities(3, (postIndex) => 
       prisma.micropost.create({
         data: {
           userId: user.id,
           title: `${user.name}'s post ${postIndex + 1}`,
           imagePath: `${user.name.toLowerCase()}${postIndex + 1}.png`,
-          categories: {
-            create: [
-              { categoryId: categories[index % 3].id },
-            ],
-          },
+          categories: { create: [{ categoryId: categories[index % 3].id }] },
         },
       })
     )
   ))
 
-  // Follows
+  // Create follows
   await Promise.all(users.flatMap((user, index) => 
     users
       .filter((_, followIndex) => followIndex !== index && Math.random() > 0.7)
       .map(followedUser => 
         prisma.follow.create({
-          data: {
-            followerId: user.id,
-            followingId: followedUser.id,
-          },
+          data: { followerId: user.id, followingId: followedUser.id },
         })
       )
   ))
 
-  // Teams
+  // Create teams and team members
   const teamNames = ['Red Team', 'Blue Team', 'Green Team', 'Yellow Team', 'Purple Team']
-  const teams = await Promise.all(teamNames.map(name => 
+  const teams = await createEntities(teamNames.length, (i) => 
     prisma.team.create({
-      data: {
-        name,
-        description: `Description for ${name}`,
-      }
+      data: { name: teamNames[i], description: `Description for ${teamNames[i]}` },
     })
-  ))
+  )
 
-  // Team Members
   await Promise.all(users.map(user => 
     prisma.teamMember.create({
       data: {
         userId: user.id,
-        teamId: teams[Math.floor(Math.random() * teams.length)].id,  // ランダムにチームを割り当て
+        teamId: teams[Math.floor(Math.random() * teams.length)].id,
       }
     })
   ))
 
-  // 管理者をすべてのチームに所属させる
   await Promise.all(teams.map(team => 
     prisma.teamMember.create({
-      data: {
-        userId: adminUser.id,
-        teamId: team.id,
-      }
+      data: { userId: adminUser.id, teamId: team.id },
     })
   ))
 
-  // Skills
+  // Create skills and user skills
   const skillNames = ['JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'Go', 'TypeScript', 'SQL', 'HTML', 'CSS']
-  const skills = await Promise.all(skillNames.map(name =>
-    prisma.skill.create({
-      data: { name }
+  const skills = await createEntities(skillNames.length, (i) => 
+    prisma.skill.create({ data: { name: skillNames[i] } })
+  )
+
+  await Promise.all(users.map(async user => {
+    const userSkills = await createRandomEntities(1, 5, async () => ({
+      userId: user.id,
+      skillId: skills[Math.floor(Math.random() * skills.length)].id
+    }))
+    
+    return prisma.userSkill.createMany({
+      data: userSkills,
+      skipDuplicates: true
     })
-  ))
+  }))
 
-  // UserSkills
-  await Promise.all(users.flatMap(user =>
-    skills.slice(0, Math.floor(Math.random() * 5) + 1).map(skill =>
-      prisma.userSkill.create({
-        data: {
-          userId: user.id,
-          skillId: skill.id
-        }
-      })
-    )
-  ))
-
-  // Careers
+  // Create careers
   const companies = ['Tech Corp', 'Innovate Inc', 'Digital Solutions', 'Future Systems', 'Code Masters']
-  await Promise.all(users.flatMap(user =>
-    Array(Math.floor(Math.random() * 3) + 1).fill(null).map((_, index) =>
-      prisma.career.create({
+  await Promise.all(users.map(user =>
+    createRandomEntities(1, 3, async () => {
+      const career = await prisma.career.create({
         data: {
           userId: user.id,
           companyName: companies[Math.floor(Math.random() * companies.length)],
-          skills: {
-            create: skills.slice(0, Math.floor(Math.random() * 3) + 1).map(skill => ({
-              skill: { connect: { id: skill.id } }
-            }))
-          },
           projects: {
-            create: Array(Math.floor(Math.random() * 3) + 1).fill(null).map((_, projectIndex) => ({
+            create: await createRandomEntities(1, 3, async (projectIndex) => ({
               name: `Project ${projectIndex + 1}`
             }))
           }
         }
       })
-    )
+
+      const careerSkills = Array(Math.floor(Math.random() * 3) + 1).fill(null).map(() => ({
+        careerId: career.id,
+        skillId: skills[Math.floor(Math.random() * skills.length)].id
+      }))
+
+      await prisma.careerSkill.createMany({
+        data: careerSkills,
+        skipDuplicates: true
+      })
+
+      return career
+    })
   ))
 
-  // Comments
-  const comments = ['Great post!', 'Interesting perspective', 'Thanks for sharing', 'I learned something new', 'Well written']
+  // Create comments
+  const commentContents = ['Great post!', 'Interesting perspective', 'Thanks for sharing', 'I learned something new', 'Well written']
   await Promise.all(users.flatMap(user =>
-    Array(Math.floor(Math.random() * 10) + 1).fill(null).map(() =>
+    createRandomEntities(1, 10, () =>
       prisma.comment.create({
         data: {
-          content: comments[Math.floor(Math.random() * comments.length)],
+          content: commentContents[Math.floor(Math.random() * commentContents.length)],
           userId: user.id,
           micropostId: Math.floor(Math.random() * users.length * 3) + 1
         }
@@ -198,9 +192,9 @@ export async function seed() {
     )
   ))
 
-  // Likes
+  // Create likes
   await Promise.all(users.flatMap(user =>
-    Array(Math.floor(Math.random() * 20) + 1).fill(null).map(() =>
+    createRandomEntities(1, 20, () =>
       prisma.like.create({
         data: {
           userId: user.id,
@@ -212,5 +206,5 @@ export async function seed() {
     )
   ))
 
-  console.log('Seed data inserted successfully, including 20 users, their relationships, teams, skills, careers, comments, and likes')
+  console.log('Seed data inserted successfully, including users, relationships, teams, skills, careers, comments, and likes')
 }
