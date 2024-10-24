@@ -60,9 +60,9 @@ export async function seed() {
 
   // Categories
   const categories = await Promise.all([
-    prisma.category.create({ data: { title: 'Art' } }),
-    prisma.category.create({ data: { title: 'Technology' } }),
-    prisma.category.create({ data: { title: 'Animal' } }),
+    prisma.category.create({ data: { name: 'Art' } }),
+    prisma.category.create({ data: { name: 'Technology' } }),
+    prisma.category.create({ data: { name: 'Animal' } }),
   ])
 
   // Microposts
@@ -91,7 +91,7 @@ export async function seed() {
         prisma.follow.create({
           data: {
             followerId: user.id,
-            followedId: followedUser.id,
+            followingId: followedUser.id,
           },
         })
       )
@@ -103,7 +103,7 @@ export async function seed() {
     prisma.team.create({
       data: {
         name,
-        isPrivate: Math.random() > 0.5,  // ランダムに公開/非公開を設定
+        description: `Description for ${name}`,
       }
     })
   ))

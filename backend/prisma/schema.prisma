@@ -20,20 +20,19 @@ model User {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   profile          UserProfile?
-  userRoles        UserRole[]    // 追加
+  userRoles        UserRole[]
   microposts       Micropost[]
-  teamMemberships  TeamMember[]
   comments         Comment[]
   likes            Like[]
   skills           UserSkill[]
   careers          Career[]
+  teamMemberships  TeamMember[]
   followers        Follow[]      @relation("Followers")
   following        Follow[]      @relation("Following")
 }
 
 model UserProfile {
   id          Int       @id @default(autoincrement())
-  user        User      @relation(fields: [userId], references: [id])
   userId      Int       @unique
   avatarPath  String    @default("default_avatar.png")
   bio         String?
@@ -42,18 +41,9 @@ model UserProfile {
   birthDate   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
 }
 
-model Role {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
-  description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  userRoles   UserRole[] // 追加
-}
-
-// 追加: UserRole中間テーブル
 model UserRole {
   id        Int      @id @default(autoincrement())
   userId    Int
@@ -68,16 +58,54 @@ model UserRole {
   @@index([roleId])
 }
 
-// チーム関連モデル
-model Team {
-  id        Int          @id @default(autoincrement())
-  name      String
-  isPrivate Boolean      @default(false)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  members   TeamMember[]
+model Role {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userRoles   UserRole[]
+}
 
-  @@index([name])
+model UserSkill {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  skillId         Int
+  experienceYears Float
+  level           Int
+  lastUsedAt      DateTime?
+  isMain          Boolean   @default(false)
+  description     String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+}
+
+model Career {
+  id              Int             @id @default(autoincrement())
+  userId          Int
+  companyName     String
+  department      String?
+  position        String
+  employmentType  String
+  startDate       DateTime
+  endDate         DateTime?
+  isCurrent       Boolean         @default(false)
+  description     String          @db.Text
+  achievements    String?         @db.Text
+  teamSize        Int?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills          CareerSkill[]
+  projects        CareerProject[]
+
+  @@index([userId])
 }
 
 model TeamMember {
@@ -90,6 +118,19 @@ model TeamMember {
   @@id([userId, teamId])
   @@index([userId])
   @@index([teamId])
+}
+
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  createdAt   DateTime @default(now())
+  follower    User     @relation("Following", fields: [followerId], references: [id])
+  following   User     @relation("Followers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 // 投稿関連モデル
@@ -128,7 +169,7 @@ model Like {
   @@unique([userId, micropostId])
 }
 
-// スキル関連モデル
+// その他のモデル
 model Skill {
   id              Int           @id @default(autoincrement())
   name            String        @unique
@@ -141,54 +182,12 @@ model Skill {
   careerSkills    CareerSkill[]
 }
 
-model UserSkill {
-  id              Int       @id @default(autoincrement())
-  userId          Int
-  skillId         Int
-  experienceYears Float
-  level           Int
-  lastUsedAt      DateTime?
-  isMain          Boolean   @default(false)
-  description     String?   @db.Text
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, skillId])
-  @@index([userId])
-  @@index([skillId])
-}
-
-// キャリア関連モデル
-model Career {
-  id              Int             @id @default(autoincrement())
-  userId          Int
-  companyName     String
-  department      String?
-  position        String
-  employmentType  String
-  startDate       DateTime
-  endDate         DateTime?
-  isCurrent       Boolean         @default(false)
-  description     String          @db.Text
-  achievements    String?         @db.Text
-  teamSize        Int?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skills          CareerSkill[]
-  projects        CareerProject[]
-
-  @@index([userId])
-}
-
 model CareerSkill {
   id              Int       @id @default(autoincrement())
   careerId        Int
   skillId         Int
-  level           Int?      // スキルの活用レベル
-  description     String?   @db.Text // スキルの具体的な活用方法
+  level           Int?
+  description     String?   @db.Text
   career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
   skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
@@ -202,8 +201,8 @@ model CareerProject {
   careerId        Int
   name            String
   description     String    @db.Text
-  role            String    // プロジェクトでの役割
-  responsibilities String?  @db.Text // 担当業務
+  role            String
+  responsibilities String?  
   startDate       DateTime
   endDate         DateTime?
   teamSize        Int?
@@ -212,20 +211,6 @@ model CareerProject {
   career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
 
   @@index([careerId])
-}
-
-// Follow モデルを追加
-model Follow {
-  id          Int      @id @default(autoincrement())
-  follower    User     @relation("Following", fields: [followerId], references: [id])
-  followerId  Int
-  following   User     @relation("Followers", fields: [followingId], references: [id])
-  followingId Int
-  createdAt   DateTime @default(now())
-
-  @@unique([followerId, followingId])
-  @@index([followerId])
-  @@index([followingId])
 }
 
 // CategoryMicropost モデルを追加
@@ -246,4 +231,14 @@ model Category {
   id         Int                 @id @default(autoincrement())
   name       String              @unique
   microposts CategoryMicropost[]
+}
+
+// Add this new model
+model Team {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  members     TeamMember[]
 }
