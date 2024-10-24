@@ -27,9 +27,11 @@ export async function seed() {
     'CareerProject', 'CareerSkill', 'Career', 'UserSkill', 'Skill',
     'UserRole', 'Role', 'UserProfile', 'User', 'Category'
   ]
+  const tablesWithoutSequence = ['TeamMember', 'UserRole', 'Follow', 'UserProfile', 'CategoryMicropost', 'CareerSkill', 'UserSkill', 'Like']
+
   await prisma.$transaction(
     tables.map(table => prisma.$executeRawUnsafe(`DELETE FROM "${table}"`))
-      .concat(tables.filter(table => !['TeamMember', 'UserRole', 'Follow', 'UserProfile', 'CategoryMicropost', 'CareerSkill', 'UserSkill', 'Like'].includes(table))
+      .concat(tables.filter(table => !tablesWithoutSequence.includes(table))
         .map(table => prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`)))
   )
 
