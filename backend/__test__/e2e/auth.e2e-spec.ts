@@ -28,7 +28,6 @@ describe('AuthController (e2e)', () => {
       name: 'Test User',
       email: 'test@example.com',
       password: 'password',
-      isAdmin: false,
     };
 
     const response = await request(app.getHttpServer())
@@ -43,7 +42,10 @@ describe('AuthController (e2e)', () => {
         id: expect.any(Number),
         name: newUser.name,
         email: newUser.email,
-        isAdmin: newUser.isAdmin,
+        userRoles: ['general'],
+        profile: {
+          avatarPath: expect.any(String),
+        },
       },
     });
 
@@ -55,7 +57,6 @@ describe('AuthController (e2e)', () => {
       name: 'Test User',
       email: `test${Math.random().toString(36).substring(2, 7)}@example.com`,
       password: 'testPassword123',
-      isAdmin: false,
       avatarPath: 'path/to/avatar.jpg',
     };
     await createTestUser(prismaService, testUser);
@@ -72,7 +73,10 @@ describe('AuthController (e2e)', () => {
         id: expect.any(Number),
         name: testUser.name,
         email: testUser.email,
-        isAdmin: testUser.isAdmin,
+        userRoles: ['general'],
+        profile: {
+          avatarPath: testUser.avatarPath,
+        },
       },
     });
   });
