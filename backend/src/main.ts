@@ -13,7 +13,6 @@ async function bootstrap() {
 
   // パスを絶対パスで指定
   const uploadsPath = join(__dirname, '..', '..', 'uploads');
-  console.log('Uploads path:', uploadsPath); // パスをログに出力
 
   app.useStaticAssets(uploadsPath, {
     prefix: '/uploads/',

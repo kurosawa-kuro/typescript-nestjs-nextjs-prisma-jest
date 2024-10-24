@@ -147,7 +147,10 @@ export class UserService extends BaseService<
         },
       });
     }
-    return this.prisma.user.findUnique({ where: { id } });
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    });
   }
 
   async updateUserRole(

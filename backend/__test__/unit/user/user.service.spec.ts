@@ -205,20 +205,53 @@ describe('UserService', () => {
         profile: { avatarPath: 'old-avatar.jpg' },
       };
 
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prismaService.user.update as jest.Mock).mockResolvedValue({
+      const updatedUser = {
         ...mockUser,
         profile: { avatarPath: 'new-avatar.jpg' },
-      });
+      };
 
-      // Mock the userProfile.create method
+      (prismaService.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce(mockUser)
+        .mockResolvedValueOnce(updatedUser);
+
+      (prismaService.userProfile.update as jest.Mock).mockResolvedValue({ avatarPath: 'new-avatar.jpg' });
+
+      const result = await userService.updateAvatar(1, 'new-avatar.jpg');
+
+      expect(result).toEqual(updatedUser);
+      expect(prismaService.userProfile.update).toHaveBeenCalledWith({
+        where: { userId: 1 },
+        data: { avatarPath: 'new-avatar.jpg' },
+      });
+    });
+
+    it('should create profile if it doesn\'t exist', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        profile: null,
+      };
+
+      const updatedUser = {
+        ...mockUser,
+        profile: { avatarPath: 'new-avatar.jpg' },
+      };
+
+      (prismaService.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce(mockUser)
+        .mockResolvedValueOnce(updatedUser);
+
       (prismaService.userProfile.create as jest.Mock).mockResolvedValue({ avatarPath: 'new-avatar.jpg' });
 
       const result = await userService.updateAvatar(1, 'new-avatar.jpg');
 
-      expect(result).toEqual({
-        ...mockUser,
-        profile: { avatarPath: 'new-avatar.jpg' },
+      expect(result).toEqual(updatedUser);
+      expect(prismaService.userProfile.create).toHaveBeenCalledWith({
+        data: {
+          userId: 1,
+          avatarPath: 'new-avatar.jpg',
+        },
       });
     });
 
@@ -263,7 +296,7 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: null,
+        profile: { avatarPath: null },
         userRoles: [{ role: { id: 2, name: 'admin' } }],
       };
 
@@ -279,7 +312,9 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: null,
+        profile: {
+          avatarPath: 'default.png',
+        },
         userRoles: [],
       });
     });

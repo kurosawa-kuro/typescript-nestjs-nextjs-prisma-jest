@@ -40,8 +40,6 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    console.log('user', user);
-
     const token = await this.signToken(user);
     return { token, user };
   }
