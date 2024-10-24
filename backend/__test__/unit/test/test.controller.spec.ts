@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TestController } from '@/features/test/test.controller';
 import { AuthGuard } from '@/features/auth/guards/auth.guard';
-import { UserInfo } from '@/features/auth/decorators/user.decorator';
+import { UserInfo } from '@/shared/types/auth.types';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '@/features/auth/auth.service';
+import { mockUserInfo } from '../../mocks/user.mock';
 
 describe('TestController', () => {
   let controller: TestController;
@@ -55,15 +56,16 @@ describe('TestController', () => {
 
   describe('getProfile', () => {
     it('should return welcome message with user name', () => {
-      const mockUser: UserInfo = { 
-        id: 1, 
-        name: 'John Doe', 
-        email: 'john.doe@example.com', 
-        userRoles: ['general'], 
-        avatarPath: '/path/to/avatar.jpg'
+      const updatedMockUserInfo: UserInfo = {
+        ...mockUserInfo,
+        name: 'Test User',
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       };
-      expect(controller.getProfile(mockUser)).toEqual({
-        message: 'Welcome John Doe!',
+
+      expect(controller.getProfile(updatedMockUserInfo)).toEqual({
+        message: 'Welcome Test User!',
       });
     });
   });
@@ -75,7 +77,9 @@ describe('TestController', () => {
         name: 'Admin User', 
         email: 'admin@example.com',
         userRoles: ['admin'],
-        avatarPath: '/path/to/admin-avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/admin-avatar.jpg',
+        },
       };
       expect(controller.adminOnly(mockAdminUser)).toEqual({
         message: 'Welcome Admin Admin User!',
