@@ -1,7 +1,6 @@
 import { UserController } from '@/features/user/user.controller';
 import { UserService } from '@/features/user/user.service';
 import { setupTestModule, createMockService } from '../../test-utils';
-import { User } from '@prisma/client';
 import { mockUser  } from '../../../mocks/user.mock';
 import { UserInfo, UserWithoutPassword, UserWithProfile } from '@/shared/types/auth.types';
 
@@ -36,7 +35,7 @@ describe('UserController', () => {
 
       const expectedResult: UserInfo = {
         ...mockUser,
-        userRoles: ['general'], // Replace isAdmin with userRoles
+        userRoles: ['general'],
       };
 
       const createUserDto = {

@@ -122,6 +122,4 @@ describe('FollowService', () => {
       expect(result).toEqual(mockFollowers.map(({ follower }) => follower));
     });
   });
-
-  // 同様に getFollowing と isFollowing のテストも追加できます
 });
