@@ -7,12 +7,13 @@ export async function seed() {
   // 既存のデータを削除
   await prisma.$transaction(async (prisma) => {
     const tables = [
-      'TeamMember', 'Team', 'Follow', 'Micropost', 'UserRole', 'Role', 
-      'UserProfile', 'User', 'Category'
+      'TeamMember', 'Team', 'Follow', 'Like', 'Comment', 'CategoryMicropost', 'Micropost', 
+      'CareerProject', 'CareerSkill', 'Career', 'UserSkill', 'Skill',
+      'UserRole', 'Role', 'UserProfile', 'User', 'Category'
     ];
     for (const table of tables) {
       await prisma.$executeRawUnsafe(`DELETE FROM "${table}"`);
-      if (!['TeamMember', 'UserRole', 'Follow', 'UserProfile'].includes(table)) {
+      if (!['TeamMember', 'UserRole', 'Follow', 'UserProfile', 'CategoryMicropost', 'CareerSkill', 'UserSkill', 'Like'].includes(table)) {
         await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`);
       }
     }
@@ -72,21 +73,9 @@ export async function seed() {
 
   // Categories
   const categories = await Promise.all([
-    prisma.category.upsert({
-      where: { name: 'Art' },
-      update: {},
-      create: { name: 'Art' }
-    }),
-    prisma.category.upsert({
-      where: { name: 'Technology' },
-      update: {},
-      create: { name: 'Technology' }
-    }),
-    prisma.category.upsert({
-      where: { name: 'Animal' },
-      update: {},
-      create: { name: 'Animal' }
-    }),
+    prisma.category.create({ data: { name: 'Art' } }),
+    prisma.category.create({ data: { name: 'Technology' } }),
+    prisma.category.create({ data: { name: 'Animal' } }),
   ])
 
   // Microposts
@@ -152,5 +141,76 @@ export async function seed() {
     })
   ))
 
-  console.log('Seed data inserted successfully, including 20 users, their relationships, and teams')
+  // Skills
+  const skillNames = ['JavaScript', 'Python', 'Java', 'C++', 'Ruby', 'Go', 'TypeScript', 'SQL', 'HTML', 'CSS']
+  const skills = await Promise.all(skillNames.map(name =>
+    prisma.skill.create({
+      data: { name }
+    })
+  ))
+
+  // UserSkills
+  await Promise.all(users.flatMap(user =>
+    skills.slice(0, Math.floor(Math.random() * 5) + 1).map(skill =>
+      prisma.userSkill.create({
+        data: {
+          userId: user.id,
+          skillId: skill.id
+        }
+      })
+    )
+  ))
+
+  // Careers
+  const companies = ['Tech Corp', 'Innovate Inc', 'Digital Solutions', 'Future Systems', 'Code Masters']
+  await Promise.all(users.flatMap(user =>
+    Array(Math.floor(Math.random() * 3) + 1).fill(null).map((_, index) =>
+      prisma.career.create({
+        data: {
+          userId: user.id,
+          companyName: companies[Math.floor(Math.random() * companies.length)],
+          skills: {
+            create: skills.slice(0, Math.floor(Math.random() * 3) + 1).map(skill => ({
+              skill: { connect: { id: skill.id } }
+            }))
+          },
+          projects: {
+            create: Array(Math.floor(Math.random() * 3) + 1).fill(null).map((_, projectIndex) => ({
+              name: `Project ${projectIndex + 1}`
+            }))
+          }
+        }
+      })
+    )
+  ))
+
+  // Comments
+  const comments = ['Great post!', 'Interesting perspective', 'Thanks for sharing', 'I learned something new', 'Well written']
+  await Promise.all(users.flatMap(user =>
+    Array(Math.floor(Math.random() * 10) + 1).fill(null).map(() =>
+      prisma.comment.create({
+        data: {
+          content: comments[Math.floor(Math.random() * comments.length)],
+          userId: user.id,
+          micropostId: Math.floor(Math.random() * users.length * 3) + 1
+        }
+      })
+    )
+  ))
+
+  // Likes
+  await Promise.all(users.flatMap(user =>
+    Array(Math.floor(Math.random() * 20) + 1).fill(null).map(() =>
+      prisma.like.create({
+        data: {
+          userId: user.id,
+          micropostId: Math.floor(Math.random() * users.length * 3) + 1
+        }
+      }).catch(() => {
+        // Ignore unique constraint violations
+      })
+    )
+  ))
+
+  console.log('Seed data inserted successfully, including 20 users, their relationships, teams, skills, careers, comments, and likes')
 }

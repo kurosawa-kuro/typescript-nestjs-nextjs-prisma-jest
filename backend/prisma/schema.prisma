@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ユーザー関連モデル
+// Core User Models
 model User {
   id               Int           @id @default(autoincrement())
   name             String
@@ -20,14 +17,14 @@ model User {
   updatedAt        DateTime      @updatedAt
   profile          UserProfile?
   userRoles        UserRole[]
+  followers        Follow[]      @relation("Followers")
+  following        Follow[]      @relation("Following")
+  teamMemberships  TeamMember[]
+  skills           UserSkill[]
+  careers          Career[]
   microposts       Micropost[]
   comments         Comment[]
   likes            Like[]
-  skills           UserSkill[]
-  careers          Career[]
-  teamMemberships  TeamMember[]
-  followers        Follow[]      @relation("Followers")
-  following        Follow[]      @relation("Following")
 }
 
 model UserProfile {
@@ -66,28 +63,6 @@ model Role {
   userRoles   UserRole[]
 }
 
-model Team {
-  id          Int          @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  members     TeamMember[]
-}
-
-
-model TeamMember {
-  userId   Int
-  teamId   Int
-  joinedAt DateTime @default(now())
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-
-  @@id([userId, teamId])
-  @@index([userId])
-  @@index([teamId])
-}
-
 model Follow {
   id          Int      @id @default(autoincrement())
   followerId  Int
@@ -101,60 +76,25 @@ model Follow {
   @@index([followingId])
 }
 
-// 投稿関連モデル
-model Micropost {
-  id         Int                 @id @default(autoincrement())
-  userId     Int
-  title      String
-  imagePath  String?
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comments   Comment[]
-  likes      Like[]
-  categories CategoryMicropost[]
+model Team {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  members     TeamMember[]
 }
 
+model TeamMember {
+  userId   Int
+  teamId   Int
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
-model CategoryMicropost {
-  id           Int       @id @default(autoincrement())
-  micropostId  Int
-  categoryId   Int
-  micropost    Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
-  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([micropostId, categoryId])
-  @@index([micropostId])
-  @@index([categoryId])
-}
-
-// Category モデルも追加
-model Category {
-  id         Int                 @id @default(autoincrement())
-  name       String              @unique
-  microposts CategoryMicropost[]
-}
-
-model Comment {
-  id         Int       @id @default(autoincrement())
-  content    String
-  userId     Int
-  micropostId Int
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
-}
-
-model Like {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  micropostId Int
-  createdAt  DateTime  @default(now())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, micropostId])
+  @@id([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
 }
 
 model Skill {
@@ -164,29 +104,6 @@ model Skill {
   updatedAt       DateTime      @updatedAt
   userSkills      UserSkill[]
   careerSkills    CareerSkill[]
-}
-
-model CareerSkill {
-  id              Int       @id @default(autoincrement())
-  careerId        Int
-  skillId         Int
-  career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
-  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@unique([careerId, skillId])
-  @@index([careerId])
-  @@index([skillId])
-}
-
-model CareerProject {
-  id              Int       @id @default(autoincrement())
-  careerId        Int
-  name            String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
-
-  @@index([careerId])
 }
 
 model UserSkill {
@@ -214,4 +131,81 @@ model Career {
   projects        CareerProject[]
 
   @@index([userId])
+}
+
+model CareerSkill {
+  id              Int       @id @default(autoincrement())
+  careerId        Int
+  skillId         Int
+  career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  skill           Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([careerId, skillId])
+  @@index([careerId])
+  @@index([skillId])
+}
+
+model CareerProject {
+  id              Int       @id @default(autoincrement())
+  careerId        Int
+  name            String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  career          Career    @relation(fields: [careerId], references: [id], onDelete: Cascade)
+
+  @@index([careerId])
+}
+
+// Post-related Models
+model Micropost {
+  id         Int                 @id @default(autoincrement())
+  userId     Int
+  title      String
+  imagePath  String?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments   Comment[]
+  likes      Like[]
+  categories CategoryMicropost[]
+}
+
+model CategoryMicropost {
+  id           Int       @id @default(autoincrement())
+  micropostId  Int
+  categoryId   Int
+  micropost    Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([micropostId, categoryId])
+  @@index([micropostId])
+  @@index([categoryId])
+}
+
+model Category {
+  id         Int                 @id @default(autoincrement())
+  name       String              @unique
+  microposts CategoryMicropost[]
+}
+
+model Comment {
+  id         Int       @id @default(autoincrement())
+  content    String
+  userId     Int
+  micropostId Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  micropostId Int
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, micropostId])
 }
