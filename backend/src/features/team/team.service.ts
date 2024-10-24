@@ -76,7 +76,7 @@ export class TeamService extends BaseService<
     }
     return this.prisma.team.update({
       where: { id },
-      data: { isPrivate },
+      data: { description: isPrivate ? 'Private team' : undefined },
     });
   }
 

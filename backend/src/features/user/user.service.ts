@@ -154,7 +154,7 @@ export class UserService extends BaseService<
       data: {
         userRoles: action === 'add'
           ? { create: { role: { connect: { name: roleName } } } }
-          : { delete: { roleId_userId: { roleId: user.userRoles[0].role.id, userId: id } } }
+          : { deleteMany: { roleId: user.userRoles[0].role.id, userId: id } }
       },
       include: {
         userRoles: {

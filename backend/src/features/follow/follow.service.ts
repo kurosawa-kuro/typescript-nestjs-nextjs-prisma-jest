@@ -9,21 +9,21 @@ export class FollowService {
   private async findFollowRelation(followerId: number, followedId: number) {
     return this.prisma.follow.findUnique({
       where: {
-        followerId_followedId: { followerId, followedId },
+        followerId_followingId: { followerId, followingId: followedId },
       },
     });
   }
 
   private async createFollowRelation(followerId: number, followedId: number) {
     return this.prisma.follow.create({
-      data: { followerId, followedId },
+      data: { followerId, followingId: followedId },
     });
   }
 
   private async deleteFollowRelation(followerId: number, followedId: number) {
     return this.prisma.follow.delete({
       where: {
-        followerId_followedId: { followerId, followedId },
+        followerId_followingId: { followerId, followingId: followedId },
       },
     });
   }
@@ -50,7 +50,7 @@ export class FollowService {
 
   async getFollowers(userId: number): Promise<Partial<User>[]> {
     const followers = await this.prisma.follow.findMany({
-      where: { followedId: userId },
+      where: { followingId: userId },
       select: {
         follower: {
           select: {
@@ -70,7 +70,7 @@ export class FollowService {
     const following = await this.prisma.follow.findMany({
       where: { followerId: userId },
       select: {
-        followed: {
+        following: {
           select: {
             id: true,
             name: true,
@@ -81,7 +81,7 @@ export class FollowService {
       },
     });
 
-    return following.map(({ followed }) => followed);
+    return following.map(({ following }) => following);
   }
 
   async isFollowing(followerId: number, followedId: number): Promise<boolean> {
