@@ -21,3 +21,8 @@ export interface LoginDto {
 export interface RegisterDto extends LoginDto {
   name: string;
 }
+
+export type UserWithProfile = User & { 
+  userRoles: string[];
+  profile?: { avatarPath?: string };
+}

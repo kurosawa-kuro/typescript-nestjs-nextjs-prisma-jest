@@ -81,7 +81,9 @@ describe('AuthController', () => {
         name: 'Test User',
         email: 'test@example.com',
         userRoles: ['general'],
-        avatarPath: '/path/to/avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       };
       const result = await authController.me(mockUserInfo);
 

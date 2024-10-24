@@ -5,33 +5,14 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { BadRequestException } from '@nestjs/common';
-import { UserInfo  } from '@/features/auth/decorators/user.decorator';
 import { RegisterDto, LoginDto } from '@/shared/types/auth.types';
+import { mockUser, mockUserInfo } from '../../mocks/user.mock';
 
 describe('AuthService', () => {
   let service: AuthService;
   let userService: jest.Mocked<UserService>;
   let jwtService: jest.Mocked<JwtService>;
   let configService: jest.Mocked<ConfigService>;
-
-  const mockUser = {
-    id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-    password: 'hashedpassword123',
-    avatarPath: '',
-    userRoles: [ "general"],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-
-  const mockUserInfo: UserInfo = {
-    id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-    avatarPath: '',
-    userRoles: [ "general"],
-  };
 
   const mockToken = 'mock_token';
   const mockSecret = 'JWT_SECRET';
