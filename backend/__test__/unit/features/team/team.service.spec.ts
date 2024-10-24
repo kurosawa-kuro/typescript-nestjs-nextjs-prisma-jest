@@ -82,4 +82,130 @@ describe('TeamService', () => {
       expect(result).toEqual(mockTeams);
     });
   });
+
+  describe('updateTeamPrivacy', () => {
+    it('should update team privacy', async () => {
+      const mockTeam = { id: 1, name: 'Test Team', description: 'Private team' };
+      (prismaService.team.findUnique as jest.Mock).mockResolvedValue(mockTeam);
+      (prismaService.team.update as jest.Mock).mockResolvedValue(mockTeam);
+
+      const result = await teamService.updateTeamPrivacy(1, true);
+
+      expect(prismaService.team.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
+      expect(prismaService.team.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { description: 'Private team' },
+      });
+      expect(result).toEqual(mockTeam);
+    });
+
+    it('should throw NotFoundException if team does not exist', async () => {
+      (prismaService.team.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(teamService.updateTeamPrivacy(1, true)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('addMember', () => {
+    it('should add a member to the team', async () => {
+      const mockTeam = { id: 1, name: 'Test Team', members: [] };
+      const updatedTeam = { ...mockTeam, members: [{ user: { id: 2, name: 'User', email: 'user@example.com', profile: { avatarPath: 'path/to/avatar' } }, joinedAt: new Date() }] };
+
+      (prismaService.teamMember.findUnique as jest.Mock).mockResolvedValue(null);
+      (prismaService.team.update as jest.Mock).mockResolvedValue(updatedTeam);
+
+      const result = await teamService.addMember(1, 2);
+
+      expect(prismaService.teamMember.findUnique).toHaveBeenCalledWith({
+        where: {
+          userId_teamId: {
+            userId: 2,
+            teamId: 1,
+          },
+        },
+      });
+      expect(prismaService.team.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          members: {
+            create: {
+              userId: 2,
+            },
+          },
+        },
+        include: {
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  profile: {
+                    select: {
+                      avatarPath: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(updatedTeam);
+    });
+
+    it('should throw BadRequestException if user is already a member', async () => {
+      const existingMember = { userId: 2, teamId: 1 };
+      (prismaService.teamMember.findUnique as jest.Mock).mockResolvedValue(existingMember);
+
+      await expect(teamService.addMember(1, 2)).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('removeMember', () => {
+    it('should remove a member from the team', async () => {
+      const mockTeam = { id: 1, name: 'Test Team', members: [{ user: { id: 2, name: 'User', email: 'user@example.com', profile: { avatarPath: 'path/to/avatar' } }, joinedAt: new Date() }] };
+      const updatedTeam = { ...mockTeam, members: [] };
+
+      (prismaService.team.update as jest.Mock).mockResolvedValue(updatedTeam);
+
+      const result = await teamService.removeMember(1, 2);
+
+      expect(prismaService.team.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          members: {
+            delete: {
+              userId_teamId: {
+                userId: 2,
+                teamId: 1,
+              },
+            },
+          },
+        },
+        include: {
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  profile: {
+                    select: {
+                      avatarPath: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(result).toEqual(updatedTeam);
+    });
+  });
 });
