@@ -78,7 +78,9 @@ describe('AuthGuard', () => {
         userRoles: ['general'], 
         name: 'Test User', 
         email: 'test@example.com',
-        avatarPath: '/path/to/avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       });
 
       const result = await guard.canActivate(mockExecutionContext);
@@ -93,7 +95,9 @@ describe('AuthGuard', () => {
         userRoles: ['general'], 
         name: 'Test User', 
         email: 'test@example.com',
-        avatarPath: '/path/to/avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       });
 
       await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
@@ -108,7 +112,9 @@ describe('AuthGuard', () => {
         userRoles: ['read_only_admin'], 
         name: 'Read Only Admin', 
         email: 'readonly@example.com',
-        avatarPath: '/path/to/avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       });
 
       await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
@@ -123,7 +129,9 @@ describe('AuthGuard', () => {
         userRoles: ['admin'], 
         name: 'Admin User', 
         email: 'admin@example.com',
-        avatarPath: '/path/to/avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       });
 
       const result = await guard.canActivate(mockExecutionContext);
