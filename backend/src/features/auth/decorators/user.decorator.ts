@@ -1,12 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-
-export interface UserInfo {
-  id: number;
-  name: string;
-  email: string;
-  userRoles: string[];
-  avatarPath: string;
-}
+import { UserInfo } from '@/shared/types/auth.types';
 
 export const User = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): UserInfo => {

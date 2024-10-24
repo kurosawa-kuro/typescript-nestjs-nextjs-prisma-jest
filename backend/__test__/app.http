@@ -126,7 +126,7 @@ Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### 現在のユーザーが指定されたユーザーをフォローしているかどうかを確認する
-GET {{baseUrl}}/follow/is-following/12
+GET {{baseUrl}}/follow/is-following/13
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### チーム関連エンドポイント

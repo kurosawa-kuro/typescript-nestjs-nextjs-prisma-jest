@@ -6,10 +6,13 @@ const prisma = new PrismaClient()
 export async function seed() {
   // 既存のデータを削除
   await prisma.$transaction(async (prisma) => {
-    const tables = ['TeamMember', 'Team', 'Follow', 'Micropost', 'UserRole', 'Role', 'User'];
+    const tables = [
+      'TeamMember', 'Team', 'Follow', 'Micropost', 'UserRole', 'Role', 
+      'UserProfile', 'User', 'Category'
+    ];
     for (const table of tables) {
       await prisma.$executeRawUnsafe(`DELETE FROM "${table}"`);
-      if (!['TeamMember', 'UserRole', 'Follow'].includes(table)) {
+      if (!['TeamMember', 'UserRole', 'Follow', 'UserProfile'].includes(table)) {
         await prisma.$executeRawUnsafe(`ALTER SEQUENCE "${table}_id_seq" RESTART WITH 1`);
       }
     }
@@ -30,7 +33,12 @@ export async function seed() {
       password: await bcrypt.hash('password', 10),
       userRoles: {
         create: roles.map(role => ({ roleId: role.id }))
-      }
+      },
+      profile: {
+        create: {
+          avatarPath: 'admin_avatar.png',
+        },
+      },
     },
   })
 
@@ -47,7 +55,11 @@ export async function seed() {
         name,
         email: `${name.toLowerCase()}@example.com`,
         password: await bcrypt.hash('password', 10),
-        avatarPath: `${name.toLowerCase()}_avatar.png`,
+        profile: {
+          create: {
+            avatarPath: `${name.toLowerCase()}_avatar.png`,
+          },
+        },
         userRoles: {
           create: [
             { roleId: roles.find(r => r.name === 'general')!.id },
@@ -60,9 +72,21 @@ export async function seed() {
 
   // Categories
   const categories = await Promise.all([
-    prisma.category.create({ data: { title: 'Art' } }),
-    prisma.category.create({ data: { title: 'Technology' } }),
-    prisma.category.create({ data: { title: 'Animal' } }),
+    prisma.category.upsert({
+      where: { name: 'Art' },
+      update: {},
+      create: { name: 'Art' }
+    }),
+    prisma.category.upsert({
+      where: { name: 'Technology' },
+      update: {},
+      create: { name: 'Technology' }
+    }),
+    prisma.category.upsert({
+      where: { name: 'Animal' },
+      update: {},
+      create: { name: 'Animal' }
+    }),
   ])
 
   // Microposts
@@ -91,7 +115,7 @@ export async function seed() {
         prisma.follow.create({
           data: {
             followerId: user.id,
-            followedId: followedUser.id,
+            followingId: followedUser.id,
           },
         })
       )
@@ -103,7 +127,7 @@ export async function seed() {
     prisma.team.create({
       data: {
         name,
-        isPrivate: Math.random() > 0.5,  // ランダムに公開/非公開を設定
+        description: `Description for ${name}`,
       }
     })
   ))

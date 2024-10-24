@@ -49,7 +49,11 @@ export class TeamService extends BaseService<
                 id: true,
                 name: true,
                 email: true,
-                avatarPath: true,
+                profile: {
+                  select: {
+                    avatarPath: true,
+                  },
+                },
               },
             },
           },
@@ -76,7 +80,7 @@ export class TeamService extends BaseService<
     }
     return this.prisma.team.update({
       where: { id },
-      data: { isPrivate },
+      data: { description: isPrivate ? 'Private team' : undefined },
     });
   }
 
@@ -116,7 +120,11 @@ export class TeamService extends BaseService<
                 id: true,
                 name: true,
                 email: true,
-                avatarPath: true,
+                profile: {
+                  select: {
+                    avatarPath: true,
+                  },
+                },
               },
             },
           },
@@ -154,7 +162,11 @@ export class TeamService extends BaseService<
                 id: true,
                 name: true,
                 email: true,
-                avatarPath: true,
+                profile: {
+                  select: {
+                    avatarPath: true,
+                  },
+                },
               },
             },
           },

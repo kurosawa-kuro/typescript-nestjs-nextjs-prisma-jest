@@ -3,7 +3,7 @@ import { UserService } from '@/features/user/user.service';
 import { setupTestModule, createMockService } from '../test-utils';
 import { User } from '@prisma/client';
 import { mockUser  } from '../../mocks/user.mock';
-import { UserInfo, UserWithoutPassword } from '@/shared/types/auth.types';
+import { UserInfo, UserWithoutPassword, UserWithProfile } from '@/shared/types/auth.types';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -30,7 +30,6 @@ describe('UserController', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: '/path/to/avatar.jpg',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -55,7 +54,13 @@ describe('UserController', () => {
 
   describe('index', () => {
     it('should return an array of users without passwords', async () => {
-      const expectedResult: User[] = [mockUser];
+      const expectedResult: UserWithoutPassword[] = [
+        {
+          ...mockUser,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
 
       jest.spyOn(userService, 'all').mockResolvedValue(expectedResult);
 
@@ -72,9 +77,13 @@ describe('UserController', () => {
         filename: filename,
       } as Express.Multer.File;
 
-      const updatedUser: User = {
+      const updatedUser: UserWithProfile = {
         ...mockUser,
-        avatarPath: filename,
+        password: 'mockPassword', // Add this line
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: ['general'], // Add this line
+        profile: { avatarPath: filename },
       };
 
       jest.spyOn(userService, 'updateAvatar').mockResolvedValue(updatedUser);

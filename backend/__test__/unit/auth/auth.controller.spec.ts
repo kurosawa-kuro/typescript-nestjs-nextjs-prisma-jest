@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '@/features/auth/auth.controller';
 import { AuthService } from '@/features/auth/auth.service';
 import { Response } from 'express';
-import { UserInfo } from '@/features/auth/decorators/user.decorator';
+import { UserInfo } from '@/shared/types/auth.types';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -81,7 +81,9 @@ describe('AuthController', () => {
         name: 'Test User',
         email: 'test@example.com',
         userRoles: ['general'],
-        avatarPath: '/path/to/avatar.jpg'
+        profile: {
+          avatarPath: '/path/to/avatar.jpg',
+        },
       };
       const result = await authController.me(mockUserInfo);
 
