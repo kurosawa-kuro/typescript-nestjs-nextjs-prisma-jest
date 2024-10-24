@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { UserInfo } from '@/features/auth/decorators/user.decorator';
+import { UserInfo } from '@/shared/types/auth.types';
 
 
 jest.mock('@/features/auth/decorators/user.decorator', () => ({
@@ -15,7 +15,7 @@ describe('User Decorator', () => {
   let User: jest.Mock;
 
   beforeEach(() => {
-    mockUser = { id: 1, name: 'Test User', email: 'test@example.com', userRoles: ['general'], avatarPath: '/path/to/avatar.jpg' };
+    mockUser = { id: 1, name: 'Test User', email: 'test@example.com', userRoles: ['general'], profile: { avatarPath: '/path/to/avatar.jpg' } };
     mockExecutionContext = {
       switchToHttp: jest.fn().mockReturnValue({
         getRequest: jest.fn().mockReturnValue({ user: mockUser }),

@@ -41,25 +41,16 @@ describe('UserService', () => {
         password: 'password123',
       };
 
-      const mockCreatedUser = {
-        id: 1,
-        ...mockUserData,
-        avatarPath: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userRoles: [{ role: { name: 'general' } }],
-      };
-
-      (prismaService.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
-
       const result = await userService.create(mockUserData);
 
       expect(result).toEqual({
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: null,
         userRoles: ['general'],
+        profile: {
+          avatarPath: 'default.png',
+        },
       });
     });
 
@@ -111,10 +102,12 @@ describe('UserService', () => {
           id: 1,
           name: 'User 1',
           email: 'user1@example.com',
-          avatarPath: null,
+          userRoles: ['general'],
+          profile: {
+            avatarPath: 'default.png',
+          },
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
-          userRoles: ['general'],
         },
         {
           id: 2,
