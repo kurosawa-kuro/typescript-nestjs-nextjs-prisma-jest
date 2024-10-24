@@ -233,4 +233,22 @@ export class UserService extends BaseService<
       userRoles: user.userRoles.map((role) => role.name),
     };
   }
+
+  async findByIdWithRelations(id: number): Promise<User> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+        profile: {
+          select: {
+            avatarPath: true, // Assuming avatarPath is the field for the avatar
+          },
+        },
+      },
+    });
+  }
 }

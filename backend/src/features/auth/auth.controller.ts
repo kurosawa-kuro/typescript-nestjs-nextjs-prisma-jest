@@ -42,6 +42,7 @@ export class AuthController {
 
   @Get('me')
   async me(@User() user: UserInfo) {
+    console.log('user in me', user);
     return user;
   }
 }
