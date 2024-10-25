@@ -8,6 +8,13 @@ jest.mock('../../src/services/apiClient', () => ({
   },
 }));
 
+// next/headers の cookies をモック化
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(() => ({
+    get: jest.fn(() => ({ value: 'mocked-jwt-token' })),
+  })),
+}));
+
 describe('User Actions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -16,8 +23,8 @@ describe('User Actions', () => {
   describe('getUsers', () => {
     it('should call ApiClient.get with correct endpoint and return the result', async () => {
       const mockUsers = [
-        { id: '1', name: 'User 1', email: 'user1@example.com', avatar_path: 'path/to/avatar1', isAdmin: false },
-        { id: '2', name: 'User 2', email: 'user2@example.com', avatar_path: 'path/to/avatar2', isAdmin: true },
+        { id: '1', name: 'User 1', email: 'user1@example.com', avatar_path: 'path/to/avatar1', userRoles: ['user'] },
+        { id: '2', name: 'User 2', email: 'user2@example.com', avatar_path: 'path/to/avatar2', userRoles: ['admin'] },
       ];
       (ApiClient.get as jest.Mock).mockResolvedValue(mockUsers);
 
@@ -49,7 +56,11 @@ describe('User Actions', () => {
 
       const result = await getUserDetails(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1');
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/1', {
+        headers: {
+          Authorization: 'Bearer mocked-jwt-token',
+        },
+      });
       expect(result).toEqual(mockUserDetails);
     });
 
@@ -60,7 +71,11 @@ describe('User Actions', () => {
 
       const result = await getUserDetails(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1');
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/1', {
+        headers: {
+          Authorization: 'Bearer mocked-jwt-token',
+        },
+      });
       expect(console.error).toHaveBeenCalledWith('Error fetching user details:', mockError);
       expect(result).toBeNull();
     });
