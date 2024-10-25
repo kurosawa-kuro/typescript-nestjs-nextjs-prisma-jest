@@ -1,9 +1,53 @@
+'use client';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { getUsers } from '@/app/actions/users';
 import { UserDetails } from '@/types/models';
+import RoleChangeModal from './RoleChangeModal';
 
-export default async function UsersPage() {
-  const users: UserDetails[] = await getUsers();
+export default function UsersPage() {
+  const [users, setUsers] = useState<UserDetails[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const fetchedUsers = await getUsers();
+      setUsers(fetchedUsers);
+    };
+    fetchUsers();
+  }, []);
+
+  const handleOpenModal = (user: UserDetails) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedUser(null);
+    setIsModalOpen(false);
+  };
+
+  const handleUpdateRole = async (userId: number, newRole: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/users/${userId}/admin`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUsers(users.map(user => user.id === userId ? updatedUser : user));
+      } else {
+        console.error('Failed to update user role');
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
@@ -18,6 +62,7 @@ export default async function UsersPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -43,11 +88,27 @@ export default async function UsersPage() {
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.userRoles.includes('admin') ? 'Admin' : 'User'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <button
+                    onClick={() => handleOpenModal(user)}
+                    className="text-indigo-600 hover:text-indigo-900"
+                  >
+                    Change Role
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {selectedUser && (
+        <RoleChangeModal
+          user={selectedUser}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onUpdateRole={handleUpdateRole}
+        />
+      )}
     </div>
   );
 }
