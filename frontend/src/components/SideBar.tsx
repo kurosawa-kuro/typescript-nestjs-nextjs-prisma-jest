@@ -20,7 +20,12 @@ export default function SideBar() {
             <Link href="/profile" className="block py-2 px-4 hover:bg-gray-700 rounded">Profile</Link>
           </li>
         )}
-        {user?.isAdmin && (
+        {user && (
+          <li>
+            <Link href="/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</Link>
+          </li>
+        )}
+        {user?.userRoles.includes('admin') && (
           <li>
             <Link href="/admin" className="block py-2 px-4 hover:bg-gray-700 rounded">Admin</Link>
           </li>
