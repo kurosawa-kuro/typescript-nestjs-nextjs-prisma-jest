@@ -100,4 +100,70 @@ describe('ApiClient', () => {
 
   //   consoleSpy.mockRestore();
   // });
+
+  it('should remove Content-Type header when sending FormData with rawBody option', async () => {
+    const mockResponse = { data: 'test data' };
+    const mockJsonPromise = Promise.resolve(mockResponse);
+    const mockFetchPromise = Promise.resolve({
+      ok: true,
+      json: () => mockJsonPromise,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/test-endpoint';
+    const formData = new FormData();
+    formData.append('key', 'value');
+
+    const result = await ApiClient.post(endpoint, formData, { rawBody: true });
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3001/test-endpoint',
+      expect.objectContaining({
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        cache: 'no-store',
+      })
+    );
+
+    // Content-Type ヘッダーが存在しないことを確認
+    const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
+    expect(calledOptions.headers).not.toHaveProperty('Content-Type');
+
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should keep Content-Type header when sending FormData without rawBody option', async () => {
+    const mockResponse = { data: 'test data' };
+    const mockJsonPromise = Promise.resolve(mockResponse);
+    const mockFetchPromise = Promise.resolve({
+      ok: true,
+      json: () => mockJsonPromise,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/test-endpoint';
+    const formData = new FormData();
+    formData.append('key', 'value');
+
+    const result = await ApiClient.post(endpoint, formData);
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3001/test-endpoint',
+      expect.objectContaining({
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        cache: 'no-store',
+      })
+    );
+
+    // Content-Type ヘッダーが存在することを確認
+    const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
+    expect(calledOptions.headers).toHaveProperty('Content-Type', 'application/json');
+
+    expect(result).toEqual(mockResponse);
+  });
 });
