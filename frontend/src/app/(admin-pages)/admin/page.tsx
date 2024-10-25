@@ -16,9 +16,10 @@ export default async function AdminPage() {
       return <div>User details not found</div>;
     }
 
-    if (!userDetails.userRoles.includes('admin')) {
-      return <div>Access denied. Admin privileges required.</div>;
-    }
+    // console.log('userDetails', userDetails);
+    // if (!userDetails.userRoles.includes('admin')) {
+    //   return <div>Access denied. Admin privileges required.</div>;
+    // }
 
     return <AdminDashboardClient initialUserDetails={userDetails} />;
   } catch (error) {
