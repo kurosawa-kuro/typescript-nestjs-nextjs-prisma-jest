@@ -1,8 +1,8 @@
 import { getUsers } from '@/app/actions/users';
-import { TokenUser } from '@/types/models';
+import { UserInfo } from '@/types/models';
 
 export default async function UsersPage() {
-  const users: TokenUser[] = await getUsers();
+  const users: UserInfo[] = await getUsers();
 
   return (
     <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
@@ -23,7 +23,7 @@ export default async function UsersPage() {
                 <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.isAdmin ? 'Admin' : 'User'}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{user.userRoles.includes('admin') ? 'Admin' : 'User'}</td> 
               </tr>
             ))}
           </tbody>
