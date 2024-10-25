@@ -15,9 +15,7 @@ export default async function UserProfilePage() {
     if (!userDetails) {
       return <div>User details not found</div>;
     }
-    return <UserProfileClient initialUserDetails={{
-      ...userDetails,
-    }} />;
+    return <UserProfileClient initialUserDetails={userDetails} />;
   } catch (error) {
     console.error('Error fetching user details:', error);
     return <div>Error loading user details</div>;

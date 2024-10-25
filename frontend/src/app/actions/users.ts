@@ -10,7 +10,7 @@ export async function getUsers(): Promise<UserInfo[]> {
   return ApiClient.get<UserInfo[]>('/users');
 }
 
-export async function getUserDetails(id: number): Promise<UserInfo | null> {
+export async function getUserDetails(id: number): Promise<UserDetails | null> {
   try {
     const token = cookies().get('jwt')?.value;
     
