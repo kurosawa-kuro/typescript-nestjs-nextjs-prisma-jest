@@ -10,9 +10,8 @@ export default async function UserProfilePage() {
   }
 
   try {
-    console.log('userId', userId);
     const userDetails = await getUserDetails(userId);
-    console.log('userDetails', userDetails);
+
     if (!userDetails) {
       return <div>User details not found</div>;
     }
