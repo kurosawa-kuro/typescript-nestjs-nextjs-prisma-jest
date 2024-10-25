@@ -234,21 +234,35 @@ export class UserService extends BaseService<
     };
   }
 
-  async findByIdWithRelations(id: number): Promise<User> {
-    return this.prisma.user.findUnique({
+  async findByIdWithRelations(id: number): Promise<UserWithoutPassword & { userRoles: string[] }> {
+    const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
         userRoles: {
           include: {
-            role: true,
+            role: {
+              select: {
+                name: true
+              }
+            },
           },
         },
         profile: {
           select: {
-            avatarPath: true, // Assuming avatarPath is the field for the avatar
+            avatarPath: true,
           },
         },
       },
     });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      userRoles: user.userRoles.map(ur => ur.role.name)
+    };
   }
 }
