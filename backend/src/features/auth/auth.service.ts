@@ -50,10 +50,8 @@ export class AuthService {
   }
 
   async getUserFromToken(request: Request): Promise<UserInfo> {
-    // console.log('request in getUserFromToken', request);
-    
     const token = this.extractTokenFromRequest(request);
-    console.log('token in getUserFromToken', token);
+    
     if (!token) {
       throw new UnauthorizedException('No token provided');
     }

@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { UserDetails } from '@/types/models';
+import { UserDetails, UserInfo } from '@/types/models';
 
-export default function AdminDashboardClient({ initialUserDetails }: { initialUserDetails: UserDetails }) {
+export default function AdminDashboardClient({ initialUserDetails }: { initialUserDetails: UserInfo }) {
   const router = useRouter();
   const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
 

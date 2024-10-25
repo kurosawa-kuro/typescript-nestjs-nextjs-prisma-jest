@@ -35,7 +35,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
     const user = await this.userService.findByIdWithRelations(id) as User; // Ensure this method fetches related data
     // Exclude password from the user object
     const { password, ...userWithoutPassword } = user;
-    console.log('userWithoutPassword in show', userWithoutPassword);
+    
     return userWithoutPassword;
   }
 
