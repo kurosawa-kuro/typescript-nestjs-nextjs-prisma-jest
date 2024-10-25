@@ -7,7 +7,7 @@ import RoleChangeModal from './RoleChangeModal';
 import { useUserStore } from '@/store/userStore';
 
 export default function UsersPage() {
-  const { users, setUsers, updateUserRole } = useUserStore();
+  const { users, setUsers } = useUserStore();
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,10 +27,6 @@ export default function UsersPage() {
   const handleCloseModal = () => {
     setSelectedUser(null);
     setIsModalOpen(false);
-  };
-
-  const handleUpdateRole = async (userId: number, newRole: string) => {
-    await updateUserRole(userId, newRole);
   };
 
   return (
