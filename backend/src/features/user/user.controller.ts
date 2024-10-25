@@ -30,10 +30,11 @@ export class UserController extends BaseController<UserWithoutPassword> {
   // ユーザー情報詳細取得をオーバーライドして実装。パスワード除外 必須
   @Public()
   @Get(':id')
-  async show(@Param('id', ParseIntPipe) id: number): Promise<UserWithoutPassword & { userRoles: string[] }> {
+  async show(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserWithoutPassword & { userRoles: string[] }> {
     return this.userService.findByIdWithRelations(id);
   }
-
 
   @Public()
   @Put(':id/avatar')

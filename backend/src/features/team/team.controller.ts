@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { TeamService } from './team.service';
 import { Team, Prisma } from '@prisma/client';
 import { BaseController } from '@/core/common/base.controller';

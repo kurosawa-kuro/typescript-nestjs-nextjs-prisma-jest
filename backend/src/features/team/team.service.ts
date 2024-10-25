@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@/core/database/prisma.service';
 import { Team, Prisma } from '@prisma/client';
 import { BaseService } from '@/core/common/base.service';
@@ -61,9 +65,9 @@ export class TeamService extends BaseService<
       },
     });
 
-    return teams.map(team => ({
+    return teams.map((team) => ({
       ...team,
-      members: team.members.map(member => ({
+      members: team.members.map((member) => ({
         ...member.user,
         joinedAt: member.joinedAt,
       })),
@@ -88,7 +92,10 @@ export class TeamService extends BaseService<
   // Using the default destroy method from BaseService
 
   // Team Member operations
-  async addMember(teamId: number, userId: number): Promise<Team & { members: any[] }> {
+  async addMember(
+    teamId: number,
+    userId: number,
+  ): Promise<Team & { members: any[] }> {
     // Check if the member already exists in the team
     const existingMember = await this.prisma.teamMember.findUnique({
       where: {
@@ -134,14 +141,17 @@ export class TeamService extends BaseService<
 
     return {
       ...result,
-      members: result.members.map(member => ({
+      members: result.members.map((member) => ({
         ...member.user,
         joinedAt: member.joinedAt,
       })),
     };
   }
 
-  async removeMember(teamId: number, userId: number): Promise<Team & { members: any[] }> {
+  async removeMember(
+    teamId: number,
+    userId: number,
+  ): Promise<Team & { members: any[] }> {
     const result = await this.prisma.team.update({
       where: { id: teamId },
       data: {
@@ -176,7 +186,7 @@ export class TeamService extends BaseService<
 
     return {
       ...result,
-      members: result.members.map(member => ({
+      members: result.members.map((member) => ({
         ...member.user,
         joinedAt: member.joinedAt,
       })),

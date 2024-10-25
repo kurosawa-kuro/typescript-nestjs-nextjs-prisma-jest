@@ -28,8 +28,14 @@ export class FollowService {
     });
   }
 
-  async follow(followerId: number, followedId: number): Promise<Partial<User>[]> {
-    const existingFollow = await this.findFollowRelation(followerId, followedId);
+  async follow(
+    followerId: number,
+    followedId: number,
+  ): Promise<Partial<User>[]> {
+    const existingFollow = await this.findFollowRelation(
+      followerId,
+      followedId,
+    );
 
     if (!existingFollow) {
       await this.createFollowRelation(followerId, followedId);
@@ -38,8 +44,14 @@ export class FollowService {
     return this.getFollowing(followerId);
   }
 
-  async unfollow(followerId: number, followedId: number): Promise<Partial<User>[]> {
-    const existingFollow = await this.findFollowRelation(followerId, followedId);
+  async unfollow(
+    followerId: number,
+    followedId: number,
+  ): Promise<Partial<User>[]> {
+    const existingFollow = await this.findFollowRelation(
+      followerId,
+      followedId,
+    );
 
     if (existingFollow) {
       await this.deleteFollowRelation(followerId, followedId);

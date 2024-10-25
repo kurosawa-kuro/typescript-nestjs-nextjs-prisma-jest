@@ -5,7 +5,6 @@ import { User } from '../auth/decorators/user.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { UserInfo } from '@/shared/types/auth.types';
 
-
 @Controller('test')
 @UseGuards(AuthGuard)
 export class TestController {

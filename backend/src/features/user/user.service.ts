@@ -175,9 +175,10 @@ export class UserService extends BaseService<
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: {
-        userRoles: action === 'add'
-          ? { create: { role: { connect: { name: roleName } } } }
-          : { deleteMany: { roleId: user.userRoles[0].role.id, userId: id } }
+        userRoles:
+          action === 'add'
+            ? { create: { role: { connect: { name: roleName } } } }
+            : { deleteMany: { roleId: user.userRoles[0].role.id, userId: id } },
       },
       include: {
         userRoles: {
@@ -223,7 +224,10 @@ export class UserService extends BaseService<
   }
 
   mapUserToUserInfo(
-    user: UserWithoutPassword & { userRoles: Role[]; profile?: { avatarPath?: string } },
+    user: UserWithoutPassword & {
+      userRoles: Role[];
+      profile?: { avatarPath?: string };
+    },
   ): UserInfo {
     return {
       id: user.id,
@@ -234,7 +238,9 @@ export class UserService extends BaseService<
     };
   }
 
-  async findByIdWithRelations(id: number): Promise<UserWithoutPassword & { userRoles: string[] }> {
+  async findByIdWithRelations(
+    id: number,
+  ): Promise<UserWithoutPassword & { userRoles: string[] }> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
@@ -242,8 +248,8 @@ export class UserService extends BaseService<
           include: {
             role: {
               select: {
-                name: true
-              }
+                name: true,
+              },
             },
           },
         },
@@ -262,7 +268,7 @@ export class UserService extends BaseService<
     const { password, ...userWithoutPassword } = user;
     return {
       ...userWithoutPassword,
-      userRoles: user.userRoles.map(ur => ur.role.name)
+      userRoles: user.userRoles.map((ur) => ur.role.name),
     };
   }
 }
