@@ -40,7 +40,7 @@ const DevelopSidebar: React.FC = () => {
           <div className="text-sm">
             <p className="font-bold">{user.name}</p>
             <p className="text-xs text-gray-400">{user.email}</p>
-            <p className="text-xs text-gray-400">{user.isAdmin ? '管理者' : 'ユーザー'}</p>
+            <p className="text-xs text-gray-400">{user.userRoles.includes('admin') ? '管理者' : 'ユーザー'}</p>
           </div>
         </div>
       )}
