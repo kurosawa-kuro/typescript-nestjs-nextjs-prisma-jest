@@ -55,10 +55,10 @@ describe('ClientSideApiService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        avatarPath: 'new/avatar/path',
-        isAdmin: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        profile: { avatarPath: 'new/avatar/path' },
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
 
@@ -86,10 +86,9 @@ describe('ClientSideApiService', () => {
         id: 1,
         name: 'Updated User',
         email: 'updated@example.com',
-        isAdmin: false,
-        avatarPath: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
 
