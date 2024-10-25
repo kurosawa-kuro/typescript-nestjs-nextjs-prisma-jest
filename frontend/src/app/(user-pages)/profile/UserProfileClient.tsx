@@ -123,7 +123,7 @@ function AvatarSection({ user, fileInputRef, handleAvatarClick, handleAvatarChan
         onClick={handleAvatarClick}
       >
         <Image 
-          src={`http://localhost:3001/uploads/${user.avatarPath}`}
+          src={`http://localhost:3001/uploads/${user.profile?.avatarPath}`}
           alt="User Avatar"
           width={120}
           height={120}

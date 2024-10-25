@@ -1,13 +1,13 @@
 'use server';
 
-import { TokenUser, UserDetails } from '@/types/models';
+import {  UserDetails, UserInfo } from '@/types/models';
 import { ApiClient } from '@/services/apiClient';
 // Import the cookies function from next/headers
 import { cookies } from 'next/headers';
 
 
-export async function getUsers(): Promise<TokenUser[]> {
-  return ApiClient.get<TokenUser[]>('/users');
+export async function getUsers(): Promise<UserInfo[]> {
+  return ApiClient.get<UserInfo[]>('/users');
 }
 
 export async function getUserDetails(id: number): Promise<UserDetails | null> {
