@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { getUsers } from '@/app/actions/users';
 import { UserDetails } from '@/types/models';
 import RoleChangeModal from './RoleChangeModal';
+import { useUserStore } from '@/store/userStore';
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<UserDetails[]>([]);
+  const { users, setUsers, updateUserRole } = useUserStore();
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -16,7 +17,7 @@ export default function UsersPage() {
       setUsers(fetchedUsers);
     };
     fetchUsers();
-  }, []);
+  }, [setUsers]);
 
   const handleOpenModal = (user: UserDetails) => {
     setSelectedUser(user);
@@ -29,24 +30,7 @@ export default function UsersPage() {
   };
 
   const handleUpdateRole = async (userId: number, newRole: string) => {
-    try {
-      const response = await fetch(`http://localhost:3001/users/${userId}/admin`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUsers(users.map(user => user.id === userId ? updatedUser : user));
-      } else {
-        console.error('Failed to update user role');
-      }
-    } catch (error) {
-      console.error('Error updating user role:', error);
-    }
+    await updateUserRole(userId, newRole);
   };
 
   return (
