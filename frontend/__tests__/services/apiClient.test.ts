@@ -5,67 +5,133 @@ global.fetch = jest.fn();
 
 describe('ApiClient', () => {
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
   });
 
-  it('should make a successful POST request', async () => {
-    // Mock data
-    const mockResponse = { data: 'test data' };
+  const setupMockFetch = (mockResponse: any) => {
     const mockJsonPromise = Promise.resolve(mockResponse);
     const mockFetchPromise = Promise.resolve({
       ok: true,
       json: () => mockJsonPromise,
     });
     (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+  };
 
-    // Test data
-    const endpoint = '/test-endpoint';
-    const body = { key: 'value' };
+  describe('POST requests', () => {
+    it('should make a successful POST request', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
 
-    // Make the API call
-    const result = await ApiClient.post(endpoint, body);
+      const endpoint = '/test-endpoint';
+      const body = { key: 'value' };
 
-    // Assertions
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/test-endpoint',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        credentials: 'include',
-        cache: 'no-store',
-      })
-    );
-    expect(result).toEqual(mockResponse);
+      const result = await ApiClient.post(endpoint, body);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should remove Content-Type header when sending FormData with rawBody option', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const formData = new FormData();
+      formData.append('key', 'value');
+
+      const result = await ApiClient.post(endpoint, formData, { rawBody: true });
+
+      const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
+      expect(calledOptions.headers).not.toHaveProperty('Content-Type');
+      expect(calledOptions.body).toBe(formData);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should keep Content-Type header when sending FormData without rawBody option', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const formData = new FormData();
+      formData.append('key', 'value');
+
+      const result = await ApiClient.post(endpoint, formData);
+
+      const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
+      expect(calledOptions.headers).toHaveProperty('Content-Type', 'application/json');
+      expect(calledOptions.body).toBe(formData);
+      expect(result).toEqual(mockResponse);
+    });
   });
 
-  // Remove or comment out the FormData test as it's not implemented in the current ApiClient
-  // it('should handle FormData correctly', async () => { ... });
+  describe('GET requests', () => {
+    it('should make a successful GET request', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
 
-  it('should make a successful GET request', async () => {
-    const mockResponse = { data: 'test data' };
-    const mockJsonPromise = Promise.resolve(mockResponse);
-    const mockFetchPromise = Promise.resolve({
-      ok: true,
-      json: () => mockJsonPromise,
+      const endpoint = '/test-endpoint';
+      const result = await ApiClient.get(endpoint);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.objectContaining({
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
     });
-    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+  });
 
-    const endpoint = '/test-endpoint';
-    const result = await ApiClient.get(endpoint);
+  describe('PUT requests', () => {
+    it('should make a successful PUT request', async () => {
+      const mockResponse = { data: 'updated data' };
+      setupMockFetch(mockResponse);
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/test-endpoint',
-      expect.objectContaining({
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        cache: 'no-store',
-      })
-    );
-    expect(result).toEqual(mockResponse);
+      const endpoint = '/test-endpoint';
+      const body = { key: 'updated value' };
+
+      const result = await ApiClient.put(endpoint, body);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.objectContaining({
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should remove Content-Type header when sending FormData with rawBody option for PUT request', async () => {
+      const mockResponse = { data: 'updated data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const formData = new FormData();
+      formData.append('key', 'updated value');
+
+      const result = await ApiClient.put(endpoint, formData, { rawBody: true });
+
+      const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
+      expect(calledOptions.headers).not.toHaveProperty('Content-Type');
+      expect(calledOptions.body).toBe(formData);
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   it('should throw an error for non-OK HTTP response', async () => {
@@ -79,134 +145,6 @@ describe('ApiClient', () => {
 
     await expect(ApiClient.get(endpoint)).rejects.toThrow('HTTP error! status: 404');
   });
-
-
-  it('should remove Content-Type header when sending FormData with rawBody option', async () => {
-    const mockResponse = { data: 'test data' };
-    const mockJsonPromise = Promise.resolve(mockResponse);
-    const mockFetchPromise = Promise.resolve({
-      ok: true,
-      json: () => mockJsonPromise,
-    });
-    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
-
-    const endpoint = '/test-endpoint';
-    const formData = new FormData();
-    formData.append('key', 'value');
-
-    const result = await ApiClient.post(endpoint, formData, { rawBody: true });
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/test-endpoint',
-      expect.objectContaining({
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        cache: 'no-store',
-      })
-    );
-
-    // Content-Type ヘッダーが存在しないことを確認
-    const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
-    expect(calledOptions.headers).not.toHaveProperty('Content-Type');
-
-    expect(result).toEqual(mockResponse);
-  });
-
-  it('should keep Content-Type header when sending FormData without rawBody option', async () => {
-    const mockResponse = { data: 'test data' };
-    const mockJsonPromise = Promise.resolve(mockResponse);
-    const mockFetchPromise = Promise.resolve({
-      ok: true,
-      json: () => mockJsonPromise,
-    });
-    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
-
-    const endpoint = '/test-endpoint';
-    const formData = new FormData();
-    formData.append('key', 'value');
-
-    const result = await ApiClient.post(endpoint, formData);
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/test-endpoint',
-      expect.objectContaining({
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-        cache: 'no-store',
-      })
-    );
-
-    // Content-Type ヘッダーが存在することを確認
-    const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
-    expect(calledOptions.headers).toHaveProperty('Content-Type', 'application/json');
-
-    expect(result).toEqual(mockResponse);
-  });
-
-  it('should make a successful PUT request', async () => {
-    const mockResponse = { data: 'updated data' };
-    const mockJsonPromise = Promise.resolve(mockResponse);
-    const mockFetchPromise = Promise.resolve({
-      ok: true,
-      json: () => mockJsonPromise,
-    });
-    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
-
-    const endpoint = '/test-endpoint';
-    const body = { key: 'updated value' };
-
-    const result = await ApiClient.put(endpoint, body);
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/test-endpoint',
-      expect.objectContaining({
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        credentials: 'include',
-        cache: 'no-store',
-      })
-    );
-    expect(result).toEqual(mockResponse);
-  });
-
-  it('should remove Content-Type header when sending FormData with rawBody option for PUT request', async () => {
-    const mockResponse = { data: 'updated data' };
-    const mockJsonPromise = Promise.resolve(mockResponse);
-    const mockFetchPromise = Promise.resolve({
-      ok: true,
-      json: () => mockJsonPromise,
-    });
-    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
-
-    const endpoint = '/test-endpoint';
-    const formData = new FormData();
-    formData.append('key', 'updated value');
-
-    const result = await ApiClient.put(endpoint, formData, { rawBody: true });
-
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/test-endpoint',
-      expect.objectContaining({
-        method: 'PUT',
-        body: formData,
-        credentials: 'include',
-        cache: 'no-store',
-      })
-    );
-
-    // Content-Type ヘッダーが存在しないことを確認
-    const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
-    expect(calledOptions.headers).not.toHaveProperty('Content-Type');
-
-    expect(result).toEqual(mockResponse);
-  });
 });
 
 describe('serverRequest', () => {
@@ -214,14 +152,18 @@ describe('serverRequest', () => {
     jest.clearAllMocks();
   });
 
-  it('should make a successful GET request', async () => {
-    const mockResponse = { data: 'server data' };
+  const setupMockFetch = (mockResponse: any) => {
     const mockJsonPromise = Promise.resolve(mockResponse);
     const mockFetchPromise = Promise.resolve({
       ok: true,
       json: () => mockJsonPromise,
     });
     (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+  };
+
+  it('should make a successful GET request', async () => {
+    const mockResponse = { data: 'server data' };
+    setupMockFetch(mockResponse);
 
     const endpoint = '/server-endpoint';
     const result = await serverRequest('GET', endpoint);
@@ -240,12 +182,7 @@ describe('serverRequest', () => {
 
   it('should make a successful POST request with body', async () => {
     const mockResponse = { data: 'server post data' };
-    const mockJsonPromise = Promise.resolve(mockResponse);
-    const mockFetchPromise = Promise.resolve({
-      ok: true,
-      json: () => mockJsonPromise,
-    });
-    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+    setupMockFetch(mockResponse);
 
     const endpoint = '/server-endpoint';
     const body = { key: 'server value' };
