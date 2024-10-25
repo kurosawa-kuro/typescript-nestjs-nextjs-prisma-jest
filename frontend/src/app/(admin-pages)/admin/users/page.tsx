@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { getUsers } from '@/app/actions/users';
-import { UserDetails, UserInfo } from '@/types/models';
+import { UserDetails } from '@/types/models';
 
 export default async function UsersPage() {
   const users: UserDetails[] = await getUsers();
