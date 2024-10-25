@@ -26,4 +26,12 @@ export const ClientSideApiService = {
     const endpoint = isAdmin ? `/users/${userId}/admin` : `/users/${userId}/admin/remove`;
     return ApiClient.put<UserDetails>(endpoint, {});
   },
+
+  followUser: async (userId: number) => {
+    return ApiClient.post<UserDetails[]>(`/follow/${userId}`, {});
+  },
+
+  unfollowUser: async (userId: number) => {
+    return ApiClient.delete<UserDetails[]>(`/follow/${userId}`);
+  },
 };

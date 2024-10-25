@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { UserDetails } from '@/types/models';
 import RoleChangeModal from './RoleChangeModal';
 import { useUserStore } from '@/store/userStore';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 
 interface UsersClientProps {
   initialUsers: UserDetails[];
@@ -26,6 +27,24 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
   const handleCloseModal = () => {
     setSelectedUser(null);
     setIsModalOpen(false);
+  };
+
+  const handleFollowUser = async (userId: number) => {
+    try {
+      const updatedUsers = await ClientSideApiService.followUser(userId);
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error('Failed to follow user:', error);
+    }
+  };
+
+  const handleUnfollowUser = async (userId: number) => {
+    try {
+      const updatedUsers = await ClientSideApiService.unfollowUser(userId);
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error('Failed to unfollow user:', error);
+    }
   };
 
   return (
@@ -70,10 +89,25 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
                     onClick={() => handleOpenModal(user)}
-                    className="text-indigo-600 hover:text-indigo-900"
+                    className="text-indigo-600 hover:text-indigo-900 mr-2"
                   >
                     Change Role
                   </button>
+                  {user.isFollowing ? (
+                    <button
+                      onClick={() => handleUnfollowUser(user.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Unfollow
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleFollowUser(user.id)}
+                      className="text-green-600 hover:text-green-900"
+                    >
+                      Follow
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

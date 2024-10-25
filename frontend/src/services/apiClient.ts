@@ -38,6 +38,7 @@ export const ApiClient = {
     request<T>('POST', endpoint, { ...options, body: body as BodyInit }),
   put: <T>(endpoint: string, body: unknown, options?: RequestOptions) => 
     request<T>('PUT', endpoint, { ...options, body: body as BodyInit }),
+  delete: <T>(endpoint: string, options?: RequestOptions) => request<T>('DELETE', endpoint, options)
 };
 
 // Add this new function for server-side requests

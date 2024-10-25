@@ -67,6 +67,10 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
+### ログインユーザーと全ユーザーを取得
+GET {{baseUrl}}/users/current
+Content-Type: {{contentType}}
+
 ### ユーザー詳細を取得
 GET {{baseUrl}}/users/2
 Content-Type: {{contentType}}
@@ -211,3 +215,17 @@ Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 ### 管理者テスト
 GET {{baseUrl}}/test/admin
 Content-Type: {{contentType}}
+
+### ユーザー一覧を取得（フォロー状態を含む）
+GET {{baseUrl}}/users
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### 複数ユーザーのフォロー状態を確認
+POST {{baseUrl}}/follow/is-following-multiple
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "ids": "1,2,3"
+}
