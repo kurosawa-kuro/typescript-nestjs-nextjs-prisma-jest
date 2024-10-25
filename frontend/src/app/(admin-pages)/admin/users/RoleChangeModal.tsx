@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
 import { UserDetails } from '@/types/models';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { useUserStore } from '@/store/userStore';
 
 interface RoleChangeModalProps {
   user: UserDetails;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateRole: (userId: number, newRole: string) => Promise<void>;
 }
 
-export default function RoleChangeModal({ user, isOpen, onClose, onUpdateRole }: RoleChangeModalProps) {
+export default function RoleChangeModal({ user, isOpen, onClose }: RoleChangeModalProps) {
   const [newRole, setNewRole] = useState(user.userRoles.includes('admin') ? 'admin' : 'general');
+  const { updateUserRole } = useUserStore();
 
   const handleRoleChange = async () => {
-    await onUpdateRole(user.id, newRole);
-    onClose();
+    try {
+      const isAdmin = newRole === 'admin';
+      await ClientSideApiService.updateUserRole(user.id, isAdmin);
+      updateUserRole(user.id, newRole);
+      onClose();
+    } catch (error) {
+      console.error('Failed to update user role:', error);
+      // ここでエラーハンドリングを行う（例：エラーメッセージを表示する）
+    }
   };
 
   if (!isOpen) return null;

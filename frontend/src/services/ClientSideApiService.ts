@@ -21,4 +21,9 @@ export const ClientSideApiService = {
   updateUserProfile: async (userId: number, updatedFields: Partial<UserDetails>) => {
     return ApiClient.put<UserDetails>(`/users/${userId}`, updatedFields);
   },
+
+  updateUserRole: async (userId: number, isAdmin: boolean) => {
+    const endpoint = isAdmin ? `/users/${userId}/admin` : `/users/${userId}/admin/remove`;
+    return ApiClient.put<UserDetails>(endpoint, {});
+  },
 };

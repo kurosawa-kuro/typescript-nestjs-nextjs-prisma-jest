@@ -90,7 +90,6 @@ export default function UsersPage() {
           user={selectedUser}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onUpdateRole={handleUpdateRole}
         />
       )}
     </div>
