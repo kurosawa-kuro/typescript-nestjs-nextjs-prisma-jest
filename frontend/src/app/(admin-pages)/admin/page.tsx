@@ -12,10 +12,11 @@ export default function AdminPages() {
   const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
 
   useEffect(() => {
+    
     if (!isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (!user.isAdmin) {
+      } else if (!user.userRoles.includes('admin')) {
         router.push('/profile');
       } else {
         // 管理者ログイン成功時にフラッシュメッセージを設定
@@ -37,7 +38,7 @@ export default function AdminPages() {
     return <LoadingSpinner />;
   }
 
-  if (!user || !user.isAdmin) {
+  if (!user || !user.userRoles.includes('admin')) {
     return null;
   }
 
