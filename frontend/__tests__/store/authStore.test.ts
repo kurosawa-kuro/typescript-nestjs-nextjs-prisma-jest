@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { useAuthStore } from '../../src/store/authStore';
 import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { useFlashMessageStore } from '../../src/store/flashMessageStore';
-import {  UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/models';
 import * as usersActions from '@/app/actions/users';
 
 // モックの設定
@@ -20,19 +20,29 @@ jest.mock('@/app/actions/users', () => ({
 }));
 
 describe('useAuthStore', () => {
+  const mockUser: UserDetails = {
+    id: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userRoles: [],
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     act(() => {
       useAuthStore.getState().resetStore();
     });
-    // Reset the flashMessageStore mock
     (useFlashMessageStore.getState as jest.Mock).mockReturnValue({
       setFlashMessage: jest.fn(),
     });
   });
 
+  const renderAuthHook = () => renderHook(() => useAuthStore());
+
   it('should initialize with default state', () => {
-    const { result } = renderHook(() => useAuthStore());
+    const { result } = renderAuthHook();
     expect(result.current.user).toBeNull();
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
@@ -40,11 +50,10 @@ describe('useAuthStore', () => {
 
   describe('login', () => {
     it('should update state on successful login', async () => {
-      const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
       const mockResponse = { user: mockUser, token: 'test-token' };
       (ClientSideApiService.login as jest.Mock).mockResolvedValue(mockResponse);
 
-      const { result } = renderHook(() => useAuthStore());
+      const { result } = renderAuthHook();
 
       await act(async () => {
         await result.current.login('test@example.com', 'password');
@@ -59,7 +68,7 @@ describe('useAuthStore', () => {
     it('should update state on failed login', async () => {
       (ClientSideApiService.login as jest.Mock).mockRejectedValue(new Error('Login failed'));
 
-      const { result } = renderHook(() => useAuthStore());
+      const { result } = renderAuthHook();
 
       await act(async () => {
         await result.current.login('test@example.com', 'password');
@@ -72,15 +81,15 @@ describe('useAuthStore', () => {
   });
 
   describe('logout', () => {
-    it('should clear state and redirect on successful logout', async () => {
-      const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
+    beforeEach(() => {
       act(() => {
-        useAuthStore.setState({ user: mockUser as unknown as UserDetails });
+        useAuthStore.setState({ user: mockUser });
       });
+    });
 
-      const { result } = renderHook(() => useAuthStore());
+    it('should clear state and redirect on successful logout', async () => {
+      const { result } = renderAuthHook();
 
-      // window.location.href のモック
       const originalLocation = window.location;
       Object.defineProperty(window, 'location', {
         value: { href: '' },
@@ -96,20 +105,11 @@ describe('useAuthStore', () => {
       expect(useFlashMessageStore.getState().setFlashMessage).toHaveBeenCalledWith('Logged out successfully');
       expect(window.location.href).toBe('/');
 
-      // Restore original location
-      Object.defineProperty(window, 'location', {
-        value: originalLocation,
-        writable: true,
-      });
+      Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
     });
 
     it('should handle logout error', async () => {
-      const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
-      act(() => {
-        useAuthStore.setState({ user: mockUser as unknown as UserDetails });
-      });
-
-      const { result } = renderHook(() => useAuthStore());
+      const { result } = renderAuthHook();
 
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       (ClientSideApiService.logout as jest.Mock).mockRejectedValue(new Error('Logout failed'));
@@ -119,35 +119,25 @@ describe('useAuthStore', () => {
       });
 
       expect(consoleErrorSpy).toHaveBeenCalledWith('Logout error:', expect.any(Error));
-      expect(result.current.user).not.toBeNull(); // User should not be cleared on error
+      expect(result.current.user).not.toBeNull();
       
       consoleErrorSpy.mockRestore();
     });
   });
 
-  describe('setUser', () => {
+  describe('state updates', () => {
     it('should update user state', () => {
-      const mockUser = {
-        id: '1',
-        name: 'Test User',
-        email: 'test@example.com',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userRoles: [],
-      };
-      const { result } = renderHook(() => useAuthStore());
+      const { result } = renderAuthHook();
 
       act(() => {
-        useAuthStore.setState({ user: mockUser as unknown as UserDetails });
+        useAuthStore.setState({ user: mockUser });
       });
 
       expect(result.current.user).toEqual(mockUser);
     });
-  });
 
-  describe('setLoading', () => {
     it('should update loading state', () => {
-      const { result } = renderHook(() => useAuthStore());
+      const { result } = renderAuthHook();
 
       act(() => {
         useAuthStore.setState({ isLoading: true });
@@ -155,11 +145,9 @@ describe('useAuthStore', () => {
 
       expect(result.current.isLoading).toBe(true);
     });
-  });
 
-  describe('setError', () => {
     it('should update error state', () => {
-      const { result } = renderHook(() => useAuthStore());
+      const { result } = renderAuthHook();
 
       act(() => {
         useAuthStore.setState({ error: 'Test error' });
