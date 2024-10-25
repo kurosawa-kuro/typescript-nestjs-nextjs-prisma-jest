@@ -1,60 +1,45 @@
-'use client';
+import { getUserDetails } from '@/app/actions/users';
+import { headers } from 'next/headers';
+import AdminDashboardClient from './AdminDashboardClient';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
-import { useFlashMessageStore } from '@/store/flashMessageStore';
-import LoadingSpinner from '@/components/LoadingSpinner';
-
-export default function AdminPages() {
-  const router = useRouter();
-  const { user, isLoading } = useAuthStore();
-  const { message: flashMessage, setFlashMessage } = useFlashMessageStore();
-
-  useEffect(() => {
-    
-    if (!isLoading) {
-      if (!user) {
-        router.push('/login');
-      } else if (!user.userRoles.includes('admin')) {
-        router.push('/profile');
-      } else {
-        // 管理者ログイン成功時にフラッシュメッセージを設定
-        setFlashMessage('管理者としてログインしました');
-      }
-    }
-  }, [user, isLoading, router, setFlashMessage]);
-
-  useEffect(() => {
-    if (flashMessage) {
-      const timer = setTimeout(() => {
-        setFlashMessage(null);
-      }, 5000); // 5秒後にメッセージを消す
-      return () => clearTimeout(timer);
-    }
-  }, [flashMessage, setFlashMessage]);
-
-  if (isLoading) {
-    return <LoadingSpinner />;
+export default async function AdminPage() {
+  const userId = getUserIdFromHeaders();
+  
+  if (!userId) {
+    return <div>User ID not found</div>;
   }
 
-  if (!user || !user.userRoles.includes('admin')) {
+  try {
+    const userDetails = await getUserDetails(userId);
+
+    if (!userDetails) {
+      return <div>User details not found</div>;
+    }
+
+    if (!userDetails.userRoles.includes('admin')) {
+      return <div>Access denied. Admin privileges required.</div>;
+    }
+
+    return <AdminDashboardClient initialUserDetails={userDetails} />;
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    return <div>Error loading user details</div>;
+  }
+}
+
+function getUserIdFromHeaders(): number | null {
+  const headersList = headers();
+  const userDataString = headersList.get('x-user-data');
+  
+  if (!userDataString) {
     return null;
   }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
-      {flashMessage && (
-        <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
-          {flashMessage}
-        </div>
-      )}
-      <h1 className="text-3xl font-bold mb-4 text-black">Admin Dashboard</h1>
-      <div className="mb-4 text-black">
-        <p>Name: <span className="inline-block w-32">{user.name}</span></p>
-        <p>Email: <span className="inline-block w-32">{user.email}</span></p>
-        <p>Role: <span className="inline-block w-32">Administrator</span></p>
-      </div>
-    </div>
-  );
+  try {
+    const userData = JSON.parse(userDataString);
+    return typeof userData.id === 'number' ? userData.id : null;
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    return null;
+  }
 }
