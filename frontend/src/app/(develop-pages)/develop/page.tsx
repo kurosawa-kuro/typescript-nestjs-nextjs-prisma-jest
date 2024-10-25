@@ -59,7 +59,7 @@ export default function DevelopPage() {
       updateStorageInfo();
       const { user } = useAuthStore.getState();
       if (user) {
-        const url = user.isAdmin ? '/admin' : '/profile';
+        const url = user.userRoles.includes('admin') ? '/admin' : '/profile';
         window.open(url, '_blank');
       }
     } else {
