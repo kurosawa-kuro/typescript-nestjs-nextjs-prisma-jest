@@ -80,26 +80,6 @@ describe('ApiClient', () => {
     await expect(ApiClient.get(endpoint)).rejects.toThrow('HTTP error! status: 404');
   });
 
-  // it('should throw and log an error for network failure', async () => {
-  //   const networkError = new Error('Network error');
-  //   (global.fetch as jest.Mock).mockRejectedValue(networkError);
-
-  //   const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
-  //   const endpoint = '/test-endpoint';
-
-  //   await expect(ApiClient.get(endpoint)).rejects.toThrow('Network error');
-    
-  //   // Check if console.error was called
-  //   expect(consoleSpy).toHaveBeenCalled();
-    
-  //   // Check if the error message contains the expected information
-  //   const errorCall = consoleSpy.mock.calls[0];
-  //   expect(errorCall[0]).toContain('Error in GET request to /test-endpoint:');
-  //   expect(errorCall[1]).toBe(networkError);
-
-  //   consoleSpy.mockRestore();
-  // });
 
   it('should remove Content-Type header when sending FormData with rawBody option', async () => {
     const mockResponse = { data: 'test data' };
