@@ -8,9 +8,12 @@ npm run test:e2e
 
 課題
 管理画面
-ロール機能 → BackはDone
+ロール機能 → BackはDone → FrontもDone
+
 フォローイング機能
 チーム機能
+多対多のロール機能
+
 Zod
 
 
