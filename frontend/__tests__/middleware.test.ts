@@ -39,53 +39,61 @@ describe('Middleware', () => {
     } as unknown as NextRequest;
   });
 
-  test('skips processing for login page', async () => {
-    mockRequest.nextUrl.pathname = '/login';
-    const result = await middleware(mockRequest);
-    expect(result.type).toBe('next');
+  const setupRequest = (pathname: string, token?: string, userRoles?: string[]) => {
+    mockRequest.nextUrl.pathname = pathname;
+    mockRequest.cookies.get = jest.fn().mockReturnValue(token ? { value: token } : undefined);
+    if (userRoles) {
+      (ClientSideApiService.me as jest.Mock).mockResolvedValue({ userRoles });
+    }
+  };
+
+  describe('Public routes', () => {
+    test('skips processing for login page', async () => {
+      setupRequest('/login');
+      const result = await middleware(mockRequest);
+      expect(result.type).toBe('next');
+    });
   });
 
-  test('redirects to login page when no token is present', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue(undefined);
-    mockRequest.nextUrl.pathname = '/some-protected-route';
-    await middleware(mockRequest);
-    expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+  describe('Protected routes', () => {
+    test('redirects to login page when no token is present', async () => {
+      setupRequest('/some-protected-route');
+      await middleware(mockRequest);
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+    });
+
+    test('does not redirect when token is present and user data is valid', async () => {
+      setupRequest('/some-protected-route', 'valid-token', ['user']);
+      const result = await middleware(mockRequest);
+      expect(NextResponse.next).toHaveBeenCalled();
+      expect(result.type).toBe('next');
+    });
   });
 
-  test('does not redirect when token is present and user data is valid', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
-    mockRequest.nextUrl.pathname = '/some-protected-route';
-    (ClientSideApiService.me as jest.Mock).mockResolvedValue({ userRoles: ['user'] });
-    const result = await middleware(mockRequest);
-    expect(NextResponse.next).toHaveBeenCalled();
-    expect(result.type).toBe('next');
+  describe('Admin routes', () => {
+    test('redirects to home when non-admin user tries to access admin route', async () => {
+      setupRequest('/admin/some-route', 'valid-token', ['user']);
+      const result = await middleware(mockRequest);
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/', mockRequest.url));
+      expect(result.type).toBe('redirect');
+    });
+
+    test('allows admin user to access admin route', async () => {
+      setupRequest('/admin/some-route', 'valid-token', ['admin']);
+      const result = await middleware(mockRequest);
+      expect(NextResponse.next).toHaveBeenCalled();
+      expect(result.type).toBe('next');
+    });
   });
 
-  test('redirects to home when non-admin user tries to access admin route', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
-    mockRequest.nextUrl.pathname = '/admin/some-route';
-    (ClientSideApiService.me as jest.Mock).mockResolvedValue({ userRoles: ['user'] });
-    const result = await middleware(mockRequest);
-    expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/', mockRequest.url));
-    expect(result.type).toBe('redirect');
-  });
-
-  test('allows admin user to access admin route', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
-    mockRequest.nextUrl.pathname = '/admin/some-route';
-    (ClientSideApiService.me as jest.Mock).mockResolvedValue({ userRoles: ['admin'] });
-    const result = await middleware(mockRequest);
-    expect(NextResponse.next).toHaveBeenCalled();
-    expect(result.type).toBe('next');
-  });
-
-  test('redirects to login and deletes jwt cookie when an error occurs', async () => {
-    mockRequest.cookies.get = jest.fn().mockReturnValue({ value: 'valid-token' });
-    mockRequest.nextUrl.pathname = '/some-protected-route';
-    (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('API Error'));
-    const result = await middleware(mockRequest);
-    expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
-    expect(result.type).toBe('redirect');
-    expect(result.cookies.delete).toHaveBeenCalledWith('jwt');
+  describe('Error handling', () => {
+    test('redirects to login and deletes jwt cookie when an error occurs', async () => {
+      setupRequest('/some-protected-route', 'valid-token');
+      (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('API Error'));
+      const result = await middleware(mockRequest);
+      expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
+      expect(result.type).toBe('redirect');
+      expect(result.cookies.delete).toHaveBeenCalledWith('jwt');
+    });
   });
 });

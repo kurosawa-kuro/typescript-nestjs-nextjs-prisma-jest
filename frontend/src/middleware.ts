@@ -19,7 +19,6 @@ export async function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-data', JSON.stringify(userData));
 
-    console.log('User data:', userData);
     if (request.nextUrl.pathname.startsWith('/admin') && !userData.userRoles.includes('admin')) {
       return NextResponse.redirect(new URL('/', request.url));
     }
