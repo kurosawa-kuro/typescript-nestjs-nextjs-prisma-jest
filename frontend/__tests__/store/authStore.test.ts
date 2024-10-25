@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { useAuthStore } from '../../src/store/authStore';
 import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { useFlashMessageStore } from '../../src/store/flashMessageStore';
-import { TokenUser } from '@/types/models';
+import {  UserDetails } from '@/types/models';
 import * as usersActions from '@/app/actions/users';
 
 // モックの設定
@@ -75,7 +75,7 @@ describe('useAuthStore', () => {
     it('should clear state and redirect on successful logout', async () => {
       const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
       act(() => {
-        useAuthStore.setState({ user: mockUser as TokenUser });
+        useAuthStore.setState({ user: mockUser as unknown as UserDetails });
       });
 
       const { result } = renderHook(() => useAuthStore());
@@ -106,7 +106,7 @@ describe('useAuthStore', () => {
     it('should handle logout error', async () => {
       const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
       act(() => {
-        useAuthStore.setState({ user: mockUser as TokenUser });
+        useAuthStore.setState({ user: mockUser as unknown as UserDetails });
       });
 
       const { result } = renderHook(() => useAuthStore());
@@ -127,11 +127,18 @@ describe('useAuthStore', () => {
 
   describe('setUser', () => {
     it('should update user state', () => {
-      const mockUser = { id: '1', name: 'Test User', email: 'test@example.com', isAdmin: false, avatar_path: '' };
+      const mockUser = {
+        id: '1',
+        name: 'Test User',
+        email: 'test@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: [],
+      };
       const { result } = renderHook(() => useAuthStore());
 
       act(() => {
-        useAuthStore.setState({ user: mockUser });
+        useAuthStore.setState({ user: mockUser as unknown as UserDetails });
       });
 
       expect(result.current.user).toEqual(mockUser);
@@ -161,49 +168,4 @@ describe('useAuthStore', () => {
       expect(result.current.error).toBe('Test error');
     });
   });
-  //   it('should update store state with user details', async () => {
-  //     const mockUserDetails = {
-  //       id: 1,
-  //       name: 'Test User',
-  //       email: 'test@example.com',
-  //       avatarPath: null,
-  //       isAdmin: false,
-  //       createdAt: '2023-01-01T00:00:00Z',
-  //       updatedAt: '2023-01-01T00:00:00Z',
-  //     };
-
-  //     (usersActions.getUserDetails as jest.Mock).mockResolvedValue(mockUserDetails);
-
-  //     const { result, waitForNextUpdate } = renderHook(() => useAuthStore());
-
-  //     act(() => {
-  //       result.current.getUserDetails(1);
-  //     });
-
-  //     await waitForNextUpdate();
-
-  //     expect(usersActions.getUserDetails).toHaveBeenCalledWith(1);
-  //     expect(result.current.user).toEqual(mockUserDetails);
-  //     expect(result.current.isLoading).toBe(false);
-  //     expect(result.current.error).toBeNull();
-  //   });
-
-  //   it('should handle errors when fetching user details', async () => {
-  //     const mockError = new Error('Failed to fetch user details');
-  //     (usersActions.getUserDetails as jest.Mock).mockRejectedValue(mockError);
-
-  //     const { result, waitForNextUpdate } = renderHook(() => useAuthStore());
-
-  //     act(() => {
-  //       result.current.getUserDetails(1);
-  //     });
-
-  //     await waitForNextUpdate();
-
-  //     expect(usersActions.getUserDetails).toHaveBeenCalledWith(1);
-  //     expect(result.current.user).toBeNull();
-  //     expect(result.current.isLoading).toBe(false);
-  //     expect(result.current.error).toBe('Failed to fetch user details');
-  //   });
-  // });
 });
