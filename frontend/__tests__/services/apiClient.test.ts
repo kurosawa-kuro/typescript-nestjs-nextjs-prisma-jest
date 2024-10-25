@@ -146,4 +146,65 @@ describe('ApiClient', () => {
 
     expect(result).toEqual(mockResponse);
   });
+
+  it('should make a successful PUT request', async () => {
+    const mockResponse = { data: 'updated data' };
+    const mockJsonPromise = Promise.resolve(mockResponse);
+    const mockFetchPromise = Promise.resolve({
+      ok: true,
+      json: () => mockJsonPromise,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/test-endpoint';
+    const body = { key: 'updated value' };
+
+    const result = await ApiClient.put(endpoint, body);
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3001/test-endpoint',
+      expect.objectContaining({
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include',
+        cache: 'no-store',
+      })
+    );
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should remove Content-Type header when sending FormData with rawBody option for PUT request', async () => {
+    const mockResponse = { data: 'updated data' };
+    const mockJsonPromise = Promise.resolve(mockResponse);
+    const mockFetchPromise = Promise.resolve({
+      ok: true,
+      json: () => mockJsonPromise,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/test-endpoint';
+    const formData = new FormData();
+    formData.append('key', 'updated value');
+
+    const result = await ApiClient.put(endpoint, formData, { rawBody: true });
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3001/test-endpoint',
+      expect.objectContaining({
+        method: 'PUT',
+        body: formData,
+        credentials: 'include',
+        cache: 'no-store',
+      })
+    );
+
+    // Content-Type ヘッダーが存在しないことを確認
+    const calledOptions = (global.fetch as jest.Mock).mock.calls[0][1];
+    expect(calledOptions.headers).not.toHaveProperty('Content-Type');
+
+    expect(result).toEqual(mockResponse);
+  });
 });
