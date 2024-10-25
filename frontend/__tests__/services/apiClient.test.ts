@@ -1,4 +1,4 @@
-import { ApiClient } from '../../src/services/apiClient';
+import { ApiClient, serverRequest } from '../../src/services/apiClient';
 
 // Mock the global fetch function
 global.fetch = jest.fn();
@@ -206,5 +206,73 @@ describe('ApiClient', () => {
     expect(calledOptions.headers).not.toHaveProperty('Content-Type');
 
     expect(result).toEqual(mockResponse);
+  });
+});
+
+describe('serverRequest', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should make a successful GET request', async () => {
+    const mockResponse = { data: 'server data' };
+    const mockJsonPromise = Promise.resolve(mockResponse);
+    const mockFetchPromise = Promise.resolve({
+      ok: true,
+      json: () => mockJsonPromise,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/server-endpoint';
+    const result = await serverRequest('GET', endpoint);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3001/server-endpoint',
+      expect.objectContaining({
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      })
+    );
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should make a successful POST request with body', async () => {
+    const mockResponse = { data: 'server post data' };
+    const mockJsonPromise = Promise.resolve(mockResponse);
+    const mockFetchPromise = Promise.resolve({
+      ok: true,
+      json: () => mockJsonPromise,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/server-endpoint';
+    const body = { key: 'server value' };
+    const result = await serverRequest('POST', endpoint, body);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:3001/server-endpoint',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include',
+        cache: 'no-store',
+      })
+    );
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should throw an error for non-OK HTTP response', async () => {
+    const mockFetchPromise = Promise.resolve({
+      ok: false,
+      status: 500,
+    });
+    (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+    const endpoint = '/server-endpoint';
+
+    await expect(serverRequest('GET', endpoint)).rejects.toThrow('HTTP error! status: 500');
   });
 });
