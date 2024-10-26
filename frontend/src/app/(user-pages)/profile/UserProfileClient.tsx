@@ -184,6 +184,7 @@ function EditForm({
 function ProfileDisplay({ user, handleEdit }: { user: UserDetails; handleEdit: () => void }) {
   return (
     <>
+      <ProfileItem label="User ID" value={user.id.toString()} />
       <ProfileItem label="Name" value={user.name} />
       <ProfileItem label="Email" value={user.email} />
       <ProfileItem label="Created At" value={new Date(user.createdAt).toLocaleDateString()} />
