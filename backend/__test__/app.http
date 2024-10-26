@@ -68,7 +68,7 @@ GET {{baseUrl}}/users
 Content-Type: {{contentType}}
 
 ### ログインユーザーと全ユーザーを取得
-GET {{baseUrl}}/users/current
+GET {{baseUrl}}/users/with-follow-status
 Content-Type: {{contentType}}
 
 ### ユーザー詳細を取得

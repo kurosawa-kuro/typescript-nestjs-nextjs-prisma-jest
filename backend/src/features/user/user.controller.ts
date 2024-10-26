@@ -28,7 +28,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.all();
   }
 
-  @Get('current')
+  @Get('with-follow-status')
   async getCurrentUserAndAllUsers(
     @UserDecorator() currentUser: UserInfo,
   ): Promise<UserDetails[]> {
