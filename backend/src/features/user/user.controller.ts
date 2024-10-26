@@ -24,13 +24,14 @@ export class UserController extends BaseController<UserWithoutPassword> {
     super(userService);
   }
 
+  // 全ユーザー一覧を取得（パスワード除く）
   @Public()
   @Get()
   async index(): Promise<UserWithoutPassword[]> {
     return this.userService.all();
   }
 
-  // Follow 機能 statusを含むユーザー一覧取得
+  // フォロー状態を含む全ユーザー一覧を取得
   @Get('with-follow-status')
   async getCurrentUserAndAllUsers(
     @UserDecorator() currentUser: UserInfo,
@@ -38,19 +39,19 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.findAllWithFollowStatus(currentUser.id as number);
   }
 
-  // Follow 機能  follower リスト表示
+  // 特定ユーザーのフォロワーリストを取得
   @Get(':id/followers')
   async getFollowers(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
     return this.userService.getFollowers(id);
   }
 
-  // Follow 機能  following  リスト表示
+  // 特定ユーザーのフォロー中ユーザーリストを取得
   @Get(':id/following')
   async getFollowing(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
     return this.userService.getFollowing(id);
   }
 
-  // ユーザー情報詳細取得をオーバーライドして実装。パスワード除外 必須
+  // 特定ユーザーの詳細情報を取得（パスワード除く、ロール情報含む）
   @Public()
   @Get(':id')
   async show(
@@ -59,6 +60,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.findByIdWithRelations(id);
   }
 
+  // ユーザーのアバター画像を更新
   @Public()
   @Put(':id/avatar')
   @UseInterceptors(
@@ -71,13 +73,13 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.updateAvatar(id, file.filename);
   }
 
-  // ユーザーの権限をAdminに変更
+  // ユーザーに管理者権限を付与
   @Put(':id/admin')
   async updateAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserInfo> {
     return this.userService.updateUserRole(id, 'add');
   }
 
-  // Follow 機能 フォローする そして最新のstatusを含むユーザー一覧をレスポンスする
+  // ユーザーをフォローし、更新された全ユーザーリストを返す
   @Post(':id/follow')
   async follow(
     @Param('id', ParseIntPipe) id: number,
@@ -86,7 +88,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.follow(currentUser.id, id);
   }
 
-  // Follow 機能 フォロー解除する  そして最新のstatusを含むユーザー一覧をレスポンスする
+  // ユーザーのフォローを解除し、更新された全ユーザーリストを返す
   @Delete(':id/follow')
   async unfollow(
     @Param('id', ParseIntPipe) id: number,
@@ -95,7 +97,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.unfollow(currentUser.id, id);
   }
 
-  // ユーザーの権限をAdminを外す
+  // ユーザーの管理者権限を削除
   @Put(':id/admin/remove')
   async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserInfo> {
     return this.userService.updateUserRole(id, 'remove');
