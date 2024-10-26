@@ -75,3 +75,15 @@ export async function getFollowers(userId: number): Promise<UserDetails[]> {
     throw error;
   }
 }
+
+export async function getFollowing(userId: number): Promise<UserDetails[]> {
+  try {
+    const response = await ApiClient.get<UserDetails[]>(`/users/${userId}/following`, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching following users:', error);
+    throw error;
+  }
+}
