@@ -76,6 +76,11 @@ Content-Type: {{contentType}}
 POST {{baseUrl}}/users/4/follow
 Content-Type: {{contentType}}
 
+### ':id/follow'
+### ':id' はフォロー解除するユーザーのID
+DELETE {{baseUrl}}/users/4/follow
+Content-Type: {{contentType}}
+
 
 
 ### ユーザー詳細を取得

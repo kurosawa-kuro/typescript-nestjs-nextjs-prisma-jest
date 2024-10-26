@@ -341,4 +341,31 @@ export class UserService extends BaseService<
     // Return the updated user list with follow status
     return this.findAllWithFollowStatus(followerId);
   }
+
+  async unfollow(followerId: number, followingId: number): Promise<UserDetails[]> {
+    // Check if the follow relationship exists
+    const existingFollow = await this.prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+      },
+    });
+
+    if (existingFollow) {
+      // Delete the follow relationship if it exists
+      await this.prisma.follow.delete({
+        where: {
+          followerId_followingId: {
+            followerId,
+            followingId,
+          },
+        },
+      });
+    }
+
+    // Return the updated user list with follow status
+    return this.findAllWithFollowStatus(followerId);
+  }
 }

@@ -75,12 +75,13 @@ export class UserController extends BaseController<UserWithoutPassword> {
   }
 
   // Follow 機能 フォロー解除する  そして最新のstatusを含むユーザー一覧をレスポンスする
-  // @Delete(':id/unfollow')
-  // async unfollow(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
-  //   return this.userService.unfollow(id);
-  // }
-
-
+  @Delete(':id/follow')
+  async unfollow(
+    @Param('id', ParseIntPipe) id: number,
+    @UserDecorator() currentUser: UserInfo
+  ): Promise<UserDetails[]> {
+    return this.userService.unfollow(currentUser.id, id);
+  }
 
   // ユーザーの権限をAdminを外す
   @Put(':id/admin/remove')
