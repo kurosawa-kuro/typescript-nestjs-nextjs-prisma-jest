@@ -21,11 +21,12 @@ export default function FollowersList({ followers }: FollowersListProps) {
               height={50}
               className="rounded-full"
             />
-            <div>
+            <div className="flex-grow">
               <Link href={`/users/${follower.id}`} className="text-lg font-semibold hover:underline">
                 {follower.name}
               </Link>
               <p className="text-sm text-gray-500">{follower.email}</p>
+              <p className="text-xs text-gray-400">User ID: {follower.id}</p>
             </div>
           </div>
         </div>

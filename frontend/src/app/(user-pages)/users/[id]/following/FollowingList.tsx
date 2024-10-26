@@ -21,11 +21,12 @@ export default function FollowingList({ following }: FollowingListProps) {
               height={50}
               className="rounded-full"
             />
-            <div>
+            <div className="flex-grow">
               <Link href={`/users/${user.id}`} className="text-lg font-semibold hover:underline">
                 {user.name}
               </Link>
               <p className="text-sm text-gray-500">{user.email}</p>
+              <p className="text-xs text-gray-400">User ID: {user.id}</p>
             </div>
           </div>
         </div>
