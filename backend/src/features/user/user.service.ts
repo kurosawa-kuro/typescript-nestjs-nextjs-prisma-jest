@@ -91,7 +91,7 @@ export class UserService extends BaseService<
   }
 
   // ユーザー情報取得
-  override async all(): Promise<UserWithoutPassword[]> {
+  override async all(): Promise<UserDetails[]> {
     return this.prisma.user
       .findMany({
         select: {

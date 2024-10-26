@@ -27,7 +27,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
   // 全ユーザー一覧を取得（パスワード除く）
   @Public()
   @Get()
-  async index(): Promise<UserWithoutPassword[]> {
+  async index(): Promise<UserDetails[]> {
     return this.userService.all();
   }
 
@@ -56,7 +56,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
   @Get(':id')
   async show(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<UserWithoutPassword & { userRoles: string[] }> {
+  ): Promise<UserDetails> {
     return this.userService.findByIdWithRelations(id);
   }
 
