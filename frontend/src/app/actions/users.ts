@@ -7,7 +7,12 @@ import { cookies } from 'next/headers';
 
 
 export async function getUsers(): Promise<UserDetails[]> {
-  return ApiClient.get<UserDetails[]>('/users');
+  const token = cookies().get('jwt')?.value;
+  return ApiClient.get<UserDetails[]>('/users/with-follow-status', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 export async function getUserDetails(id: number): Promise<UserDetails | null> {

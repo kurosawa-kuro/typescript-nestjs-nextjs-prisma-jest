@@ -46,6 +46,7 @@ export interface UserDetails {
   updatedAt: Date;
   userRoles: string[];
   profile?: { avatarPath?: string };
+  isFollowing?: boolean;
 }
 
 // LoginDto interface
