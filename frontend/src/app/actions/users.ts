@@ -63,3 +63,15 @@ export async function unfollowUser(userId: number): Promise<UserDetails[]> {
     throw error;
   }
 }
+
+export async function getFollowers(userId: number): Promise<UserDetails[]> {
+  try {
+    const response = await ApiClient.get<UserDetails[]>(`/users/${userId}/followers`, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching followers:', error);
+    throw error;
+  }
+}
