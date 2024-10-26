@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { UserDetails } from '@/types/models';
 import { useUserStore } from '@/store/userStore';
 import { followUser, unfollowUser } from '@/app/actions/users';
@@ -11,22 +11,10 @@ interface UsersClientProps {
 
 export default function UsersClient({ initialUsers }: UsersClientProps) {
   const { users, setUsers } = useUserStore();
-  const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+  
   useEffect(() => {
     setUsers(initialUsers);
   }, [initialUsers, setUsers]);
-
-  const handleOpenModal = (user: UserDetails) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedUser(null);
-    setIsModalOpen(false);
-  };
 
   const handleFollowUser = async (userId: number) => {
     try {
