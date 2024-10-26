@@ -51,6 +51,7 @@ Content-Type: {{contentType}}
   "password": "password"
 }
 
+
 ### ユーザー管理エンドポイント
 
 ### ユーザーを作成
@@ -70,26 +71,6 @@ Content-Type: {{contentType}}
 ### ログインユーザーと全ユーザーを取得
 GET {{baseUrl}}/users/with-follow-status
 Content-Type: {{contentType}}
-
-### ':id/follow'
-### ':id' はフォローするユーザーのID
-POST {{baseUrl}}/users/4/follow
-Content-Type: {{contentType}}
-
-### ':id/follow'
-### ':id' はフォロー解除するユーザーのID
-DELETE {{baseUrl}}/users/4/follow
-Content-Type: {{contentType}}
-
-### Follow 機能  follower リスト表示 ':id' はフォローしているユーザーのID
-GET {{baseUrl}}/users/5/followers
-Content-Type: {{contentType}}
-
-
-### Follow 機能  following リスト表示 ':id' はフォローしているユーザーのID
-GET {{baseUrl}}/users/5/following
-Content-Type: {{contentType}}
-
 
 ### ユーザー詳細を取得
 GET {{baseUrl}}/users/2
@@ -123,38 +104,31 @@ Content-Type: image/jpeg
 < ./backend/uploads/test.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
+
+### フォロー関連エンドポイント
+
+### ユーザーをフォローする
+POST {{baseUrl}}/users/4/follow
+Content-Type: {{contentType}}
+
+### ユーザーのフォローを解除する
+DELETE {{baseUrl}}/users/4/follow
+Content-Type: {{contentType}}
+
+### フォロワーリストを表示
+GET {{baseUrl}}/users/5/followers
+Content-Type: {{contentType}}
+
+### フォローしているユーザーリストを表示
+GET {{baseUrl}}/users/5/following
+Content-Type: {{contentType}}
+
+### マイクロポスト関連エンドポイント
+
 ### マイクロポスト一覧を取得
 GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}
 
-### フォロー関連エンドポイント
-
-
-
-
-### ユーザーをフォローする
-POST {{baseUrl}}/follow/13
-Content-Type: {{contentType}}
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
-
-### ユーザーのフォローを解除する
-DELETE {{baseUrl}}/follow/13
-Content-Type: {{contentType}}
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
-
-### ユーザーのフォロワーリストを取得する
-GET {{baseUrl}}/follow/followers/4
-Content-Type: {{contentType}}
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
-
-### ユーザーがフォローしているユーザーリストを取得する
-GET {{baseUrl}}/follow/following/4
-Content-Type: {{contentType}}
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
-
-### 現在のユーザーが指定されたユーザーをフォローしているかどうかを確認する
-GET {{baseUrl}}/follow/is-following/13
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### チーム関連エンドポイント
 
@@ -216,6 +190,7 @@ DELETE {{baseUrl}}/teams/1
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
+
 ### テストエンドポイント
 
 ### 公開テスト
@@ -238,17 +213,3 @@ Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 ### 管理者テスト
 GET {{baseUrl}}/test/admin
 Content-Type: {{contentType}}
-
-### ユーザー一覧を取得（フォロー状態を含む）
-GET {{baseUrl}}/users
-Content-Type: {{contentType}}
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
-
-### 複数ユーザーのフォロー状態を確認
-POST {{baseUrl}}/follow/is-following-multiple
-Content-Type: {{contentType}}
-Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
-
-{
-  "ids": "1,2,3"
-}
