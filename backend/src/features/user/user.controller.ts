@@ -99,7 +99,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
 
   // ユーザーの管理者権限を削除
   @Put(':id/admin/remove')
-  async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserInfo> {
+  async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserDetails> {
     return this.userService.updateUserRole(id, 'remove');
   }
 }

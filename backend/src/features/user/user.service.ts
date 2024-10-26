@@ -236,7 +236,7 @@ export class UserService extends BaseService<
     id: number,
     action: 'add' | 'remove',
     roleName: string = 'admin',
-  ): Promise<UserInfo> {
+  ): Promise<UserDetails> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
@@ -439,13 +439,16 @@ export class UserService extends BaseService<
       userRoles: Role[];
       profile?: { avatarPath?: string };
     },
-  ): UserInfo {
+  ): UserDetails {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
       profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
       userRoles: user.userRoles.map((role) => role.name),
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      isFollowing: false, // Add a default value or determine it based on context
     };
   }
 }
