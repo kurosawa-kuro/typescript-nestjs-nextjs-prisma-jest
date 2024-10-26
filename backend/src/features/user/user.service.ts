@@ -316,4 +316,29 @@ export class UserService extends BaseService<
       isFollowing: user.followers.length > 0,
     }));
   }
+
+  async follow(followerId: number, followingId: number): Promise<UserDetails[]> {
+    // Check if the follow relationship already exists
+    const existingFollow = await this.prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+      },
+    });
+
+    if (!existingFollow) {
+      // Create the follow relationship if it doesn't exist
+      await this.prisma.follow.create({
+        data: {
+          followerId,
+          followingId,
+        },
+      });
+    }
+
+    // Return the updated user list with follow status
+    return this.findAllWithFollowStatus(followerId);
+  }
 }

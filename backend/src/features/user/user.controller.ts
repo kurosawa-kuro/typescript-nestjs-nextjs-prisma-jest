@@ -6,6 +6,8 @@ import {
   UseInterceptors,
   UploadedFile,
   ParseIntPipe,
+  Post,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
@@ -28,6 +30,7 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.all();
   }
 
+  // Follow 機能 statusを含むユーザー一覧取得
   @Get('with-follow-status')
   async getCurrentUserAndAllUsers(
     @UserDecorator() currentUser: UserInfo,
@@ -61,6 +64,23 @@ export class UserController extends BaseController<UserWithoutPassword> {
   async updateAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserInfo> {
     return this.userService.updateUserRole(id, 'add');
   }
+
+  // Follow 機能 フォローする そして最新のstatusを含むユーザー一覧をレスポンスする
+  @Post(':id/follow')
+  async follow(
+    @Param('id', ParseIntPipe) id: number,
+    @UserDecorator() currentUser: UserInfo
+  ): Promise<UserDetails[]> {
+    return this.userService.follow(currentUser.id, id);
+  }
+
+  // Follow 機能 フォロー解除する  そして最新のstatusを含むユーザー一覧をレスポンスする
+  // @Delete(':id/unfollow')
+  // async unfollow(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
+  //   return this.userService.unfollow(id);
+  // }
+
+
 
   // ユーザーの権限をAdminを外す
   @Put(':id/admin/remove')
