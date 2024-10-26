@@ -17,6 +17,12 @@ function getAuthHeaders(): Record<string, string> {
 }
 
 export async function getUsers(): Promise<UserDetails[]> {
+  return ApiClient.get<UserDetails[]>('/users', {
+    headers: getAuthHeaders(),
+  });
+}
+
+export async function getUsersWithFollowStatus(): Promise<UserDetails[]> {
   return ApiClient.get<UserDetails[]>('/users/with-follow-status', {
     headers: getAuthHeaders(),
   });
