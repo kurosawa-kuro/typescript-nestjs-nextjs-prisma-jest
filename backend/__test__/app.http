@@ -81,6 +81,14 @@ Content-Type: {{contentType}}
 DELETE {{baseUrl}}/users/4/follow
 Content-Type: {{contentType}}
 
+### Follow 機能  follower リスト表示 ':id' はフォローしているユーザーのID
+GET {{baseUrl}}/users/5/followers
+Content-Type: {{contentType}}
+
+
+### Follow 機能  following リスト表示 ':id' はフォローしているユーザーのID
+GET {{baseUrl}}/users/5/following
+Content-Type: {{contentType}}
 
 
 ### ユーザー詳細を取得

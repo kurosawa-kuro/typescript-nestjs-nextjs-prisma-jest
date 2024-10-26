@@ -38,6 +38,18 @@ export class UserController extends BaseController<UserWithoutPassword> {
     return this.userService.findAllWithFollowStatus(Number(currentUser.id));
   }
 
+  // Follow 機能  follower リスト表示
+  @Get(':id/followers')
+  async getFollowers(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
+    return this.userService.getFollowers(id);
+  }
+
+  // Follow 機能  following  リスト表示
+  @Get(':id/following')
+  async getFollowing(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
+    return this.userService.getFollowing(id);
+  }
+
   // ユーザー情報詳細取得をオーバーライドして実装。パスワード除外 必須
   @Public()
   @Get(':id')

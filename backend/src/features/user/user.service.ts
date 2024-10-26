@@ -368,4 +368,88 @@ export class UserService extends BaseService<
     // Return the updated user list with follow status
     return this.findAllWithFollowStatus(followerId);
   }
+
+  async getFollowers(userId: number): Promise<UserDetails[]> {
+    const followers = await this.prisma.follow.findMany({
+      where: { followingId: userId },
+      select: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true,
+            profile: {
+              select: {
+                avatarPath: true,
+              },
+            },
+            userRoles: {
+              select: {
+                role: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return followers.map((follow): UserDetails => ({
+      id: follow.follower.id,
+      name: follow.follower.name,
+      email: follow.follower.email,
+      createdAt: follow.follower.createdAt,
+      updatedAt: follow.follower.updatedAt,
+      userRoles: follow.follower.userRoles.map(ur => ur.role.name),
+      profile: { avatarPath: follow.follower.profile?.avatarPath || 'default.png' },
+      isFollowing: true, // フォロワーリストなので、常にtrueになります
+    }));
+  }
+
+  async getFollowing(userId: number): Promise<UserDetails[]> {
+    const following = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true,
+            profile: {
+              select: {
+                avatarPath: true,
+              },
+            },
+            userRoles: {
+              select: {
+                role: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return following.map((follow): UserDetails => ({
+      id: follow.following.id,
+      name: follow.following.name,
+      email: follow.following.email,
+      createdAt: follow.following.createdAt,
+      updatedAt: follow.following.updatedAt,
+      userRoles: follow.following.userRoles.map(ur => ur.role.name),
+      profile: { avatarPath: follow.following.profile?.avatarPath || 'default.png' },
+      isFollowing: true, // フォローしているユーザーのリストなので、常にtrueになります
+    }));
+  }
 }
