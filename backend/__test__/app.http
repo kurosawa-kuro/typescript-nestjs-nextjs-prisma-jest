@@ -107,6 +107,11 @@ Content-Type: image/jpeg
 
 ### フォロー関連エンドポイント
 
+### ログインユーザーと全ユーザーを取得
+GET {{baseUrl}}/users/with-follow-status
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_AUTH_TOKEN_HERE
+
 ### ユーザーをフォローする
 POST {{baseUrl}}/users/4/follow
 Content-Type: {{contentType}}

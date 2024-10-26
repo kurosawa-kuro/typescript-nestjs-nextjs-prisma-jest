@@ -27,7 +27,7 @@ export class UserService extends BaseService<
     return this.prisma.user;
   }
 
-  // Create (C)
+  // ユーザー作成と認証
   override async create(data: Prisma.UserCreateInput): Promise<UserInfo> {
     try {
       const { password, ...userData } = data;
@@ -64,7 +64,33 @@ export class UserService extends BaseService<
     }
   }
 
-  // Read (R)
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<UserInfo | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      include: {
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+        profile: true,
+      },
+    });
+
+    if (user && (await this.verifyPassword(password, user.password))) {
+      return this.mapUserToUserInfo({
+        ...this.mapUserToUserWithRoles(user),
+        profile: user.profile,
+      });
+    }
+
+    return null;
+  }
+
+  // ユーザー情報取得
   override async all(): Promise<UserWithoutPassword[]> {
     return this.prisma.user
       .findMany({
@@ -97,145 +123,6 @@ export class UserService extends BaseService<
           userRoles: user.userRoles.map((ur) => ur.role.name),
         })),
       );
-  }
-
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<UserInfo | null> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-        profile: true,
-      },
-    });
-
-    if (user && (await this.verifyPassword(password, user.password))) {
-      return this.mapUserToUserInfo({
-        ...this.mapUserToUserWithRoles(user),
-        profile: user.profile,
-      });
-    }
-
-    return null;
-  }
-
-  // Update (U)
-  async updateAvatar(id: number, filename: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      include: { profile: true },
-    });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    if (user.profile) {
-      await this.prisma.userProfile.update({
-        where: { userId: id },
-        data: { avatarPath: filename },
-      });
-    } else {
-      await this.prisma.userProfile.create({
-        data: {
-          userId: id,
-          avatarPath: filename,
-        },
-      });
-    }
-    return this.prisma.user.findUnique({
-      where: { id },
-      include: { profile: true },
-    });
-  }
-
-  async updateUserRole(
-    id: number,
-    action: 'add' | 'remove',
-    roleName: string = 'admin',
-  ): Promise<UserInfo> {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      include: {
-        userRoles: {
-          where: { role: { name: roleName } },
-          include: { role: true },
-        },
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: {
-        userRoles:
-          action === 'add'
-            ? { create: { role: { connect: { name: roleName } } } }
-            : { deleteMany: { roleId: user.userRoles[0].role.id, userId: id } },
-      },
-      include: {
-        userRoles: {
-          include: { role: true },
-        },
-      },
-    });
-
-    // Map the updatedUser to match UserWithRoleObjects structure
-    const mappedUser: UserWithoutPassword & { userRoles: Role[] } = {
-      ...updatedUser,
-      userRoles: updatedUser.userRoles.map((ur) => ur.role),
-    };
-
-    return this.mapUserToUserInfo(mappedUser);
-  }
-
-  // Delete (D)
-  // No specific delete method in this service, using the one from BaseService
-
-  // Helper methods
-
-  private async hashPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
-  }
-
-  // Todo: パスワードの検証
-  private async verifyPassword(
-    password: string,
-    hashedPassword: string,
-  ): Promise<boolean> {
-    return bcrypt.compare(password, hashedPassword);
-  }
-
-  private mapUserToUserWithRoles(
-    user: any,
-  ): UserWithoutPassword & { userRoles: Role[] } {
-    const { password: _, userRoles, ...userWithoutPassword } = user;
-    return {
-      ...userWithoutPassword,
-      userRoles: userRoles.map((ur) => ur.role),
-    };
-  }
-
-  mapUserToUserInfo(
-    user: UserWithoutPassword & {
-      userRoles: Role[];
-      profile?: { avatarPath?: string };
-    },
-  ): UserInfo {
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
-      userRoles: user.userRoles.map((role) => role.name),
-    };
   }
 
   async findByIdWithRelations(
@@ -317,6 +204,78 @@ export class UserService extends BaseService<
     }));
   }
 
+  // ユーザー情報更新
+  async updateAvatar(id: number, filename: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.profile) {
+      await this.prisma.userProfile.update({
+        where: { userId: id },
+        data: { avatarPath: filename },
+      });
+    } else {
+      await this.prisma.userProfile.create({
+        data: {
+          userId: id,
+          avatarPath: filename,
+        },
+      });
+    }
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { profile: true },
+    });
+  }
+
+  async updateUserRole(
+    id: number,
+    action: 'add' | 'remove',
+    roleName: string = 'admin',
+  ): Promise<UserInfo> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        userRoles: {
+          where: { role: { name: roleName } },
+          include: { role: true },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: {
+        userRoles:
+          action === 'add'
+            ? { create: { role: { connect: { name: roleName } } } }
+            : { deleteMany: { roleId: user.userRoles[0].role.id, userId: id } },
+      },
+      include: {
+        userRoles: {
+          include: { role: true },
+        },
+      },
+    });
+
+    // Map the updatedUser to match UserWithRoleObjects structure
+    const mappedUser: UserWithoutPassword & { userRoles: Role[] } = {
+      ...updatedUser,
+      userRoles: updatedUser.userRoles.map((ur) => ur.role),
+    };
+
+    return this.mapUserToUserInfo(mappedUser);
+  }
+
+  // フォロー関連
   async follow(followerId: number, followingId: number): Promise<UserDetails[]> {
     // Check if the follow relationship already exists
     const existingFollow = await this.prisma.follow.findUnique({
@@ -451,5 +410,42 @@ export class UserService extends BaseService<
       profile: { avatarPath: follow.following.profile?.avatarPath || 'default.png' },
       isFollowing: true, // フォローしているユーザーのリストなので、常にtrueになります
     }));
+  }
+
+  // ヘルパーメソッド
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
+  }
+
+  private async verifyPassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hashedPassword);
+  }
+
+  private mapUserToUserWithRoles(
+    user: any,
+  ): UserWithoutPassword & { userRoles: Role[] } {
+    const { password: _, userRoles, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      userRoles: userRoles.map((ur) => ur.role),
+    };
+  }
+
+  mapUserToUserInfo(
+    user: UserWithoutPassword & {
+      userRoles: Role[];
+      profile?: { avatarPath?: string };
+    },
+  ): UserInfo {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+      userRoles: user.userRoles.map((role) => role.name),
+    };
   }
 }
