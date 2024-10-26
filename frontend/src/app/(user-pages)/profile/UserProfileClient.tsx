@@ -185,7 +185,7 @@ function EditForm({
 function ProfileDisplay({ user, handleEdit }: { user: UserDetails; handleEdit: () => void }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <ProfileItem label="User ID" value={user.id.toString()} />
         <ProfileItem label="Name" value={user.name} />
         <ProfileItem label="Email" value={user.email} />
