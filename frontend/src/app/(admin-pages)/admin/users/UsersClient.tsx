@@ -93,21 +93,6 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                   >
                     Change Role
                   </button>
-                  {user.isFollowing ? (
-                    <button
-                      onClick={() => handleUnfollowUser(user.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Unfollow
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleFollowUser(user.id)}
-                      className="text-green-600 hover:text-green-900"
-                    >
-                      Follow
-                    </button>
-                  )}
                 </td>
               </tr>
             ))}
