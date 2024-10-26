@@ -19,7 +19,7 @@ import { UserDetails, UserInfo, UserWithoutPassword } from '@/shared/types/auth.
 import { User as UserDecorator } from '@/features/auth/decorators/user.decorator';
 
 @Controller('users')
-export class UserController extends BaseController<UserWithoutPassword> {
+export class UserController extends BaseController<UserDetails> {
   constructor(private readonly userService: UserService) {
     super(userService);
   }
