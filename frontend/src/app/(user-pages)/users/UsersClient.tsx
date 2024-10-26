@@ -2,9 +2,8 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { UserDetails } from '@/types/models';
-import RoleChangeModal from './RoleChangeModal';
 import { useUserStore } from '@/store/userStore';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { followUser, unfollowUser } from '@/app/actions/users';
 
 interface UsersClientProps {
   initialUsers: UserDetails[];
@@ -31,7 +30,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
 
   const handleFollowUser = async (userId: number) => {
     try {
-      const updatedUsers = await ClientSideApiService.followUser(userId);
+      const updatedUsers = await followUser(userId);
       setUsers(updatedUsers);
     } catch (error) {
       console.error('Failed to follow user:', error);
@@ -40,7 +39,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
 
   const handleUnfollowUser = async (userId: number) => {
     try {
-      const updatedUsers = await ClientSideApiService.unfollowUser(userId);
+      const updatedUsers = await unfollowUser(userId);
       setUsers(updatedUsers);
     } catch (error) {
       console.error('Failed to unfollow user:', error);
@@ -108,13 +107,6 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
           </tbody>
         </table>
       </div>
-      {selectedUser && (
-        <RoleChangeModal
-          user={selectedUser}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
     </div>
   );
 }

@@ -39,3 +39,29 @@ export async function getUserDetails(id: number): Promise<UserDetails | null> {
     return null;
   }
 }
+
+// ユーザーをフォローする関数を修正
+export async function followUser(userId: number): Promise<UserDetails[]> {
+  try {
+    const response = await ApiClient.post<UserDetails[]>(`/users/${userId}/follow`, {}, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error following user:', error);
+    throw error;
+  }
+}
+
+// ユーザーのフォローを解除する関数を修正
+export async function unfollowUser(userId: number): Promise<UserDetails[]> {
+  try {
+    const response = await ApiClient.delete<UserDetails[]>(`/users/${userId}/follow`, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error unfollowing user:', error);
+    throw error;
+  }
+}
