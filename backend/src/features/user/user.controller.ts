@@ -13,7 +13,7 @@ import { BaseController } from '@/core/common/base.controller';
 import { Public } from '@/features/auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from '@/core/common/multer-config';
-import { UserInfo, UserWithoutPassword } from '@/shared/types/auth.types';
+import { UserDetails, UserInfo, UserWithoutPassword } from '@/shared/types/auth.types';
 import { User as UserDecorator } from '@/features/auth/decorators/user.decorator';
 
 @Controller('users')
@@ -31,12 +31,8 @@ export class UserController extends BaseController<UserWithoutPassword> {
   @Get('current')
   async getCurrentUserAndAllUsers(
     @UserDecorator() currentUser: UserInfo,
-  ): Promise<{ currentUser: UserInfo; allUsers: UserWithoutPassword[] }> {
-    const allUsers = await this.userService.all();
-    return {
-      currentUser,
-      allUsers
-    };
+  ): Promise<UserDetails[]> {
+    return this.userService.findAllWithFollowStatus(Number(currentUser.id));
   }
 
   // ユーザー情報詳細取得をオーバーライドして実装。パスワード除外 必須

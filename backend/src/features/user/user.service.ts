@@ -7,7 +7,7 @@ import { PrismaService } from '@/core/database/prisma.service';
 import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '@/core/common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { UserWithoutPassword, UserInfo } from '@/shared/types/auth.types';
+import { UserWithoutPassword, UserInfo, UserDetails } from '@/shared/types/auth.types';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -270,5 +270,50 @@ export class UserService extends BaseService<
       ...userWithoutPassword,
       userRoles: user.userRoles.map((ur) => ur.role.name),
     };
+  }
+
+  async findAllWithFollowStatus(currentUserId: number): Promise<UserDetails[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: { not: currentUserId },
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: {
+          select: {
+            avatarPath: true,
+          },
+        },
+        userRoles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        followers: {
+          where: {
+            followerId: currentUserId,
+          },
+        },
+      },
+    });
+
+    return users.map((user): UserDetails => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      userRoles: user.userRoles.map(ur => ur.role.name),
+      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+      isFollowing: user.followers.length > 0,
+    }));
   }
 }

@@ -26,3 +26,14 @@ export type UserWithProfile = User & {
   userRoles: string[];
   profile?: { avatarPath?: string };
 };
+
+export interface UserDetails {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userRoles: string[];
+  profile?: { avatarPath?: string };
+  isFollowing?: boolean;
+}
