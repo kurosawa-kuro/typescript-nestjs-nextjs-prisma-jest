@@ -59,9 +59,18 @@ export class MicropostService {
     });
   }
 
-  async findOne(id: number): Promise<Micropost | null> {
+  async findOne(id: number): Promise<Micropost & { likesCount: number } | null> {
     return this.prisma.micropost.findUnique({
       where: { id },
-    });
+      include: {
+        _count: {
+          select: { likes: true }
+        }
+      }
+    }).then(micropost => 
+      micropost 
+        ? { ...micropost, likesCount: micropost._count.likes }
+        : null
+    );
   }
 }

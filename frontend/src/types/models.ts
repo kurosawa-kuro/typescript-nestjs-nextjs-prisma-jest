@@ -68,4 +68,5 @@ export interface Micropost {
   imagePath: string;
   createdAt: string;
   updatedAt: string;
+  likesCount: number;
 }

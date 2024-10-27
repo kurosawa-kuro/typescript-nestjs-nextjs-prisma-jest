@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, NotFoundException } from '@nestjs/common';
 import { MicropostService } from './micropost.service';
 import { Micropost } from '@prisma/client';
 
@@ -21,8 +21,13 @@ export class MicropostController {
     return this.micropostService.all();
   }
 
+  // マイクロポストに紐づく、いいねの数も取得
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.micropostService.findOne(+id);
+    const micropost = await this.micropostService.findOne(+id);
+    if (!micropost) {
+      throw new NotFoundException(`Micropost with ID ${id} not found`);
+    }
+    return micropost;
   }
 }

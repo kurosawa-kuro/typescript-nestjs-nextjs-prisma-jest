@@ -1,7 +1,7 @@
 import React from 'react';
 import { getMicropostDetails, getMicropostComments } from '@/app/actions/micropost';
 import { notFound } from 'next/navigation';
-import { Comment } from '@/types/micropost';
+import { Micropost, Comment } from '@/types/micropost';
 
 interface MicropostDetailsProps {
   params: {
@@ -31,6 +31,9 @@ export default async function MicropostDetails({ params }: MicropostDetailsProps
         />
         <p className="text-gray-600 mb-2">
           Posted by User {micropost.userId} on {new Date(micropost.createdAt).toLocaleDateString()}
+        </p>
+        <p className="text-gray-600 mb-2">
+          <span className="font-semibold">{micropost.likesCount}</span> {micropost.likesCount === 1 ? 'like' : 'likes'}
         </p>
       </div>
 
