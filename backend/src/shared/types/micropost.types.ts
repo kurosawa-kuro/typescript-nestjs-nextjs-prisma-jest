@@ -21,3 +21,16 @@ export interface Comment {
     name: string;
   };
 }
+
+// export interface Micropost {
+//   id: number;
+//   user: Pick<UserInfo, 'id' | 'name'> & {
+//     profile: NonNullable<UserInfo['profile']>;
+//   };
+//   title: string;
+//   imagePath: string;
+//   createdAt: string;
+//   updatedAt: string;
+//   likesCount: number;
+//   comments: Comment[];
+// }

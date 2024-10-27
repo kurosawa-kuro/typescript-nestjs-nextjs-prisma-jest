@@ -7,7 +7,6 @@ import { UserDetails } from '@/types/user';
 import { useUserProfileStore } from '@/store/userProfileStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Link from 'next/link';
-// import { useSession } from 'next-auth/react';
 
 // Add this custom hook at the top of the file
 function useCurrentUser(): CurrentUser {
