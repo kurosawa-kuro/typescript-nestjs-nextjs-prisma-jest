@@ -1,18 +1,53 @@
 import React from 'react';
 import { getMicroposts } from '../../actions/micropost';
 import MicropostCard from '@/components/MicropostCard';
+import Link from 'next/link';
 
-export default async function Timeline() {
-  const microposts = await getMicroposts();
-  console.log("microposts", microposts);
+const POSTS_PER_PAGE = 6;
+
+export default async function Timeline({ searchParams }: { searchParams: { page?: string } }) {
+  const currentPage = Number(searchParams.page) || 1;
+  const allMicroposts = await getMicroposts();
+  
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const endIndex = startIndex + POSTS_PER_PAGE;
+  const microposts = allMicroposts.slice(startIndex, endIndex);
+  
+  const totalPages = Math.ceil(allMicroposts.length / POSTS_PER_PAGE);
 
   return (
-    <div className="container mx-auto px-4">
-      <h1 className="text-2xl font-bold mb-4">Timeline</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {microposts.map((micropost) => (
           <MicropostCard key={micropost.id} micropost={micropost} />
         ))}
+      </div>
+      
+      {/* ページャー */}
+      <div className="flex justify-center">
+        <nav className="inline-flex rounded-md shadow">
+          {currentPage > 1 && (
+            <Link href={`/timeline?page=${currentPage - 1}`} className="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+              Previous
+            </Link>
+          )}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Link
+              key={page}
+              href={`/timeline?page=${page}`}
+              className={`px-4 py-2 bg-white border border-gray-300 text-sm font-medium ${
+                currentPage === page ? 'text-blue-600 hover:bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {page}
+            </Link>
+          ))}
+          {currentPage < totalPages && (
+            <Link href={`/timeline?page=${currentPage + 1}`} className="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+              Next
+            </Link>
+          )}
+        </nav>
       </div>
     </div>
   );
