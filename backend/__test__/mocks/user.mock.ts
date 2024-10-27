@@ -1,4 +1,4 @@
-import { UserInfo, UserWithProfile, UserDetails } from '../../src/shared/types/auth.types';
+import { UserInfo, UserWithProfile, UserDetails } from '../../src/shared/types/user.types';
 
 export const mockUser: UserWithProfile = {
   id: 1,

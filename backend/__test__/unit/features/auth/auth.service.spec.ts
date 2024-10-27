@@ -5,9 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response, Request } from 'express';
 import { BadRequestException } from '@nestjs/common';
-import { RegisterDto, LoginDto } from '@/shared/types/auth.types';
+import { RegisterDto, LoginDto, UserDetails } from '@/shared/types/user.types';
 import { mockUser, mockUserInfo } from '../../../mocks/user.mock';
-import { UserDetails } from '@/shared/types/auth.types';
 
 describe('AuthService', () => {
   let service: AuthService;

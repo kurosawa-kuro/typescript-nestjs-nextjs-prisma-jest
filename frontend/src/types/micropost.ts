@@ -1,13 +1,4 @@
-export interface Micropost {
-  id: number;
-  userId: number;
-  title: string;
-  imagePath: string;
-  createdAt: string;
-  updatedAt: string;
-  likesCount: number;
-}
-
+import { UserInfo } from './user';
 
 export interface Comment {
   id: number;
@@ -16,8 +7,18 @@ export interface Comment {
   micropostId: number;
   createdAt: string;
   updatedAt: string;
-  user: {
-    id: number;
-    name: string;
+  user: Pick<UserInfo, 'id' | 'name'> & {
+    profile: NonNullable<UserInfo['profile']>;
   };
+}
+
+export interface Micropost {
+  id: number;
+  userId: number;
+  title: string;
+  imagePath: string;
+  createdAt: string;
+  updatedAt: string;
+  likesCount: number;
+  comments: Comment[];
 }

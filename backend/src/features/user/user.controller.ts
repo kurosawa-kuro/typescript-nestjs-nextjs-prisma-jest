@@ -15,7 +15,7 @@ import { BaseController } from '@/core/common/base.controller';
 import { Public } from '@/features/auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from '@/core/common/multer-config';
-import { UserDetails, UserInfo, UserWithoutPassword } from '@/shared/types/auth.types';
+import { UserDetails, UserInfo, UserWithoutPassword } from '@/shared/types/user.types';
 import { User as UserDecorator } from '@/features/auth/decorators/user.decorator';
 
 @Controller('users')

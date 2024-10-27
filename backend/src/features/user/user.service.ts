@@ -7,7 +7,7 @@ import { PrismaService } from '@/core/database/prisma.service';
 import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '@/core/common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { UserWithoutPassword, UserInfo, UserDetails } from '@/shared/types/auth.types';
+import { UserWithoutPassword, UserInfo, UserDetails } from '@/shared/types/user.types';
 
 @Injectable()
 export class UserService extends BaseService<

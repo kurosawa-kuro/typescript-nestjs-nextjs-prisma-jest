@@ -21,7 +21,7 @@ export class MicropostController {
     return this.micropostService.all();
   }
 
-  // マイクロポストに紐づく、いいねの数も取得
+  // マイクロポストに紐づく、「コメント 紐づいたユーザーID、ユーザー名、アバター」「いいねの数」も取得
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const micropost = await this.micropostService.findOne(+id);
