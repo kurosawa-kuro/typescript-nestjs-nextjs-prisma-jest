@@ -101,4 +101,88 @@ describe('ClientSideApiService', () => {
       expect(result).toEqual(mockUserDetails);
     });
   });
+
+  describe('updateUserRole', () => {
+    it('should call ApiClient.put with correct parameters when making user admin', async () => {
+      const mockUserDetails: UserDetails = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['admin'],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+      const isAdmin = true;
+
+      const result = await ClientSideApiService.updateUserRole(userId, isAdmin);
+
+      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}/admin`, {});
+      expect(result).toEqual(mockUserDetails);
+    });
+
+    it('should call ApiClient.put with correct parameters when removing admin role', async () => {
+      const mockUserDetails: UserDetails = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+      const isAdmin = false;
+
+      const result = await ClientSideApiService.updateUserRole(userId, isAdmin);
+
+      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}/admin/remove`, {});
+      expect(result).toEqual(mockUserDetails);
+    });
+  });
+
+  describe('followUser', () => {
+    it('should call ApiClient.post with correct parameters', async () => {
+      const mockUserDetails: UserDetails[] = [{
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }];
+      (ApiClient.post as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+
+      const result = await ClientSideApiService.followUser(userId);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/follow/${userId}`, {});
+      expect(result).toEqual(mockUserDetails);
+    });
+  });
+
+  describe('unfollowUser', () => {
+    it('should call ApiClient.delete with correct parameters', async () => {
+      const mockUserDetails: UserDetails[] = [{
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }];
+      (ApiClient.delete as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+
+      const result = await ClientSideApiService.unfollowUser(userId);
+
+      expect(ApiClient.delete).toHaveBeenCalledWith(`/follow/${userId}`);
+      expect(result).toEqual(mockUserDetails);
+    });
+  });
 });
