@@ -1,6 +1,7 @@
 import React from 'react';
 import { Micropost } from '@/types/micropost';
 import CommentList from '@/components/CommentList';
+import { FaHeart } from 'react-icons/fa'; // アイコンをインポート
 
 interface MicropostDetailsProps {
   micropost: Micropost;
@@ -18,12 +19,14 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
             className="max-w-full max-h-[400px] object-contain rounded"
           />
         </div>
-        <p className="text-gray-600 mb-2">
-          Posted by User {micropost.userId} on {new Date(micropost.createdAt).toLocaleDateString()}
-        </p>
-        <p className="text-gray-600 mb-2">
-          <span className="font-semibold">{micropost.likesCount}</span> {micropost.likesCount === 1 ? 'like' : 'likes'}
-        </p>
+        <div className="flex justify-between items-center text-gray-600 mb-2">
+          <p>
+            Posted by {micropost.user.name} on {new Date(micropost.createdAt).toLocaleDateString()}
+          </p>
+          <span className="flex items-center">
+            <FaHeart className="text-red-500 mr-1" /> {micropost.likesCount}
+          </span>
+        </div>
       </div>
       <CommentList comments={micropost.comments} />
     </div>

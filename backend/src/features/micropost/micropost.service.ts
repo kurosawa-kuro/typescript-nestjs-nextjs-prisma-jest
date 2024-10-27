@@ -11,8 +11,32 @@ export class MicropostService {
     return this.prisma.micropost.create({ data });
   }
 
-  async all(): Promise<Micropost[]> {
-    return this.prisma.micropost.findMany();
+  async all(): Promise<(Micropost & {
+    user: { id: number; name: string };
+    likesCount: number;
+  })[]> {
+    return this.prisma.micropost.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        _count: {
+          select: { likes: true },
+        },
+      },
+    }).then(microposts =>
+      microposts.map(micropost => ({
+        ...micropost,
+        user: {
+          id: micropost.user.id,
+          name: micropost.user.name,
+        },
+        likesCount: micropost._count.likes,
+      }))
+    );
   }
 
   async findById(id: number): Promise<Micropost> {
@@ -62,6 +86,7 @@ export class MicropostService {
 
   async findOne(id: number): Promise<(Omit<Micropost, 'password'> & { 
     likesCount: number, 
+    user: Pick<User, 'id' | 'name'>,
     comments: Array<Comment & { 
       user: Pick<User, 'id' | 'name'> & { 
         profile: Pick<UserProfile, 'avatarPath'> 
@@ -71,6 +96,12 @@ export class MicropostService {
     return this.prisma.micropost.findUnique({
       where: { id },
       include: {
+        user: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
         _count: {
           select: { likes: true }
         },

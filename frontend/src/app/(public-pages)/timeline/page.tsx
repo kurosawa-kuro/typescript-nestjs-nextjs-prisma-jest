@@ -4,6 +4,7 @@ import MicropostCard from '@/components/MicropostCard';
 
 export default async function Timeline() {
   const microposts = await getMicroposts();
+  console.log("microposts", microposts);
 
   return (
     <div className="container mx-auto px-4">

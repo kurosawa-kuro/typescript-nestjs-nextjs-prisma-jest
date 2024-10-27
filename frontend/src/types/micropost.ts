@@ -14,7 +14,9 @@ export interface Comment {
 
 export interface Micropost {
   id: number;
-  userId: number;
+  user: Pick<UserInfo, 'id' | 'name'> & {
+    profile: NonNullable<UserInfo['profile']>;
+  };
   title: string;
   imagePath: string;
   createdAt: string;
