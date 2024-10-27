@@ -7,6 +7,7 @@ import { Response, Request } from 'express';
 import { BadRequestException } from '@nestjs/common';
 import { RegisterDto, LoginDto } from '@/shared/types/auth.types';
 import { mockUser, mockUserInfo } from '../../../mocks/user.mock';
+import { UserDetails } from '@/shared/types/auth.types';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -67,10 +68,12 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return a token and user info', async () => {
+    it('should return access token if credentials are valid', async () => {
       const mockCredentials: LoginDto = { email: 'test@example.com', password: 'password123' };
 
       userService.validateUser.mockResolvedValue(mockUser);
+
+      userService.mapUserToUserInfo.mockReturnValue(mockUserDetails);
 
       const result = await service.login(mockCredentials);
 
@@ -207,7 +210,7 @@ describe('AuthService', () => {
   }
 
   function setupCommonMocks() {
-    userService.mapUserToUserInfo.mockReturnValue(mockUserInfo);
+    userService.mapUserToUserInfo.mockReturnValue(mockUserDetails);
     jwtService.signAsync.mockResolvedValue(mockToken);
     configService.get.mockReturnValue(mockSecret);
   }
@@ -220,3 +223,9 @@ describe('AuthService', () => {
     } as unknown as Request;
   }
 });
+
+const mockUserDetails: UserDetails = {
+  ...mockUserInfo,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};

@@ -46,7 +46,10 @@ describe('UserService', () => {
         password: 'password123',
       };
 
-      (prismaService.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
+      (prismaService.user.create as jest.Mock).mockResolvedValue({
+        ...mockCreatedUser,
+        userRoles: [{ role: { name: 'general' } }],
+      });
 
       const result = await userService.create(mockUserData);
 
@@ -58,6 +61,9 @@ describe('UserService', () => {
         profile: {
           avatarPath: 'default.png',
         },
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -157,6 +163,9 @@ describe('UserService', () => {
           avatarPath: 'default.png',
         },
         userRoles: ['general'],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -262,6 +271,8 @@ describe('UserService', () => {
         email: 'test@example.com',
         profile: { avatarPath: null },
         userRoles: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
@@ -280,6 +291,9 @@ describe('UserService', () => {
           avatarPath: 'default.png',
         },
         userRoles: ['admin'],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -290,6 +304,8 @@ describe('UserService', () => {
         email: 'test@example.com',
         profile: { avatarPath: null },
         userRoles: [{ role: { id: 2, name: 'admin' } }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
@@ -308,6 +324,9 @@ describe('UserService', () => {
           avatarPath: 'default.png',
         },
         userRoles: [],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
