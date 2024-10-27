@@ -41,8 +41,11 @@ export class UserController extends BaseController<UserDetails> {
 
   // 特定ユーザーのフォロワーリストを取得
   @Get(':id/followers')
-  async getFollowers(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
-    return this.userService.getFollowers(id);
+  async getFollowers(
+    @Param('id', ParseIntPipe) id: number,
+    @UserDecorator() currentUser: UserInfo
+  ): Promise<UserDetails[]> {
+    return this.userService.getFollowers(id, currentUser.id);
   }
 
   // 特定ユーザーのフォロー中ユーザーリストを取得
