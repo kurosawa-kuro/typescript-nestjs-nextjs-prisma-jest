@@ -83,6 +83,7 @@ function ProfileDisplay({ user }: { user: UserDetails }) {
           <span>Following</span>
         </Link>
       </div>
+      <FollowButton userId={user.id} />
     </div>
   );
 }
@@ -93,5 +94,27 @@ function ProfileItem({ label, value }: { label: string; value: string }) {
       <span className="text-sm font-medium text-gray-500">{label}</span>
       <p className="mt-1 text-sm text-gray-900">{value}</p>
     </div>
+  );
+}
+
+function FollowButton({ userId }: { userId: number }) {
+  const isFollowing = true; // This will be replaced with actual logic later
+
+  const handleFollowAction = () => {
+    console.log(`${isFollowing ? 'Unfollow' : 'Follow'} user with ID: ${userId}`);
+    // Actual follow/unfollow logic will be implemented later
+  };
+
+  return (
+    <button
+      onClick={handleFollowAction}
+      className={`w-full mt-4 py-2 px-4 rounded-md text-white transition-colors duration-200 ${
+        isFollowing
+          ? 'bg-rose-400 hover:bg-rose-500'
+          : 'bg-blue-500 hover:bg-blue-600'
+      }`}
+    >
+      {isFollowing ? 'Unfollow' : 'Follow'}
+    </button>
   );
 }
