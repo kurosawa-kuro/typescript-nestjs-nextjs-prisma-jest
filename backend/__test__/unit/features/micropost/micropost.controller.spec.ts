@@ -2,6 +2,8 @@ import { MicropostController } from '@/features/micropost/micropost.controller';
 import { MicropostService } from '@/features/micropost/micropost.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { setupTestModule, createMockService } from '../../test-utils';
+import { DetailedMicropost } from '@/shared/types/micropost.types';
+import { NotFoundException } from '@nestjs/common';
 
 describe('MicropostController', () => {
   let controller: MicropostController;
@@ -16,6 +18,7 @@ describe('MicropostController', () => {
           useValue: {
             create: jest.fn(),
             all: jest.fn(),
+            findOne: jest.fn(),
           },
         },
       ],
@@ -54,18 +57,71 @@ describe('MicropostController', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should return an array of microposts', async () => {
-      const expectedResult = [
-        { id: 1, userId: 1, title: 'Micropost 1', imagePath: 'path1.jpg', createdAt: new Date(), updatedAt: new Date() },
-        { id: 2, userId: 2, title: 'Micropost 2', imagePath: 'path2.jpg', createdAt: new Date(), updatedAt: new Date() },
+  describe('index', () => {
+    it('should return an array of detailed microposts', async () => {
+      const expectedResult: DetailedMicropost[] = [
+        {
+          id: 1,
+          userId: 1,
+          title: 'Micropost 1',
+          imagePath: 'path1.jpg',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          likesCount: 5,
+          user: { id: 1, name: 'User 1' },
+          comments: [],
+        },
+        {
+          id: 2,
+          userId: 2,
+          title: 'Micropost 2',
+          imagePath: 'path2.jpg',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          likesCount: 3,
+          user: { id: 2, name: 'User 2' },
+          comments: [],
+        },
       ];
       
       jest.spyOn(service, 'all').mockResolvedValue(expectedResult);
       
       const result = await controller.index();
       
+      expect(service.all).toHaveBeenCalled();
       expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a detailed micropost', async () => {
+      const id = '1';
+      const expectedResult: DetailedMicropost = {
+        id: 1,
+        userId: 1,
+        title: 'Micropost 1',
+        imagePath: 'path1.jpg',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likesCount: 5,
+        user: { id: 1, name: 'User 1' },
+        comments: [],
+      };
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(expectedResult);
+
+      const result = await controller.findOne(id);
+
+      expect(service.findOne).toHaveBeenCalledWith(1);
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should throw NotFoundException when micropost is not found', async () => {
+      const id = '999';
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+
+      await expect(controller.findOne(id)).rejects.toThrow(NotFoundException);
     });
   });
 });
