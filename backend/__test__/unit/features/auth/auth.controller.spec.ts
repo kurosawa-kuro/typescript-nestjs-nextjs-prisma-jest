@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '@/features/auth/auth.controller';
 import { AuthService } from '@/features/auth/auth.service';
 import { Response } from 'express';
-import { UserInfo } from '@/shared/types/auth.types';
+import { UserInfo } from '@/shared/types/user.types';
 
 describe('AuthController', () => {
   let authController: AuthController;

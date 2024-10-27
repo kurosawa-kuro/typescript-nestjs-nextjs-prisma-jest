@@ -2,7 +2,7 @@ import { UserController } from '@/features/user/user.controller';
 import { UserService } from '@/features/user/user.service';
 import { setupTestModule, createMockService } from '../../test-utils';
 import { mockUser } from '../../../mocks/user.mock';
-import { UserDetails, UserInfo } from '@/shared/types/auth.types';
+import { UserDetails, UserInfo } from '@/shared/types/user.types';
 
 describe('UserController', () => {
   let controller: UserController;

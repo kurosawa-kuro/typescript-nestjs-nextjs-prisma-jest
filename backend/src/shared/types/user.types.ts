@@ -1,4 +1,4 @@
-// backend\src\types\auth.types.ts
+// backend\src\shared\types\user.types.ts
 
 import { User } from '@prisma/client';
 

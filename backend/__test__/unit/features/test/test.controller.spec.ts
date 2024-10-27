@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TestController } from '@/features/test/test.controller';
 import { AuthGuard } from '@/features/auth/guards/auth.guard';
-import { UserInfo } from '@/shared/types/auth.types';
+import { UserInfo } from '@/shared/types/user.types';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '@/features/auth/auth.service';
 import { mockUserInfo } from '../../../mocks/user.mock';

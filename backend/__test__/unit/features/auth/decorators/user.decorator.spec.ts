@@ -1,5 +1,5 @@
 import { ExecutionContext } from '@nestjs/common';
-import { UserInfo } from '@/shared/types/auth.types';
+import { UserInfo } from '@/shared/types/user.types';
 
 
 jest.mock('@/features/auth/decorators/user.decorator', () => ({

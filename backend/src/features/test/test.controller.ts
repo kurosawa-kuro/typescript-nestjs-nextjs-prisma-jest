@@ -3,7 +3,7 @@ import { Public } from '../auth/decorators/public.decorator';
 import { Admin } from '../auth/decorators/admin.decorator';
 import { User } from '../auth/decorators/user.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { UserInfo } from '@/shared/types/auth.types';
+import { UserInfo } from '@/shared/types/user.types';
 
 @Controller('test')
 @UseGuards(AuthGuard)
