@@ -22,9 +22,9 @@ export default async function MicropostDetails({ params }: MicropostDetailsProps
       <h1 className="text-3xl font-bold mb-4">{micropost.title}</h1>
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
         <img
-          src={`/uploads/${micropost.imagePath}`}
+          src={`http://localhost:3001/uploads/${micropost.imagePath}`}
           alt={micropost.title}
-          className="w-full h-64 object-cover mb-4 rounded"
+          className="w-full h-64 object-contain mb-4 rounded"
         />
         <p className="text-gray-600 mb-2">
           Posted by User {micropost.userId} on {new Date(micropost.createdAt).toLocaleDateString()}
@@ -41,7 +41,7 @@ export default async function MicropostDetails({ params }: MicropostDetailsProps
             <p className="mb-2">{comment.content}</p>
             <div className="flex items-center text-sm text-gray-600">
               <img
-                src={`/uploads/${comment.user.profile.avatarPath}`}
+                src={`http://localhost:3001/uploads/${comment.user.profile.avatarPath}`}
                 alt={`${comment.user.name}'s avatar`}
                 className="w-8 h-8 rounded-full mr-2"
               />
