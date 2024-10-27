@@ -11,7 +11,7 @@ const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
     <div className="bg-white shadow-md rounded-lg p-4">
       <Link href={`/timeline/${micropost.id}`}>
         <h2 className="text-xl font-semibold mb-2 hover:text-blue-600">{micropost.title}</h2>
-      </Link>
+
       <div className="mb-2 flex justify-center items-center" style={{ maxHeight: '300px' }}>
         <img
           src={`http://localhost:3001/uploads/${micropost.imagePath}`}
@@ -22,6 +22,7 @@ const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
       <p className="text-gray-600 text-sm">
         Posted by User {micropost.userId} on {new Date(micropost.createdAt).toLocaleDateString()}
       </p>
+      </Link>
     </div>
   );
 };
