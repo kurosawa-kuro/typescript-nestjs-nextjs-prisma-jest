@@ -1,6 +1,6 @@
 import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { ApiClient } from '../../src/services/apiClient';
-import { UserDetails } from '../../src/types/models';
+import { UserDetails } from '../../src/types/user';
 
 // ApiClient をモック化
 jest.mock('../../src/services/apiClient');

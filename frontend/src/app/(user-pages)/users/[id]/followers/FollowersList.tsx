@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/user';
 
 interface FollowersListProps {
   followers: UserDetails[];

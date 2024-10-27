@@ -59,3 +59,5 @@ export interface LoginDto {
 export interface RegisterDto extends LoginDto {
   name: string;
 }
+
+// 既存の型定義に追加

@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/user';
 import { useUserStore } from '@/store/userStore';
 import { followUser, unfollowUser } from '@/app/actions/users';
 

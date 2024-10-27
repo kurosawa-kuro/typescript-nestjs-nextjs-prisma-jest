@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/user';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
 import { useUserProfileStore } from '@/store/userProfileStore';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';

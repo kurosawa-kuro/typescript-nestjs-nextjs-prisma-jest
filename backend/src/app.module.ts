@@ -14,6 +14,8 @@ import { winstonConfig } from './core/logger/winston.config';
 import { AllExceptionFilter } from './core/filters/all-exception.filter';
 import { FollowModule } from './features/follow/follow.module';
 import { TeamModule } from './features/team/team.module';
+import { LikeModule } from './features/like/like.module';
+import { CommentModule } from './features/comment/comment.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { TeamModule } from './features/team/team.module';
     AuthModule,
     FollowModule,
     TeamModule,
+    LikeModule,
+    CommentModule,
   ],
   controllers: [TestController],
   providers: [

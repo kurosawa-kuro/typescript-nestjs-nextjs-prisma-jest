@@ -16,14 +16,17 @@ export default function SideBar() {
           <Link href="/" className="block py-2 px-4 hover:bg-gray-700 rounded">Public</Link>
         </li>
         {user && (
-          <li>
-            <Link href="/profile" className="block py-2 px-4 hover:bg-gray-700 rounded">Profile</Link>
-          </li>
-        )}
-        {user && (
-          <li>
-            <Link href="/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</Link>
-          </li>
+          <>
+            <li>
+              <Link href="/profile" className="block py-2 px-4 hover:bg-gray-700 rounded">Profile</Link>
+            </li>
+            <li>
+              <Link href="/timeline" className="block py-2 px-4 hover:bg-gray-700 rounded">Timeline</Link>
+            </li>
+            <li>
+              <Link href="/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</Link>
+            </li>
+          </>
         )}
         {user?.userRoles.includes('admin') && (
           <li>
