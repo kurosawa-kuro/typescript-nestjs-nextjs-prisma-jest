@@ -9,7 +9,7 @@ interface MicropostCardProps {
 const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
-      <Link href={`/microposts/${micropost.id}`}>
+      <Link href={`/timeline/${micropost.id}`}>
         <h2 className="text-xl font-semibold mb-2 hover:text-blue-600">{micropost.title}</h2>
       </Link>
       <img
