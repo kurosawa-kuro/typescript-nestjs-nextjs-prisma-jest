@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect } from 'react';
 import { UserDetails } from '@/types/models';
 import { useUserStore } from '@/store/userStore';
@@ -69,7 +70,11 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <Link href={`/users/${user.id}`} className="text-blue-600 hover:text-blue-900">
+                    {user.name}
+                  </Link>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.userRoles.includes('admin') ? 'Admin' : 'User'}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{new Date(user.createdAt).toLocaleDateString()}</td>
