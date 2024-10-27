@@ -328,7 +328,7 @@ export class UserService extends BaseService<
     return this.findAllWithFollowStatus(followerId);
   }
 
-  async getFollowers(userId: number): Promise<UserDetails[]> {
+  async getFollowers(userId: number, currentUserId: number): Promise<UserDetails[]> {
     const followers = await this.prisma.follow.findMany({
       where: { followingId: userId },
       select: {
@@ -358,6 +358,16 @@ export class UserService extends BaseService<
       },
     });
 
+    const followerIds = followers.map(f => f.follower.id);
+    const followedByCurrentUser = await this.prisma.follow.findMany({
+      where: {
+        followerId: currentUserId,
+        followingId: { in: followerIds },
+      },
+    });
+
+    const followedByCurrentUserSet = new Set(followedByCurrentUser.map(f => f.followingId));
+
     return followers.map((follow): UserDetails => ({
       id: follow.follower.id,
       name: follow.follower.name,
@@ -366,7 +376,7 @@ export class UserService extends BaseService<
       updatedAt: follow.follower.updatedAt,
       userRoles: follow.follower.userRoles.map(ur => ur.role.name),
       profile: { avatarPath: follow.follower.profile?.avatarPath || 'default.png' },
-      isFollowing: true, // フォロワーリストなので、常にtrueになります
+      isFollowing: followedByCurrentUserSet.has(follow.follower.id),
     }));
   }
 
