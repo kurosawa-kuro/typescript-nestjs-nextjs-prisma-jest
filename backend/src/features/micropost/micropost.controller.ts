@@ -18,9 +18,11 @@ export class MicropostController {
 
     // マイクロポストに紐づく、「紐づいたユーザーID、ユーザー名」「いいねの数」も取得
   @Get()
-  async index(): Promise<(Micropost & {
+  async index(): Promise<(Omit<Micropost, 'createdAt' | 'updatedAt'> & {
     user: { id: number; name: string };
     likesCount: number;
+    createdAt: string;
+    updatedAt: string;
   })[]> {
     return this.micropostService.all();
   }

@@ -1,13 +1,13 @@
-export interface Micropost {
+import { User, UserProfile } from '@prisma/client';
+
+export interface BasicMicropost {
   id: number;
   userId: number;
   title: string;
   imagePath: string;
   createdAt: string;
   updatedAt: string;
-  likesCount: number;
 }
-
 
 export interface Comment {
   id: number;
@@ -16,21 +16,13 @@ export interface Comment {
   micropostId: number;
   createdAt: string;
   updatedAt: string;
-  user: {
-    id: number;
-    name: string;
+  user: Pick<User, 'id' | 'name'> & {
+    profile: Pick<UserProfile, 'avatarPath'>
   };
 }
 
-// export interface Micropost {
-//   id: number;
-//   user: Pick<UserInfo, 'id' | 'name'> & {
-//     profile: NonNullable<UserInfo['profile']>;
-//   };
-//   title: string;
-//   imagePath: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   likesCount: number;
-//   comments: Comment[];
-// }
+export interface DetailedMicropost extends BasicMicropost {
+  likesCount: number;
+  user: Pick<User, 'id' | 'name'>;
+  comments: Comment[];
+}
