@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '@/features/user/user.service';
 import { PrismaService } from '@/core/database/prisma.service';
-import { UserWithoutPassword, UserInfo } from '@/shared/types/auth.types';
+import { UserWithoutPassword, UserInfo, UserDetails } from '@/shared/types/auth.types';
 import { User, Prisma, Role } from '@prisma/client';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { mockCreatedUser } from '../../../mocks/user.mock';
@@ -27,6 +27,13 @@ describe('UserService', () => {
               create: jest.fn(),
               update: jest.fn(),
             },
+            // Add this new mock for the follow model
+            follow: {
+              findUnique: jest.fn(),
+              create: jest.fn(),
+              delete: jest.fn(),
+              findMany: jest.fn(),
+            },
           },
         },
       ],
@@ -46,7 +53,10 @@ describe('UserService', () => {
         password: 'password123',
       };
 
-      (prismaService.user.create as jest.Mock).mockResolvedValue(mockCreatedUser);
+      (prismaService.user.create as jest.Mock).mockResolvedValue({
+        ...mockCreatedUser,
+        userRoles: [{ role: { name: 'general' } }],
+      });
 
       const result = await userService.create(mockUserData);
 
@@ -58,6 +68,9 @@ describe('UserService', () => {
         profile: {
           avatarPath: 'default.png',
         },
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -157,6 +170,9 @@ describe('UserService', () => {
           avatarPath: 'default.png',
         },
         userRoles: ['general'],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -262,6 +278,8 @@ describe('UserService', () => {
         email: 'test@example.com',
         profile: { avatarPath: null },
         userRoles: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
@@ -280,6 +298,9 @@ describe('UserService', () => {
           avatarPath: 'default.png',
         },
         userRoles: ['admin'],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -290,6 +311,8 @@ describe('UserService', () => {
         email: 'test@example.com',
         profile: { avatarPath: null },
         userRoles: [{ role: { id: 2, name: 'admin' } }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
@@ -308,6 +331,9 @@ describe('UserService', () => {
           avatarPath: 'default.png',
         },
         userRoles: [],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        isFollowing: false,
       });
     });
 
@@ -315,6 +341,294 @@ describe('UserService', () => {
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(userService.updateUserRole(999, 'add', 'admin')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findAllWithFollowStatus', () => {
+    it('should return all users with follow status', async () => {
+      const mockUsers = [
+        {
+          id: 2,
+          name: 'User 2',
+          email: 'user2@example.com',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          profile: { avatarPath: 'avatar2.jpg' },
+          userRoles: [{ role: { name: 'user' } }],
+          followers: [{ followerId: 1 }],
+        },
+        {
+          id: 3,
+          name: 'User 3',
+          email: 'user3@example.com',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          profile: { avatarPath: null },
+          userRoles: [{ role: { name: 'admin' } }],
+          followers: [],
+        },
+      ];
+
+      (prismaService.user.findMany as jest.Mock).mockResolvedValue(mockUsers);
+
+      const result = await userService.findAllWithFollowStatus(1);
+
+      expect(result).toEqual([
+        {
+          id: 2,
+          name: 'User 2',
+          email: 'user2@example.com',
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          profile: { avatarPath: 'avatar2.jpg' },
+          userRoles: ['user'],
+          isFollowing: true,
+        },
+        {
+          id: 3,
+          name: 'User 3',
+          email: 'user3@example.com',
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          profile: { avatarPath: 'default.png' },
+          userRoles: ['admin'],
+          isFollowing: false,
+        },
+      ]);
+    });
+  });
+
+  describe('follow', () => {
+    it('should create a follow relationship and return updated user list', async () => {
+      const mockFollow = { followerId: 1, followingId: 2 };
+      (prismaService.follow.findUnique as jest.Mock).mockResolvedValue(null);
+      (prismaService.follow.create as jest.Mock).mockResolvedValue(mockFollow);
+      
+      const mockUpdatedUserList: UserDetails[] = [{
+        id: 2,
+        name: 'User 2',
+        email: 'user2@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: ['user'],
+        profile: { avatarPath: 'default.png' },
+        isFollowing: true
+      }];
+      jest.spyOn(userService, 'findAllWithFollowStatus').mockResolvedValue(mockUpdatedUserList);
+
+      const result = await userService.follow(1, 2);
+
+      expect(prismaService.follow.create).toHaveBeenCalledWith({ data: mockFollow });
+      expect(result).toEqual(mockUpdatedUserList);
+    });
+  });
+
+  describe('unfollow', () => {
+    it('should remove a follow relationship and return updated user list', async () => {
+      const mockFollow = { followerId: 1, followingId: 2 };
+      (prismaService.follow.findUnique as jest.Mock).mockResolvedValue(mockFollow);
+      (prismaService.follow.delete as jest.Mock).mockResolvedValue(mockFollow);
+      
+      const mockUpdatedUserList: UserDetails[] = [{
+        id: 2,
+        name: 'User 2',
+        email: 'user2@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: ['user'],
+        profile: { avatarPath: 'default.png' },
+        isFollowing: false
+      }];
+      jest.spyOn(userService, 'findAllWithFollowStatus').mockResolvedValue(mockUpdatedUserList);
+
+      const result = await userService.unfollow(1, 2);
+
+      expect(prismaService.follow.delete).toHaveBeenCalledWith({
+        where: { followerId_followingId: mockFollow },
+      });
+      expect(result).toEqual(mockUpdatedUserList);
+    });
+  });
+
+  describe('getFollowers', () => {
+    it('should return followers with follow status', async () => {
+      const mockFollowers = [
+        {
+          follower: {
+            id: 2,
+            name: 'Follower 1',
+            email: 'follower1@example.com',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            profile: { avatarPath: 'follower1.jpg' },
+            userRoles: [{ role: { name: 'user' } }],
+          },
+        },
+      ];
+
+      (prismaService.follow.findMany as jest.Mock).mockResolvedValueOnce(mockFollowers);
+      (prismaService.follow.findMany as jest.Mock).mockResolvedValueOnce([{ followingId: 2 }]);
+
+      const result = await userService.getFollowers(1, 3);
+
+      expect(result).toEqual([
+        {
+          id: 2,
+          name: 'Follower 1',
+          email: 'follower1@example.com',
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          profile: { avatarPath: 'follower1.jpg' },
+          userRoles: ['user'],
+          isFollowing: true,
+        },
+      ]);
+    });
+  });
+
+  describe('getFollowing', () => {
+    it('should return following users', async () => {
+      const mockFollowing = [
+        {
+          following: {
+            id: 2,
+            name: 'Following 1',
+            email: 'following1@example.com',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            profile: { avatarPath: 'following1.jpg' },
+            userRoles: [{ role: { name: 'user' } }],
+          },
+        },
+      ];
+
+      (prismaService.follow.findMany as jest.Mock).mockResolvedValue(mockFollowing);
+
+      const result = await userService.getFollowing(1);
+
+      expect(result).toEqual([
+        {
+          id: 2,
+          name: 'Following 1',
+          email: 'following1@example.com',
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          profile: { avatarPath: 'following1.jpg' },
+          userRoles: ['user'],
+          isFollowing: true,
+        },
+      ]);
+    });
+  });
+
+  describe('findByIdWithRelationsAndFollowStatus', () => {
+    it('should return user details with follow status', async () => {
+      const mockUser = {
+        id: 2,
+        name: 'User 2',
+        email: 'user2@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        profile: { avatarPath: 'avatar2.jpg' },
+        userRoles: [{ role: { name: 'user' } }],
+        followers: [{ followerId: 1 }],
+      };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+
+      const result = await userService.findByIdWithRelationsAndFollowStatus(2, 1);
+
+      expect(result).toEqual({
+        id: 2,
+        name: 'User 2',
+        email: 'user2@example.com',
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        profile: { avatarPath: 'avatar2.jpg' },
+        userRoles: ['user'],
+        isFollowing: true,
+        followers: [{ followerId: 1 }], // Include this line
+      });
+    });
+  });
+
+  describe('findByIdWithRelations', () => {
+    it('should return user with relations', async () => {
+      const mockUser = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'hashedpassword',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: [
+          {
+            role: {
+              name: 'user',
+            },
+          },
+        ],
+        profile: {
+          avatarPath: 'avatar.jpg',
+        },
+        followers: [
+          {
+            followerId: 2,
+          },
+        ],
+      };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+
+      const result = await userService.findByIdWithRelations(1, 2);
+
+      expect(result).toEqual({
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        userRoles: ['user'],
+        profile: {
+          avatarPath: 'avatar.jpg',
+        },
+        followers: [
+          {
+            followerId: 2,
+          },
+        ],
+      });
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+        include: {
+          userRoles: {
+            include: {
+              role: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          profile: {
+            select: {
+              avatarPath: true,
+            },
+          },
+          followers: {
+            where: {
+              followerId: 2,
+            },
+          },
+        },
+      });
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      await expect(userService.findByIdWithRelations(999, 1)).rejects.toThrow(NotFoundException);
     });
   });
 });

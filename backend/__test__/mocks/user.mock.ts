@@ -1,25 +1,27 @@
-import { UserInfo, UserWithProfile } from '../../src/shared/types/auth.types';
+import { UserInfo, UserWithProfile, UserDetails } from '../../src/shared/types/auth.types';
 
 export const mockUser: UserWithProfile = {
   id: 1,
   name: 'Test User',
   email: 'test@example.com',
   password: 'hashedpassword123',
-  userRoles: ["general"],
   createdAt: new Date(),
   updatedAt: new Date(),
+  userRoles: ["general"],
   profile: {
     avatarPath: '',
   },
 };
 
-export const mockCreatedUser = {
+export const mockCreatedUser: UserDetails = {
   id: 1,
   name: 'Test User',
   email: 'test@example.com',
-  password: 'hashedpassword123',
-  userRoles: [{ role: { name: 'general' } }],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  userRoles: ["general"],
   profile: { avatarPath: 'default.png' },
+  isFollowing: false,
 };
 
 export const mockUserInfo: UserInfo = {

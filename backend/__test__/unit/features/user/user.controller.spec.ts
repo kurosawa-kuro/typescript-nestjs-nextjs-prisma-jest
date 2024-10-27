@@ -1,8 +1,8 @@
 import { UserController } from '@/features/user/user.controller';
 import { UserService } from '@/features/user/user.service';
 import { setupTestModule, createMockService } from '../../test-utils';
-import { mockUser  } from '../../../mocks/user.mock';
-import { UserInfo, UserWithoutPassword, UserWithProfile } from '@/shared/types/auth.types';
+import { mockUser } from '../../../mocks/user.mock';
+import { UserDetails, UserInfo } from '@/shared/types/auth.types';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -25,39 +25,40 @@ describe('UserController', () => {
 
   describe('create', () => {
     it('should create a new user', async () => {
-      const mockUser: UserWithoutPassword = {
+      const mockUserDetails: UserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
-
-      const expectedResult: UserInfo = {
-        ...mockUser,
         userRoles: ['general'],
+        profile: { avatarPath: 'default.png' },
+        isFollowing: false,
       };
 
       const createUserDto = {
-        name: mockUser.name,
-        email: mockUser.email,
+        name: mockUserDetails.name,
+        email: mockUserDetails.email,
         password: 'password123',
       };
 
-      jest.spyOn(userService, 'create').mockResolvedValue(expectedResult);
+      jest.spyOn(userService, 'create').mockResolvedValue(mockUserDetails);
 
-      expect(await controller.create(createUserDto)).toBe(expectedResult);
+      expect(await controller.create(createUserDto)).toBe(mockUserDetails);
       expect(userService.create).toHaveBeenCalledWith(createUserDto);
     });
   });
 
   describe('index', () => {
-    it('should return an array of users without passwords', async () => {
-      const expectedResult: UserWithoutPassword[] = [
+    it('should return an array of users', async () => {
+      const expectedResult: UserDetails[] = [
         {
           ...mockUser,
           createdAt: new Date(),
           updatedAt: new Date(),
+          userRoles: ['general'],
+          profile: { avatarPath: 'default.png' },
+          isFollowing: false,
         },
       ];
 
@@ -76,13 +77,14 @@ describe('UserController', () => {
         filename: filename,
       } as Express.Multer.File;
 
-      const updatedUser: UserWithProfile = {
+      const updatedUser: UserDetails & { password: string } = {
         ...mockUser,
-        password: 'mockPassword', // Add this line
         createdAt: new Date(),
         updatedAt: new Date(),
-        userRoles: ['general'], // Add this line
+        userRoles: ['general'],
         profile: { avatarPath: filename },
+        isFollowing: false,
+        password: 'mockPassword',
       };
 
       jest.spyOn(userService, 'updateAvatar').mockResolvedValue(updatedUser);
