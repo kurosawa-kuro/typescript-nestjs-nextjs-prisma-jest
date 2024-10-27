@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { MicropostService } from './micropost.service';
 import { Micropost } from '@prisma/client';
 
@@ -19,5 +19,10 @@ export class MicropostController {
   @Get()
   async index(): Promise<Micropost[]> {
     return this.micropostService.all();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.micropostService.findOne(+id);
   }
 }

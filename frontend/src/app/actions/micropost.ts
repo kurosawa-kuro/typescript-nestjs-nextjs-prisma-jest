@@ -26,3 +26,15 @@ export async function getMicroposts(): Promise<Micropost[]> {
     throw error;
   }
 }
+
+export async function getMicropostDetails(id: number): Promise<Micropost | null> {
+  try {
+    const response = await ApiClient.get<Micropost>(`/microposts/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error(`Error fetching micropost details for id ${id}:`, error);
+    return null;
+  }
+}

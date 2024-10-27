@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Micropost } from '@/types/models';
 
 interface MicropostCardProps {
@@ -8,7 +9,9 @@ interface MicropostCardProps {
 const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
-      <h2 className="text-xl font-semibold mb-2">{micropost.title}</h2>
+      <Link href={`/microposts/${micropost.id}`}>
+        <h2 className="text-xl font-semibold mb-2 hover:text-blue-600">{micropost.title}</h2>
+      </Link>
       <img
         src={`/uploads/${micropost.imagePath}`}
         alt={micropost.title}

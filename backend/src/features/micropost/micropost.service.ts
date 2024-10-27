@@ -58,4 +58,10 @@ export class MicropostService {
       orderBy: { createdAt: 'desc' as Prisma.SortOrder },
     });
   }
+
+  async findOne(id: number): Promise<Micropost | null> {
+    return this.prisma.micropost.findUnique({
+      where: { id },
+    });
+  }
 }
