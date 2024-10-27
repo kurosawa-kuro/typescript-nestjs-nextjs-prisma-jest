@@ -127,6 +127,7 @@ export class UserService extends BaseService<
 
   async findByIdWithRelations(
     id: number,
+    currentUserId: number
   ): Promise<UserWithoutPassword & { userRoles: string[] }> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -143,6 +144,11 @@ export class UserService extends BaseService<
         profile: {
           select: {
             avatarPath: true,
+          },
+        },
+        followers: {
+          where: {
+            followerId: currentUserId,
           },
         },
       },
@@ -459,6 +465,48 @@ export class UserService extends BaseService<
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       isFollowing: false, // Add a default value or determine it based on context
+    };
+  }
+
+  async findByIdWithRelationsAndFollowStatus(
+    id: number,
+    currentUserId: number
+  ): Promise<UserDetails> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        profile: {
+          select: {
+            avatarPath: true,
+          },
+        },
+        followers: {
+          where: {
+            followerId: currentUserId,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      userRoles: user.userRoles.map((ur) => ur.role.name),
+      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+      isFollowing: user.followers.length > 0,
     };
   }
 }

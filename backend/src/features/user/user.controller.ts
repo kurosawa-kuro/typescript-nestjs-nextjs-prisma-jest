@@ -54,13 +54,14 @@ export class UserController extends BaseController<UserDetails> {
     return this.userService.getFollowing(id);
   }
 
-  // 特定ユーザーの詳細情報を取得（パスワード除く、ロール情報含む）
+  // 特定ユーザーの詳細情報を取得（パスワード除く、ロール情報含む）ログインユーザーとのフォロー状態も含む
   @Public()
   @Get(':id')
   async show(
     @Param('id', ParseIntPipe) id: number,
+    @UserDecorator() currentUser?: UserInfo
   ): Promise<UserDetails> {
-    return this.userService.findByIdWithRelations(id);
+    return this.userService.findByIdWithRelationsAndFollowStatus(id, currentUser?.id);
   }
 
   // ユーザーのアバター画像を更新
