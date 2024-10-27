@@ -6,3 +6,16 @@ export interface Micropost {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Comment {
+  id: number;
+  content: string;
+  userId: number;
+  micropostId: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: number;
+    name: string;
+  };
+}

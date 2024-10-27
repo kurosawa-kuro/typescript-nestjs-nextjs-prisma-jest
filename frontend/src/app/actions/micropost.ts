@@ -3,6 +3,7 @@
 import { Micropost } from '@/types/models';
 import { ApiClient } from '@/services/apiClient';
 import { cookies } from 'next/headers';
+import { Comment } from '@/types/micropost';
 
 // Helper function to get the JWT token
 function getAuthToken(): string | undefined {
@@ -36,5 +37,17 @@ export async function getMicropostDetails(id: number): Promise<Micropost | null>
   } catch (error) {
     console.error(`Error fetching micropost details for id ${id}:`, error);
     return null;
+  }
+}
+
+export async function getMicropostComments(micropostId: number): Promise<Comment[]> {
+  try {
+    const response = await ApiClient.get<Comment[]>(`/microposts/${micropostId}/comments`, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error(`Error fetching comments for micropost ${micropostId}:`, error);
+    return [];
   }
 }
