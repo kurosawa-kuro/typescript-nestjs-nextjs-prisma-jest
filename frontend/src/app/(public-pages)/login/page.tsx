@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user) {
-      if (user.isAdmin) {
+      if (user.userRoles.includes('admin')) {
         router.replace('/admin');
       } else {
         router.replace('/profile');

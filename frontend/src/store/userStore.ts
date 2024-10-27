@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/user';
 
 interface UserStore {
   users: UserDetails[];

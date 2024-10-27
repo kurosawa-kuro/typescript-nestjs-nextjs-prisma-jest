@@ -1,4 +1,4 @@
-import { LoginResponse, UserDetails } from '../types/models';
+import { LoginResponse, UserDetails } from '../types/user';
 import { ApiClient } from './apiClient';
 
 export const ClientSideApiService = {
