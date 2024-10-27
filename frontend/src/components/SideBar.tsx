@@ -1,10 +1,19 @@
 "use client"
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 export default function SideBar() {
   const { user, logout } = useAuthStore();
+  const pathname = usePathname();
+
+  const getLinkClassName = (href: string) => {
+    const baseClasses = "block py-2 px-4 rounded transition-colors duration-200";
+    return pathname === href
+      ? `${baseClasses} bg-blue-600 text-white`
+      : `${baseClasses} hover:bg-gray-700`;
+  };
 
   return (
     <nav className="bg-gray-800 text-white w-64 h-screen p-4 flex flex-col">
@@ -13,33 +22,33 @@ export default function SideBar() {
       </div>
       <ul className="space-y-2 flex-grow overflow-y-auto">
         <li>
-          <Link href="/" className="block py-2 px-4 hover:bg-gray-700 rounded">Public</Link>
+          <Link href="/" className={getLinkClassName('/')}>Public</Link>
         </li>
         {user && (
           <>
             <li>
-              <Link href="/profile" className="block py-2 px-4 hover:bg-gray-700 rounded">Profile</Link>
+              <Link href="/profile" className={getLinkClassName('/profile')}>Profile</Link>
             </li>
             <li>
-              <Link href="/timeline" className="block py-2 px-4 hover:bg-gray-700 rounded">Timeline</Link>
+              <Link href="/timeline" className={getLinkClassName('/timeline')}>Timeline</Link>
             </li>
             <li>
-              <Link href="/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Users</Link>
+              <Link href="/users" className={getLinkClassName('/users')}>Users</Link>
             </li>
           </>
         )}
         {user?.userRoles.includes('admin') && (
           <li>
-            <Link href="/admin" className="block py-2 px-4 hover:bg-gray-700 rounded">Admin</Link>
+            <Link href="/admin" className={getLinkClassName('/admin')}>Admin</Link>
           </li>
         )}
         {!user && (
           <>
             <li>
-              <Link href="/login" className="block py-2 px-4 hover:bg-gray-700 rounded">Login</Link>
+              <Link href="/login" className={getLinkClassName('/login')}>Login</Link>
             </li>
             <li>
-              <Link href="/register" className="block py-2 px-4 hover:bg-gray-700 rounded">Register</Link>
+              <Link href="/register" className={getLinkClassName('/register')}>Register</Link>
             </li>
           </>
         )}
@@ -49,7 +58,7 @@ export default function SideBar() {
           <div className="text-center mb-2">{user.name}</div>
           <button 
             onClick={logout} 
-            className="block w-full text-center py-2 px-4 bg-red-600 hover:bg-red-700 rounded"
+            className="block w-full text-center py-2 px-4 bg-red-600 hover:bg-red-700 rounded transition-colors duration-200"
           >
             Logout
           </button>
