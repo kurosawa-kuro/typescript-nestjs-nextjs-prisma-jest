@@ -85,7 +85,7 @@ export async function seed() {
   )
 
   // Create microposts
-  await Promise.all(users.flatMap((user, index) => 
+  const microposts = await Promise.all(users.flatMap((user, index) => 
     createEntities(3, (postIndex) => 
       prisma.micropost.create({
         data: {
@@ -96,7 +96,48 @@ export async function seed() {
         },
       })
     )
+  )).then(arrays => arrays.flat())
+
+  // Create comments
+  const commentContents = [
+    'Great post!', 'Interesting perspective', 'Thanks for sharing', 
+    'I learned something new', 'Well written', 'This is awesome!',
+    'I disagree, but respect your opinion', 'Can you elaborate more?',
+    'This reminds me of...', 'I have a question about this'
+  ]
+
+  await Promise.all(users.flatMap(user =>
+    createRandomEntities(5, 15, () => {
+      const randomMicropost = microposts[Math.floor(Math.random() * microposts.length)]
+      return prisma.comment.create({
+        data: {
+          content: commentContents[Math.floor(Math.random() * commentContents.length)],
+          userId: user.id,
+          micropostId: randomMicropost.id,
+        }
+      })
+    })
   ))
+
+  // Create likes
+  const likesData = await Promise.all(users.flatMap(user =>
+    createRandomEntities(10, 30, async () => {
+      const randomMicropost = microposts[Math.floor(Math.random() * microposts.length)]
+      return {
+        userId: user.id,
+        micropostId: randomMicropost.id
+      }
+    })
+  )).then(arrays => arrays.flat())
+
+  // 重複を除去
+  const uniqueLikesData = Array.from(new Set(likesData.map(like => JSON.stringify(like))))
+    .map(jsonString => JSON.parse(jsonString) as { userId: number; micropostId: number })
+
+  await prisma.like.createMany({
+    data: uniqueLikesData,
+    skipDuplicates: true
+  })
 
   // Create follows
   await Promise.all(users.flatMap((user, index) => 
@@ -178,34 +219,6 @@ export async function seed() {
 
       return career
     })
-  ))
-
-  // Create comments
-  const commentContents = ['Great post!', 'Interesting perspective', 'Thanks for sharing', 'I learned something new', 'Well written']
-  await Promise.all(users.flatMap(user =>
-    createRandomEntities(1, 10, () =>
-      prisma.comment.create({
-        data: {
-          content: commentContents[Math.floor(Math.random() * commentContents.length)],
-          userId: user.id,
-          micropostId: Math.floor(Math.random() * users.length * 3) + 1
-        }
-      })
-    )
-  ))
-
-  // Create likes
-  await Promise.all(users.flatMap(user =>
-    createRandomEntities(1, 20, () =>
-      prisma.like.create({
-        data: {
-          userId: user.id,
-          micropostId: Math.floor(Math.random() * users.length * 3) + 1
-        }
-      }).catch(() => {
-        // Ignore unique constraint violations
-      })
-    )
   ))
 
   console.log('Seed data inserted successfully, including users, relationships, teams, skills, careers, comments, and likes')
