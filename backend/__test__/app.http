@@ -218,3 +218,44 @@ Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 ### 管理者テスト
 GET {{baseUrl}}/test/admin
 Content-Type: {{contentType}}
+
+### Like関連エンドポイント
+
+### マイクロポストにいいねを追加
+POST {{baseUrl}}/microposts/1/likes
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### マイクロポストのいいねを削除
+DELETE {{baseUrl}}/microposts/1/likes
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### Comment関連エンドポイント
+
+### マイクロポストにコメントを追加
+POST {{baseUrl}}/microposts/1/comments
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "content": "This is a great post!"
+}
+
+### マイクロポストのコメント一覧を取得
+GET {{baseUrl}}/microposts/1/comments
+Content-Type: {{contentType}}
+
+### コメントを更新
+PUT {{baseUrl}}/microposts/1/comments/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "content": "Updated comment content"
+}
+
+### コメントを削除
+DELETE {{baseUrl}}/microposts/1/comments/1
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
