@@ -1,6 +1,6 @@
 'use server';
 
-import { Micropost } from '@/types/models';
+import { Micropost } from '@/types/micropost'; 
 import { ApiClient } from '@/services/apiClient';
 import { cookies } from 'next/headers';
 import { Comment } from '@/types/micropost';

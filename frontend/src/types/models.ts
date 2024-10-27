@@ -61,12 +61,3 @@ export interface RegisterDto extends LoginDto {
 }
 
 // 既存の型定義に追加
-export interface Micropost {
-  id: number;
-  userId: number;
-  title: string;
-  imagePath: string;
-  createdAt: string;
-  updatedAt: string;
-  likesCount: number;
-}

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Micropost } from '@/types/models';
+import { Micropost } from '@/types/micropost';
 
 interface MicropostCardProps {
   micropost: Micropost;

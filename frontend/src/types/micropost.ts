@@ -8,6 +8,7 @@ export interface Micropost {
   likesCount: number;
 }
 
+
 export interface Comment {
   id: number;
   content: string;
