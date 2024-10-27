@@ -1,12 +1,32 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UserDetails } from '@/types/models';
 import { useUserProfileStore } from '@/store/userProfileStore';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Link from 'next/link';
+// import { useSession } from 'next-auth/react';
+
+// Add this custom hook at the top of the file
+function useCurrentUser(): CurrentUser {
+  const [currentUser, setCurrentUser] = useState<CurrentUser>(null);
+
+  useEffect(() => {
+    const userData = document.cookie.split('; ')
+      .find(row => row.startsWith('x-user-data='))
+      ?.split('=')[1];
+    if (userData) {
+      setCurrentUser(JSON.parse(decodeURIComponent(userData)));
+    }
+  }, []);
+
+  return currentUser;
+}
+
+// Add this type at the top of the file
+type CurrentUser = { id: number } | null;
 
 export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails }) {
   const { user, setUser } = useUserProfileStore();
@@ -60,6 +80,9 @@ function AvatarSection({ user }: { user: UserDetails }) {
 }
 
 function ProfileDisplay({ user }: { user: UserDetails }) {
+  const currentUser = useCurrentUser();
+  const isCurrentUser = currentUser?.id === user.id;
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4">
@@ -83,7 +106,7 @@ function ProfileDisplay({ user }: { user: UserDetails }) {
           <span>Following</span>
         </Link>
       </div>
-      <FollowButton userId={user.id} />
+      {!isCurrentUser && <FollowButton userId={user.id} isFollowing={user.isFollowing ?? false} />}
     </div>
   );
 }
@@ -97,9 +120,7 @@ function ProfileItem({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FollowButton({ userId }: { userId: number }) {
-  const isFollowing = true; // This will be replaced with actual logic later
-
+function FollowButton({ userId, isFollowing }: { userId: number; isFollowing: boolean }) {
   const handleFollowAction = () => {
     console.log(`${isFollowing ? 'Unfollow' : 'Follow'} user with ID: ${userId}`);
     // Actual follow/unfollow logic will be implemented later
