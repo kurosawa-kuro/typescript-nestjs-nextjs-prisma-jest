@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/core/database/prisma.service';
 import { Micropost, Prisma } from '@prisma/client';
+import { Comment, User, UserProfile } from '@prisma/client';
 
 @Injectable()
 export class MicropostService {
@@ -59,17 +60,52 @@ export class MicropostService {
     });
   }
 
-  async findOne(id: number): Promise<Micropost & { likesCount: number } | null> {
+  async findOne(id: number): Promise<(Omit<Micropost, 'password'> & { 
+    likesCount: number, 
+    comments: Array<Comment & { 
+      user: Pick<User, 'id' | 'name'> & { 
+        profile: Pick<UserProfile, 'avatarPath'> 
+      } 
+    }> 
+  }) | null> {
     return this.prisma.micropost.findUnique({
       where: { id },
       include: {
         _count: {
           select: { likes: true }
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile: {
+                  select: {
+                    avatarPath: true
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }).then(micropost => 
       micropost 
-        ? { ...micropost, likesCount: micropost._count.likes }
+        ? {
+            ...micropost,
+            likesCount: micropost._count.likes,
+            comments: micropost.comments.map(comment => ({
+              ...comment,
+              user: {
+                id: comment.user.id,
+                name: comment.user.name,
+                profile: {
+                  avatarPath: comment.user.profile?.avatarPath
+                }
+              }
+            }))
+          }
         : null
     );
   }

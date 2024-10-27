@@ -1,7 +1,7 @@
 import React from 'react';
-import { getMicropostDetails, getMicropostComments } from '@/app/actions/micropost';
+import { getMicropostDetails } from '@/app/actions/micropost';
 import { notFound } from 'next/navigation';
-import { Micropost, Comment } from '@/types/micropost';
+import { Micropost } from '@/types/micropost';
 
 interface MicropostDetailsProps {
   params: {
@@ -11,10 +11,7 @@ interface MicropostDetailsProps {
 
 export default async function MicropostDetails({ params }: MicropostDetailsProps) {
   const micropostId = parseInt(params.id, 10);
-  const [micropost, comments] = await Promise.all([
-    getMicropostDetails(micropostId),
-    getMicropostComments(micropostId)
-  ]);
+  const micropost = await getMicropostDetails(micropostId);
 
   if (!micropost) {
     notFound();
@@ -39,12 +36,19 @@ export default async function MicropostDetails({ params }: MicropostDetailsProps
 
       <h2 className="text-2xl font-bold mb-4">Comments</h2>
       <div className="space-y-4">
-        {comments.map((comment: Comment) => (
+        {micropost.comments.map((comment) => (
           <div key={comment.id} className="bg-white shadow-md rounded-lg p-4">
             <p className="mb-2">{comment.content}</p>
-            <p className="text-sm text-gray-600">
-              By {comment.user.name} on {new Date(comment.createdAt).toLocaleString()}
-            </p>
+            <div className="flex items-center text-sm text-gray-600">
+              <img
+                src={`/uploads/${comment.user.profile.avatarPath}`}
+                alt={`${comment.user.name}'s avatar`}
+                className="w-8 h-8 rounded-full mr-2"
+              />
+              <span>{comment.user.name}</span>
+              <span className="mx-2">•</span>
+              <span>{new Date(comment.createdAt).toLocaleString()}</span>
+            </div>
           </div>
         ))}
       </div>
