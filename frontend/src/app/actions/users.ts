@@ -1,6 +1,6 @@
 'use server';
 
-import { UserDetails, UserInfo } from '@/types/models';
+import { UserDetails } from '@/types/user';
 import { ApiClient } from '@/services/apiClient';
 // Import the cookies function from next/headers
 import { cookies } from 'next/headers';
@@ -85,5 +85,17 @@ export async function getFollowing(userId: number): Promise<UserDetails[]> {
   } catch (error) {
     console.error('Error fetching following users:', error);
     throw error;
+  }
+}
+
+export async function getMe(): Promise<UserDetails | null> {
+  try {
+    const response = await ApiClient.get<UserDetails>('/auth/me', {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    return null;
   }
 }
