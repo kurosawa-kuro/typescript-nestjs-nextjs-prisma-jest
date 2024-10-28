@@ -4,14 +4,17 @@ import { MicropostService } from './micropost.service';
 import { DetailedMicropost } from '@/shared/types/micropost.types';
 import { User } from '@/features/auth/decorators/user.decorator';
 import { UserInfo } from '@/shared/types/user.types';
-import { multerOptions } from '@/core/common/multer-config';
+import { multerConfig, multerOptions } from '@/core/common/multer-config';
 
 @Controller('microposts')
 export class MicropostController {
   constructor(private readonly micropostService: MicropostService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image', multerOptions))
+  @UseInterceptors(FileInterceptor('image', {
+    ...multerConfig,
+    ...multerOptions,
+  }))
   async create(
     @Body() data: { title: string },
     @UploadedFile() image: Express.Multer.File,
@@ -19,7 +22,7 @@ export class MicropostController {
   ): Promise<DetailedMicropost> {
     const micropostData = {
       title: data.title,
-      imagePath: image?.filename,
+      imagePath: image ? `${image.filename}` : null,
       user: {
         connect: { id: currentUser.id }
       }
