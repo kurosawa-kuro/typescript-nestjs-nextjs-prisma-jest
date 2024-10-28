@@ -96,32 +96,52 @@ describe('MicropostController', () => {
   describe('findOne', () => {
     it('should return a detailed micropost', async () => {
       const id = '1';
-      const expectedResult: DetailedMicropost = {
+      const expectedResponse: DetailedMicropost = {
         id: 1,
         userId: 1,
-        title: 'Micropost 1',
-        imagePath: 'path1.jpg',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        title: 'Test Micropost',
+        imagePath: 'test.jpg',
+        createdAt: '2023-01-01T00:00:00.000Z',
+        updatedAt: '2023-01-02T00:00:00.000Z',
         likesCount: 5,
-        user: { id: 1, name: 'User 1' },
-        comments: [],
+        user: {
+          id: 1,
+          name: 'Test User',
+        },
+        comments: [
+          {
+            id: 1,
+            content: 'Test Comment',
+            userId: 2,
+            micropostId: 1,
+            createdAt: '2023-01-03T00:00:00.000Z',
+            updatedAt: '2023-01-03T00:00:00.000Z',
+            user: {
+              id: 2,
+              name: 'Commenter',
+              profile: {
+                avatarPath: 'commenter-avatar.jpg',
+              },
+            },
+          },
+        ],
       };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(expectedResult);
+      jest.spyOn(service, 'findOne').mockResolvedValue(expectedResponse);
 
       const result = await controller.findOne(id);
 
+      expect(result).toEqual(expectedResponse);
       expect(service.findOne).toHaveBeenCalledWith(1);
-      expect(result).toEqual(expectedResult);
+      expect(result).not.toHaveProperty('_count');
     });
 
     it('should throw NotFoundException when micropost is not found', async () => {
       const id = '999';
-
       jest.spyOn(service, 'findOne').mockResolvedValue(null);
 
       await expect(controller.findOne(id)).rejects.toThrow(NotFoundException);
+      expect(service.findOne).toHaveBeenCalledWith(999);
     });
   });
 });

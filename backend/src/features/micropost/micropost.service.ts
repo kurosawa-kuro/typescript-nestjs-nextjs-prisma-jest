@@ -41,16 +41,22 @@ export class MicropostService {
       },
     }).then(microposts =>
       microposts.map(micropost => ({
-        ...micropost,
+        id: micropost.id,
+        userId: micropost.userId,
+        title: micropost.title,
+        imagePath: micropost.imagePath,
         createdAt: micropost.createdAt.toISOString(),
         updatedAt: micropost.updatedAt.toISOString(),
+        likesCount: micropost._count.likes,
         user: {
           id: micropost.user.id,
           name: micropost.user.name,
         },
-        likesCount: micropost._count.likes,
         comments: micropost.comments.map(comment => ({
-          ...comment,
+          id: comment.id,
+          content: comment.content,
+          userId: comment.userId,
+          micropostId: comment.micropostId,
           createdAt: comment.createdAt.toISOString(),
           updatedAt: comment.updatedAt.toISOString(),
           user: {
@@ -142,12 +148,22 @@ export class MicropostService {
     }).then(micropost => 
       micropost 
         ? {
-            ...micropost,
+            id: micropost.id,
+            userId: micropost.userId,
+            title: micropost.title,
+            imagePath: micropost.imagePath,
             createdAt: micropost.createdAt.toISOString(),
             updatedAt: micropost.updatedAt.toISOString(),
             likesCount: micropost._count.likes,
+            user: {
+              id: micropost.user.id,
+              name: micropost.user.name,
+            },
             comments: micropost.comments.map(comment => ({
-              ...comment,
+              id: comment.id,
+              content: comment.content,
+              userId: comment.userId,
+              micropostId: comment.micropostId,
               createdAt: comment.createdAt.toISOString(),
               updatedAt: comment.updatedAt.toISOString(),
               user: {
@@ -158,7 +174,7 @@ export class MicropostService {
                 }
               }
             }))
-          } as DetailedMicropost
+          }
         : null
     );
   }
