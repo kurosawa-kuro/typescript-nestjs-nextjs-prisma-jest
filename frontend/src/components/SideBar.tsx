@@ -33,6 +33,9 @@ export default function SideBar() {
               <Link href="/timeline" className={getLinkClassName('/timeline')}>Timeline</Link>
             </li>
             <li>
+              <Link href="/posts" className={getLinkClassName('/posts')}>Posts</Link>
+            </li>
+            <li>
               <Link href="/users" className={getLinkClassName('/users')}>Users</Link>
             </li>
           </>
