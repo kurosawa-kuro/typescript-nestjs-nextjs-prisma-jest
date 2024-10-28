@@ -5,6 +5,8 @@ import { DetailedMicropost } from '@/shared/types/micropost.types';
 import { User } from '@/features/auth/decorators/user.decorator';
 import { UserInfo } from '@/shared/types/user.types';
 import { multerConfig, multerOptions } from '@/core/common/multer-config';
+import { Public } from '../auth/decorators/public.decorator';
+// import { Public } from '@prisma/client/runtime/library';
 
 @Controller('microposts')
 export class MicropostController {
@@ -30,7 +32,9 @@ export class MicropostController {
     return this.micropostService.create(micropostData);
   }
 
-    // マイクロポストに紐づく、「紐づいたユーザーID、ユーザー名」「いいねの数」も取得
+  // マイクロポストに紐づく、「紐づいたユーザーID、ユーザー名」「いいねの数」も取得
+  // Publicに変更
+  @Public()
   @Get()
   async index(): Promise<DetailedMicropost[]> {
     return this.micropostService.all();
