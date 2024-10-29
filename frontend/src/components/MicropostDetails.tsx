@@ -21,9 +21,8 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
 
   const handleCommentCreated = async () => {
     try {
-      const updatedComments = await ClientSideApiService.getComments(micropost.id);
-      // setComments(updatedComments);
-      // ウィンドウ リロード
+      await ClientSideApiService.getComments(micropost.id);
+
       window.location.reload();
     } catch (error) {
       console.error('Failed to refresh comments:', error);
@@ -39,8 +38,7 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
       } else {
         await ClientSideApiService.addLike(micropost.id);
       }
-      // いいねの状態を更新
-      // await updateLikeStatus();
+
       window.location.reload();
     } catch (error) {
       console.error('Failed to handle like:', error);
