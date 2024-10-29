@@ -30,17 +30,6 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
     }
   };
 
-  const updateLikeStatus = async () => {
-    try {
-      const response = await fetch(`/api/microposts/${micropost.id}`);
-      const updatedMicropost = await response.json();
-      setLikesCount(updatedMicropost.likesCount);
-      setIsLiked(updatedMicropost.isLiked);
-    } catch (error) {
-      console.error('Failed to fetch like status:', error);
-    }
-  };
-
   const handleLikeClick = async () => {
     if (!user) return;
 
@@ -51,7 +40,8 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
         await ClientSideApiService.addLike(micropost.id);
       }
       // いいねの状態を更新
-      await updateLikeStatus();
+      // await updateLikeStatus();
+      window.location.reload();
     } catch (error) {
       console.error('Failed to handle like:', error);
     }
