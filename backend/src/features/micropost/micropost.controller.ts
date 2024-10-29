@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, NotFoundException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  NotFoundException,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MicropostService } from './micropost.service';
 import { DetailedMicropost } from '@/shared/types/micropost.types';
@@ -13,10 +22,12 @@ export class MicropostController {
   constructor(private readonly micropostService: MicropostService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('image', {
-    ...multerConfig,
-    ...multerOptions,
-  }))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      ...multerConfig,
+      ...multerOptions,
+    }),
+  )
   async create(
     @Body() data: { title: string },
     @UploadedFile() image: Express.Multer.File,
@@ -26,8 +37,8 @@ export class MicropostController {
       title: data.title,
       imagePath: image ? `${image.filename}` : null,
       user: {
-        connect: { id: currentUser.id }
-      }
+        connect: { id: currentUser.id },
+      },
     };
     return this.micropostService.create(micropostData);
   }
@@ -45,18 +56,15 @@ export class MicropostController {
   @Get(':id')
   async findOne(
     @Param('id') id: string,
-    @User() currentUser?: UserInfo
+    @User() currentUser?: UserInfo,
   ): Promise<DetailedMicropost> {
     console.log('Current User:', currentUser);
-    const micropost = await this.micropostService.findOne(
-      +id,
-      currentUser?.id
-    );
-    
+    const micropost = await this.micropostService.findOne(+id, currentUser?.id);
+
     if (!micropost) {
       throw new NotFoundException(`Micropost with ID ${id} not found`);
     }
-    
+
     return micropost;
   }
 }

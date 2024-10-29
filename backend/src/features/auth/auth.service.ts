@@ -49,7 +49,10 @@ export class AuthService {
     return { message: 'Logout successful' };
   }
 
-  async getUserFromToken(request: Request, isOptional = false): Promise<UserInfo | null> {
+  async getUserFromToken(
+    request: Request,
+    isOptional = false,
+  ): Promise<UserInfo | null> {
     const token = this.extractTokenFromRequest(request);
 
     if (!token) {

@@ -4,7 +4,7 @@ import { CommentService } from './comment.service';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [AuthModule],  // PrismaModule は @Global() なのでここでのインポートは不要
+  imports: [AuthModule], // PrismaModule は @Global() なのでここでのインポートは不要
   controllers: [CommentController],
   providers: [CommentService],
 })

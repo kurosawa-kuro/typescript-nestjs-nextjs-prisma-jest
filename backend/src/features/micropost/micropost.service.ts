@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/core/database/prisma.service';
 import { Micropost, Prisma } from '@prisma/client';
-import { BasicMicropost, Comment, DetailedMicropost } from '@/shared/types/micropost.types';
+import {
+  BasicMicropost,
+  Comment,
+  DetailedMicropost,
+} from '@/shared/types/micropost.types';
 
 @Injectable()
 export class MicropostService {
@@ -17,9 +21,9 @@ export class MicropostService {
             name: true,
             profile: {
               select: {
-                avatarPath: true
-              }
-            }
+                avatarPath: true,
+              },
+            },
           },
         },
         _count: {
@@ -33,14 +37,14 @@ export class MicropostService {
                 name: true,
                 profile: {
                   select: {
-                    avatarPath: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    avatarPath: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     return {
@@ -55,7 +59,7 @@ export class MicropostService {
         id: micropost.user.id,
         name: micropost.user.name,
       },
-      comments: micropost.comments.map(comment => ({
+      comments: micropost.comments.map((comment) => ({
         id: comment.id,
         content: comment.content,
         userId: comment.userId,
@@ -66,79 +70,81 @@ export class MicropostService {
           id: comment.user.id,
           name: comment.user.name,
           profile: {
-            avatarPath: comment.user.profile?.avatarPath
-          }
-        }
-      }))
+            avatarPath: comment.user.profile?.avatarPath,
+          },
+        },
+      })),
     };
   }
 
   async all(): Promise<DetailedMicropost[]> {
-    return this.prisma.micropost.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            profile: {
-              select: {
-                avatarPath: true
-              }
-            }
+    return this.prisma.micropost
+      .findMany({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profile: {
+                select: {
+                  avatarPath: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: { likes: true },
+          },
+          comments: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  profile: {
+                    select: {
+                      avatarPath: true,
+                    },
+                  },
+                },
+              },
+            },
           },
         },
-        _count: {
-          select: { likes: true },
+        orderBy: {
+          createdAt: 'desc',
         },
-        comments: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                profile: {
-                  select: {
-                    avatarPath: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    }).then(microposts =>
-      microposts.map(micropost => ({
-        id: micropost.id,
-        userId: micropost.userId,
-        title: micropost.title,
-        imagePath: micropost.imagePath,
-        createdAt: micropost.createdAt.toISOString(),
-        updatedAt: micropost.updatedAt.toISOString(),
-        likesCount: micropost._count.likes,
-        user: {
-          id: micropost.user.id,
-          name: micropost.user.name,
-        },
-        comments: micropost.comments.map(comment => ({
-          id: comment.id,
-          content: comment.content,
-          userId: comment.userId,
-          micropostId: comment.micropostId,
-          createdAt: comment.createdAt.toISOString(),
-          updatedAt: comment.updatedAt.toISOString(),
+      })
+      .then((microposts) =>
+        microposts.map((micropost) => ({
+          id: micropost.id,
+          userId: micropost.userId,
+          title: micropost.title,
+          imagePath: micropost.imagePath,
+          createdAt: micropost.createdAt.toISOString(),
+          updatedAt: micropost.updatedAt.toISOString(),
+          likesCount: micropost._count.likes,
           user: {
-            id: comment.user.id,
-            name: comment.user.name,
-            profile: {
-              avatarPath: comment.user.profile?.avatarPath
-            }
-          }
-        }))
-      }))
-    );
+            id: micropost.user.id,
+            name: micropost.user.name,
+          },
+          comments: micropost.comments.map((comment) => ({
+            id: comment.id,
+            content: comment.content,
+            userId: comment.userId,
+            micropostId: comment.micropostId,
+            createdAt: comment.createdAt.toISOString(),
+            updatedAt: comment.updatedAt.toISOString(),
+            user: {
+              id: comment.user.id,
+              name: comment.user.name,
+              profile: {
+                avatarPath: comment.user.profile?.avatarPath,
+              },
+            },
+          })),
+        })),
+      );
   }
 
   async findById(id: number): Promise<Micropost> {
@@ -186,7 +192,10 @@ export class MicropostService {
     });
   }
 
-  async findOne(id: number, currentUserId?: number): Promise<DetailedMicropost | null> {
+  async findOne(
+    id: number,
+    currentUserId?: number,
+  ): Promise<DetailedMicropost | null> {
     console.log('Micropostid', id);
     const micropost = await this.prisma.micropost.findUnique({
       where: { id },
@@ -197,22 +206,24 @@ export class MicropostService {
             name: true,
             profile: {
               select: {
-                avatarPath: true
-              }
-            }
-          }
+                avatarPath: true,
+              },
+            },
+          },
         },
         _count: {
-          select: { likes: true }
+          select: { likes: true },
         },
-        likes: currentUserId ? {
-          where: {
-            userId: currentUserId
-          },
-          select: {
-            userId: true
-          }
-        } : false,
+        likes: currentUserId
+          ? {
+              where: {
+                userId: currentUserId,
+              },
+              select: {
+                userId: true,
+              },
+            }
+          : false,
         comments: {
           include: {
             user: {
@@ -221,19 +232,19 @@ export class MicropostService {
                 name: true,
                 profile: {
                   select: {
-                    avatarPath: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    avatarPath: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!micropost) return null;
 
-    const isLiked = currentUserId 
+    const isLiked = currentUserId
       ? micropost.likes && micropost.likes.length > 0
       : false;
 
@@ -247,7 +258,7 @@ export class MicropostService {
       likesCount: micropost._count.likes,
       isLiked,
       user: micropost.user,
-      comments: micropost.comments.map(comment => ({
+      comments: micropost.comments.map((comment) => ({
         id: comment.id,
         content: comment.content,
         userId: comment.userId,
@@ -258,10 +269,10 @@ export class MicropostService {
           id: comment.user.id,
           name: comment.user.name,
           profile: {
-            avatarPath: comment.user.profile?.avatarPath
-          }
-        }
-      }))
+            avatarPath: comment.user.profile?.avatarPath,
+          },
+        },
+      })),
     };
   }
 }

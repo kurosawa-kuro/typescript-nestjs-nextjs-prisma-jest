@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../core/database/prisma.service';  // パスを修正
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service'; // パスを修正
 import { Comment, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -18,7 +22,11 @@ export class CommentService {
     });
   }
 
-  async update(id: number, data: Prisma.CommentUpdateInput, userId: number): Promise<Comment> {
+  async update(
+    id: number,
+    data: Prisma.CommentUpdateInput,
+    userId: number,
+  ): Promise<Comment> {
     const comment = await this.prisma.comment.findUnique({ where: { id } });
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${id} not found`);
