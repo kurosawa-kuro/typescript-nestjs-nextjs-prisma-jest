@@ -1,4 +1,4 @@
-import { Micropost } from '@/types/micropost';
+import { Micropost, NewMicropost } from '@/types/micropost';
 import { LoginResponse, UserDetails } from '../types/user';
 import { ApiClient } from './apiClient';
 
@@ -39,7 +39,7 @@ export const ClientSideApiService = {
   },
 
   createPost: (formData: FormData) => 
-    ApiClient.post<Micropost>('/microposts', formData, {
+    ApiClient.post<NewMicropost>('/microposts', formData, {
       rawBody: true,
     }),
 };

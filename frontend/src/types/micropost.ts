@@ -25,3 +25,10 @@ export interface Micropost {
   comments: Comment[];
 }
 
+export interface NewMicropost {
+  user: Pick<UserInfo, 'id' | 'name'> & {
+    profile: NonNullable<UserInfo['profile']>;
+  };
+  title: string;
+  imagePath: string;
+}
