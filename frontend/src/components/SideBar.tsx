@@ -24,14 +24,15 @@ export default function SideBar() {
         <li>
           <Link href="/" className={getLinkClassName('/')}>Public</Link>
         </li>
+        <li>
+          <Link href="/timeline" className={getLinkClassName('/timeline')}>Timeline</Link>
+        </li>
         {user && (
           <>
             <li>
               <Link href="/profile" className={getLinkClassName('/profile')}>Profile</Link>
             </li>
-            <li>
-              <Link href="/timeline" className={getLinkClassName('/timeline')}>Timeline</Link>
-            </li>
+
             <li>
               <Link href="/users" className={getLinkClassName('/users')}>Users</Link>
             </li>

@@ -7,8 +7,65 @@ import { BasicMicropost, Comment, DetailedMicropost } from '@/shared/types/micro
 export class MicropostService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: Prisma.MicropostCreateInput): Promise<Micropost> {
-    return this.prisma.micropost.create({ data });
+  async create(data: Prisma.MicropostCreateInput): Promise<DetailedMicropost> {
+    const micropost = await this.prisma.micropost.create({
+      data,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        _count: {
+          select: { likes: true },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profile: {
+                  select: {
+                    avatarPath: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return {
+      id: micropost.id,
+      userId: micropost.userId,
+      title: micropost.title,
+      imagePath: micropost.imagePath,
+      createdAt: micropost.createdAt.toISOString(),
+      updatedAt: micropost.updatedAt.toISOString(),
+      likesCount: micropost._count.likes,
+      user: {
+        id: micropost.user.id,
+        name: micropost.user.name,
+      },
+      comments: micropost.comments.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        userId: comment.userId,
+        micropostId: comment.micropostId,
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+        user: {
+          id: comment.user.id,
+          name: comment.user.name,
+          profile: {
+            avatarPath: comment.user.profile?.avatarPath
+          }
+        }
+      }))
+    };
   }
 
   async all(): Promise<DetailedMicropost[]> {
@@ -38,6 +95,9 @@ export class MicropostService {
             }
           }
         }
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     }).then(microposts =>
       microposts.map(micropost => ({

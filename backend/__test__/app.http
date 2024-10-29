@@ -130,6 +130,21 @@ Content-Type: {{contentType}}
 
 ### マイクロポスト関連エンドポイント
 
+### マイクロポストを投稿
+POST {{baseUrl}}/microposts
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+My First Post
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="./backend/uploads/test.png"
+Content-Type: image/jpeg
+
+< ./backend/uploads/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
 ### マイクロポスト一覧を取得
 GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}
@@ -263,3 +278,19 @@ Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 DELETE {{baseUrl}}/microposts/1/comments/1
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### マイクロポストを投稿
+POST {{baseUrl}}/microposts
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="title"
+
+My First Post
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="example.jpg"
+Content-Type: image/jpeg
+
+< ./backend/uploads/test.png
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+

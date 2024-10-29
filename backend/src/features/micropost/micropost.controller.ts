@@ -1,29 +1,47 @@
-import { Controller, Get, Post, Body, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, NotFoundException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { MicropostService } from './micropost.service';
-import { Micropost } from '@prisma/client';
 import { DetailedMicropost } from '@/shared/types/micropost.types';
+import { User } from '@/features/auth/decorators/user.decorator';
+import { UserInfo } from '@/shared/types/user.types';
+import { multerConfig, multerOptions } from '@/core/common/multer-config';
+import { Public } from '../auth/decorators/public.decorator';
+// import { Public } from '@prisma/client/runtime/library';
 
 @Controller('microposts')
 export class MicropostController {
   constructor(private readonly micropostService: MicropostService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('image', {
+    ...multerConfig,
+    ...multerOptions,
+  }))
   async create(
-    @Body()
-    micropostData: Omit<Micropost, 'id' | 'createdAt' | 'updatedAt'> & {
-      user: { connect: { id: number } };
-    },
-  ): Promise<Micropost> {
+    @Body() data: { title: string },
+    @UploadedFile() image: Express.Multer.File,
+    @User() currentUser: UserInfo,
+  ): Promise<DetailedMicropost> {
+    const micropostData = {
+      title: data.title,
+      imagePath: image ? `${image.filename}` : null,
+      user: {
+        connect: { id: currentUser.id }
+      }
+    };
     return this.micropostService.create(micropostData);
   }
 
-    // マイクロポストに紐づく、「紐づいたユーザーID、ユーザー名」「いいねの数」も取得
+  // マイクロポストに紐づく、「紐づいたユーザーID、ユーザー名」「いいねの数」も取得
+  // Publicに変更
+  @Public()
   @Get()
   async index(): Promise<DetailedMicropost[]> {
     return this.micropostService.all();
   }
 
   // マイクロポストに紐づく、「コメント 紐づいたユーザーID、ユーザー名、アバター」「いいねの数」も取得
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<DetailedMicropost> {
     const micropost = await this.micropostService.findOne(+id);

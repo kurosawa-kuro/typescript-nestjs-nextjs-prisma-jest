@@ -1,5 +1,8 @@
+import { Micropost, NewMicropost,Comment } from '@/types/micropost';
 import { LoginResponse, UserDetails } from '../types/user';
 import { ApiClient } from './apiClient';
+
+
 
 export const ClientSideApiService = {
   login: (email: string, password: string) => 
@@ -34,4 +37,15 @@ export const ClientSideApiService = {
   unfollowUser: async (userId: number) => {
     return ApiClient.delete<UserDetails[]>(`/follow/${userId}`);
   },
+
+  createPost: (formData: FormData) => 
+    ApiClient.post<NewMicropost>('/microposts', formData, {
+      rawBody: true,
+    }),
+
+  createComment: (micropostId: number, content: string) =>
+    ApiClient.post(`/microposts/${micropostId}/comments`, { content }),
+
+  getComments: (micropostId: number) =>
+    ApiClient.get(`/microposts/${micropostId}/comments`),
 };

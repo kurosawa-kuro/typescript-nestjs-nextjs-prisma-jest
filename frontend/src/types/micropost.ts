@@ -24,3 +24,17 @@ export interface Micropost {
   likesCount: number;
   comments: Comment[];
 }
+
+export interface NewMicropost {
+  user: Pick<UserInfo, 'id' | 'name'> & {
+    profile: NonNullable<UserInfo['profile']>;
+  };
+  title: string;
+  imagePath: string;
+}
+
+export interface TimelineProps {
+  microposts: Micropost[];
+  currentPage: number;
+  totalPages: number;
+}

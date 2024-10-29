@@ -9,7 +9,6 @@ interface CommentListProps {
 const CommentList: React.FC<CommentListProps> = ({ comments }) => {
   return (
     <>
-      <h2 className="text-2xl font-bold mb-4">Comments</h2>
       <div className="space-y-4">
         {comments.map((comment) => (
           <CommentItem key={comment.id} comment={comment} />
