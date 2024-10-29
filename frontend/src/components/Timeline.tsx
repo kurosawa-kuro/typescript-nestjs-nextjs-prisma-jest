@@ -5,6 +5,7 @@ import MicropostCard from '@/components/MicropostCard';
 import Link from 'next/link';
 import { TimelineProps } from '@/types/micropost'; // 適切なパスに調整してください
 import CreatePostModal from './CreatePostModal';
+import { useAuthStore } from '@/store/authStore';
 
 const POSTS_PER_PAGE = 6;
 
@@ -12,16 +13,23 @@ const POSTS_PER_PAGE = 6;
 
 const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user} = useAuthStore();
 
   return (
+    // ユーザーログインしていないときはCreate New Postを表示しない
+
+    // ユーザーログインしているときはCreate New Postを表示する
+    
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Create New Post
-        </button>
+        {user && ( // Check if the user is logged in
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Create New Post
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
