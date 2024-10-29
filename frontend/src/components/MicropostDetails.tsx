@@ -1,13 +1,33 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Micropost } from '@/types/micropost';
 import CommentList from '@/components/CommentList';
-import { FaHeart } from 'react-icons/fa'; // アイコンをインポート
+import { FaHeart } from 'react-icons/fa';
+import CreateCommentModal from '@/components/CreateCommentModal';
+import { useAuthStore } from '@/store/authStore';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 
 interface MicropostDetailsProps {
   micropost: Micropost;
 }
 
 const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [comments, setComments] = useState(micropost.comments);
+  const { user } = useAuthStore();
+
+  const handleCommentCreated = async () => {
+    try {
+      const updatedComments = await ClientSideApiService.getComments(micropost.id);
+      // setComments(updatedComments);
+      // ウィンドウ リロード
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to refresh comments:', error);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">{micropost.title}</h1>
@@ -33,8 +53,28 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
         </div>
       </div>
       <div className="bg-white shadow-lg rounded-lg p-6">
-        <CommentList comments={micropost.comments} />
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Comments</h2>
+          {user && (
+            <button
+              onClick={() => setIsCommentModalOpen(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Add Comment
+            </button>
+          )}
+        </div>
+        <CommentList comments={comments} />
       </div>
+
+      {isCommentModalOpen && (
+        <CreateCommentModal
+          isOpen={isCommentModalOpen}
+          onClose={() => setIsCommentModalOpen(false)}
+          micropostId={micropost.id}
+          onCommentCreated={handleCommentCreated}
+        />
+      )}
     </div>
   );
 };
