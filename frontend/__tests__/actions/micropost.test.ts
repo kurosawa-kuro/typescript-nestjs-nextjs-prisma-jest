@@ -88,5 +88,60 @@ describe('Micropost Actions', () => {
       });
       expect(result).toEqual(mockMicropost);
     });
+
+    it('should return null when API call fails', async () => {
+      const mockError = new Error('Failed to fetch micropost details');
+      (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
+
+      const result = await getMicropostDetails(1);
+
+      expect(result).toBeNull();
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching micropost details for id 1:',
+        mockError
+      );
+    });
+  });
+
+  describe('getMicropostComments', () => {
+    it('should return comments when API call is successful', async () => {
+      const mockComments: Comment[] = [
+        {
+          id: 1,
+          userId: 1,
+          micropostId: 1,
+          content: 'Test Comment',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          user: {
+            id: 1,
+            name: 'Test User',
+            profile: { avatarPath: 'path/to/avatar.jpg' }
+          }
+        }
+      ];
+
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockComments);
+
+      const result = await getMicropostComments(1);
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/microposts/1/comments', {
+        headers: { Authorization: 'Bearer mocked-jwt-token' },
+      });
+      expect(result).toEqual(mockComments);
+    });
+
+    it('should return empty array when API call fails', async () => {
+      const mockError = new Error('Failed to fetch comments');
+      (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
+
+      const result = await getMicropostComments(1);
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching comments for micropost 1:',
+        mockError
+      );
+    });
   });
 });
