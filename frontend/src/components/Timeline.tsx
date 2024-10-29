@@ -15,7 +15,6 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* 投稿ボタン追加 */}
       <div className="mb-6">
         <button
           onClick={() => setIsModalOpen(true)}
