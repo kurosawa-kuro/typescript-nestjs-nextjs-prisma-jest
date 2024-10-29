@@ -1,6 +1,6 @@
 'use client';
 
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 

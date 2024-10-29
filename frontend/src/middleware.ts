@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { ClientSideApiService } from './services/ClientSideApiService'
+import { ClientSideApiService } from './services/clientSideApiService'
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt')?.value;

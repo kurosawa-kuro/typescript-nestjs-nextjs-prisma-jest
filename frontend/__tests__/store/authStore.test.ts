@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { useAuthStore } from '../../src/store/authStore';
-import { ClientSideApiService } from '../../src/services/ClientSideApiService';
+import { ClientSideApiService } from '../../src/services/clientSideApiService';
 import { useFlashMessageStore } from '../../src/store/flashMessageStore';
 import { UserDetails } from '@/types/user';
 import * as usersActions from '@/app/actions/users';

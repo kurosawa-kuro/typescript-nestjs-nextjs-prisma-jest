@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { UserDetails } from '@/types/models';
 import RoleChangeModal from './RoleChangeModal';
 import { useUserStore } from '@/store/userStore';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 
 interface UsersClientProps {
   initialUsers: UserDetails[];

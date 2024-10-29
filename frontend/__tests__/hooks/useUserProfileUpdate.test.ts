@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useUserProfileUpdate } from '@/hooks/useUserProfileUpdate';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 import { UserDetails } from '@/types/user';
 
 jest.mock('@/services/ClientSideApiService', () => ({

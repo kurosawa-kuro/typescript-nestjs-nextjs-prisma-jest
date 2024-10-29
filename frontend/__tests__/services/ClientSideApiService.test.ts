@@ -1,4 +1,4 @@
-import { ClientSideApiService } from '../../src/services/ClientSideApiService';
+import { ClientSideApiService } from '../../src/services/clientSideApiService';
 import { ApiClient } from '../../src/services/apiClient';
 import { UserDetails } from '../../src/types/user';
 

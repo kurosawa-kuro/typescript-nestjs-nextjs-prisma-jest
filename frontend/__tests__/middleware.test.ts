@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '../src/middleware';
-import { ClientSideApiService } from '../src/services/ClientSideApiService';
+import { ClientSideApiService } from '../src/services/clientSideApiService';
 
 jest.mock('next/server', () => ({
   NextResponse: {

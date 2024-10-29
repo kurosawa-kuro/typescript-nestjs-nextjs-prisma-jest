@@ -6,7 +6,7 @@ import CommentList from '@/components/CommentList';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import CreateCommentModal from '@/components/CreateCommentModal';
 import { useAuthStore } from '@/store/authStore';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 
 interface MicropostDetailsProps {
   micropost: Micropost;

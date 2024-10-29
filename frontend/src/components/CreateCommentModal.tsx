@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 
 interface CreateCommentModalProps {
   isOpen: boolean;
