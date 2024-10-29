@@ -185,4 +185,99 @@ describe('ClientSideApiService', () => {
       expect(result).toEqual(mockUserDetails);
     });
   });
+
+  describe('createPost', () => {
+    it('should call ApiClient.post with correct parameters', async () => {
+      const mockResponse = { id: 1, title: 'Test Post' };
+      (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
+
+      const formData = new FormData();
+      formData.append('title', 'Test Post');
+      formData.append('image', new Blob(['test']), 'test.jpg');
+
+      const result = await ClientSideApiService.createPost(formData);
+
+      expect(ApiClient.post).toHaveBeenCalledWith('/microposts', formData, {
+        rawBody: true,
+      });
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('createComment', () => {
+    it('should call ApiClient.post with correct parameters', async () => {
+      const mockResponse = { id: 1, content: 'Test Comment' };
+      (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const content = 'Test Comment';
+
+      const result = await ClientSideApiService.createComment(micropostId, content);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/microposts/${micropostId}/comments`, { content });
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('getComments', () => {
+    it('should call ApiClient.get with correct parameters', async () => {
+      const mockResponse = [{ id: 1, content: 'Test Comment' }];
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+
+      const result = await ClientSideApiService.getComments(micropostId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/microposts/${micropostId}/comments`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('like operations', () => {
+    it('should call ApiClient.post when adding like', async () => {
+      const mockResponse = { success: true };
+      (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.addLike(micropostId);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/microposts/${micropostId}/likes`, {});
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should call ApiClient.delete when removing like', async () => {
+      const mockResponse = { success: true };
+      (ApiClient.delete as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.removeLike(micropostId);
+
+      expect(ApiClient.delete).toHaveBeenCalledWith(`/microposts/${micropostId}/likes`);
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should call ApiClient.get when getting like status', async () => {
+      const mockResponse = { isLiked: true };
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.getLikeStatus(micropostId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/microposts/${micropostId}/likes`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('getMicropostDetails', () => {
+    it('should call ApiClient.get with correct parameters', async () => {
+      const mockResponse = { id: 1, title: 'Test Post', content: 'Test Content' };
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.getMicropostDetails(micropostId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/microposts/${micropostId}`);
+      expect(result).toEqual(mockResponse);
+    });
+  });
 });
