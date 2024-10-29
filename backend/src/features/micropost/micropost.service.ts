@@ -15,6 +15,11 @@ export class MicropostService {
           select: {
             id: true,
             name: true,
+            profile: {
+              select: {
+                avatarPath: true
+              }
+            }
           },
         },
         _count: {
@@ -75,6 +80,11 @@ export class MicropostService {
           select: {
             id: true,
             name: true,
+            profile: {
+              select: {
+                avatarPath: true
+              }
+            }
           },
         },
         _count: {
@@ -176,19 +186,33 @@ export class MicropostService {
     });
   }
 
-  async findOne(id: number): Promise<DetailedMicropost | null> {
-    return this.prisma.micropost.findUnique({
+  async findOne(id: number, currentUserId?: number): Promise<DetailedMicropost | null> {
+    console.log('Micropostid', id);
+    const micropost = await this.prisma.micropost.findUnique({
       where: { id },
       include: {
         user: {
           select: {
             id: true,
-            name: true
+            name: true,
+            profile: {
+              select: {
+                avatarPath: true
+              }
+            }
           }
         },
         _count: {
           select: { likes: true }
         },
+        likes: currentUserId ? {
+          where: {
+            userId: currentUserId
+          },
+          select: {
+            userId: true
+          }
+        } : false,
         comments: {
           include: {
             user: {
@@ -205,37 +229,39 @@ export class MicropostService {
           }
         }
       }
-    }).then(micropost => 
-      micropost 
-        ? {
-            id: micropost.id,
-            userId: micropost.userId,
-            title: micropost.title,
-            imagePath: micropost.imagePath,
-            createdAt: micropost.createdAt.toISOString(),
-            updatedAt: micropost.updatedAt.toISOString(),
-            likesCount: micropost._count.likes,
-            user: {
-              id: micropost.user.id,
-              name: micropost.user.name,
-            },
-            comments: micropost.comments.map(comment => ({
-              id: comment.id,
-              content: comment.content,
-              userId: comment.userId,
-              micropostId: comment.micropostId,
-              createdAt: comment.createdAt.toISOString(),
-              updatedAt: comment.updatedAt.toISOString(),
-              user: {
-                id: comment.user.id,
-                name: comment.user.name,
-                profile: {
-                  avatarPath: comment.user.profile?.avatarPath
-                }
-              }
-            }))
+    });
+
+    if (!micropost) return null;
+
+    const isLiked = currentUserId 
+      ? micropost.likes && micropost.likes.length > 0
+      : false;
+
+    return {
+      id: micropost.id,
+      userId: micropost.userId,
+      title: micropost.title,
+      imagePath: micropost.imagePath,
+      createdAt: micropost.createdAt.toISOString(),
+      updatedAt: micropost.updatedAt.toISOString(),
+      likesCount: micropost._count.likes,
+      isLiked,
+      user: micropost.user,
+      comments: micropost.comments.map(comment => ({
+        id: comment.id,
+        content: comment.content,
+        userId: comment.userId,
+        micropostId: comment.micropostId,
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+        user: {
+          id: comment.user.id,
+          name: comment.user.name,
+          profile: {
+            avatarPath: comment.user.profile?.avatarPath
           }
-        : null
-    );
+        }
+      }))
+    };
   }
 }

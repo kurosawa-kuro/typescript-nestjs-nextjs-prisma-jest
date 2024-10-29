@@ -150,7 +150,7 @@ GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}
 
 ### マイクロポスト詳細を取得
-GET {{baseUrl}}/microposts/1
+GET {{baseUrl}}/microposts/72
 Content-Type: {{contentType}}
 
 
@@ -241,12 +241,12 @@ Content-Type: {{contentType}}
 ### Like関連エンドポイント
 
 ### マイクロポストにいいねを追加
-POST {{baseUrl}}/microposts/1/likes
+POST {{baseUrl}}/microposts/72/likes
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
 ### マイクロポストのいいねを削除
-DELETE {{baseUrl}}/microposts/1/likes
+DELETE {{baseUrl}}/microposts/72/likes
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 

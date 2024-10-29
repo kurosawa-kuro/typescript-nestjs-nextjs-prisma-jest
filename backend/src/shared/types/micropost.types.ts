@@ -25,4 +25,5 @@ export interface DetailedMicropost extends BasicMicropost {
   likesCount: number;
   user: Pick<User, 'id' | 'name'>;
   comments: Comment[];
+  isLiked?: boolean; // ユーザーがいいねしているかどうか
 }
