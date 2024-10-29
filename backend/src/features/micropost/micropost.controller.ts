@@ -41,6 +41,7 @@ export class MicropostController {
   }
 
   // マイクロポストに紐づく、「コメント 紐づいたユーザーID、ユーザー名、アバター」「いいねの数」も取得
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<DetailedMicropost> {
     const micropost = await this.micropostService.findOne(+id);
