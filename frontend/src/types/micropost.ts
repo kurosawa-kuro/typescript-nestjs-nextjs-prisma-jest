@@ -24,3 +24,4 @@ export interface Micropost {
   likesCount: number;
   comments: Comment[];
 }
+

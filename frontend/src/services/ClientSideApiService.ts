@@ -1,20 +1,8 @@
+import { Micropost } from '@/types/micropost';
 import { LoginResponse, UserDetails } from '../types/user';
 import { ApiClient } from './apiClient';
 
-interface Post {
-  id: number;
-  userId: number;
-  title: string;
-  imagePath?: string;
-  createdAt: string;
-  updatedAt: string;
-  likesCount: number;
-  user: {
-    id: number;
-    name: string;
-  };
-  comments: any[];
-}
+
 
 export const ClientSideApiService = {
   login: (email: string, password: string) => 
@@ -51,7 +39,7 @@ export const ClientSideApiService = {
   },
 
   createPost: (formData: FormData) => 
-    ApiClient.post<Post>('/microposts', formData, {
+    ApiClient.post<Micropost>('/microposts', formData, {
       rawBody: true,
     }),
 };
