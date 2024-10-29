@@ -38,6 +38,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
       setSelectedImage(null);
       setPreviewUrl(null);
       onClose();
+      window.location.reload(); 
     } catch (error) {
       console.error('Failed to create post:', error);
     } finally {

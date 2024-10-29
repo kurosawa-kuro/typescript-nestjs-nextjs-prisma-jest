@@ -96,6 +96,9 @@ export class MicropostService {
           }
         }
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     }).then(microposts =>
       microposts.map(micropost => ({
         id: micropost.id,
