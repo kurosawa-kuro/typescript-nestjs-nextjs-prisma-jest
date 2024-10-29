@@ -1,6 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LikeController } from '@/features/like/like.controller';
 import { LikeService } from '@/features/like/like.service';
+import { AuthGuard } from '@/features/auth/guards/auth.guard';
+import { AuthService } from '@/features/auth/auth.service';
+import { Reflector } from '@nestjs/core';
+
+// AuthGuardのモック
+const mockAuthGuard = {
+  canActivate: jest.fn().mockImplementation(() => true),
+};
 
 describe('LikeController', () => {
   let controller: LikeController;
@@ -11,6 +19,11 @@ describe('LikeController', () => {
     remove: jest.fn(),
   };
 
+  const mockAuthService = {
+    // AuthServiceの必要なメソッドをモック
+    validateToken: jest.fn().mockResolvedValue(true)
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [LikeController],
@@ -19,6 +32,15 @@ describe('LikeController', () => {
           provide: LikeService,
           useValue: mockLikeService,
         },
+        {
+          provide: AuthService,
+          useValue: mockAuthService,
+        },
+        {
+          provide: AuthGuard,
+          useValue: mockAuthGuard,
+        },
+        Reflector,
       ],
     }).compile();
 
