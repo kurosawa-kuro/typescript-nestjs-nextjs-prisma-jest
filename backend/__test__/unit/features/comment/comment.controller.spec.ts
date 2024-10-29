@@ -1,198 +1,102 @@
-import { MicropostController } from '@/features/micropost/micropost.controller';
-import { MicropostService } from '@/features/micropost/micropost.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DetailedMicropost } from '@/shared/types/micropost.types';
-import { NotFoundException } from '@nestjs/common';
-import { UserInfo } from '@/shared/types/user.types';
+import { CommentController } from '@/features/comment/comment.controller';
+import { CommentService } from '@/features/comment/comment.service';
+import { AuthGuard } from '@/features/auth/guards/auth.guard';
+import { AuthService } from '@/features/auth/auth.service';
+import { Reflector } from '@nestjs/core';
 
-describe('MicropostController', () => {
-  let controller: MicropostController;
-  let service: MicropostService;
+describe('CommentController', () => {
+  let controller: CommentController;
+  let service: CommentService;
 
-  const mockCurrentUser: UserInfo = {
+  const mockComment = {
     id: 1,
-    name: 'Test User',
-    email: 'test@example.com',
-    userRoles: ['user'],
+    content: 'Test comment',
+    userId: 1,
+    micropostId: 1,
+    createdAt: new Date('2024-10-29T10:30:42.540Z'),
+    updatedAt: new Date('2024-10-29T10:30:42.540Z'),
   };
+
+  const mockUser = { id: 1 };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [MicropostController],
+      controllers: [CommentController],
       providers: [
         {
-          provide: MicropostService,
+          provide: CommentService,
           useValue: {
-            create: jest.fn(),
-            all: jest.fn(),
-            findOne: jest.fn(),
+            create: jest.fn().mockResolvedValue(mockComment),
+            findAllByMicropostId: jest.fn().mockResolvedValue([mockComment]),
+            update: jest.fn().mockResolvedValue(mockComment),
+            remove: jest.fn().mockResolvedValue(mockComment),
           },
         },
+        {
+          provide: AuthService,
+          useValue: {
+            validateToken: jest.fn().mockResolvedValue(true),
+          },
+        },
+        Reflector,
       ],
-    }).compile();
+    })
+      .overrideGuard(AuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
-    controller = module.get<MicropostController>(MicropostController);
-    service = module.get<MicropostService>(MicropostService);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    controller = module.get<CommentController>(CommentController);
+    service = module.get<CommentService>(CommentService);
   });
 
   describe('create', () => {
-    it('should create a micropost', async () => {
-      const data = { title: 'Test Micropost' };
-      const mockImage = {
-        filename: 'test-image.jpg'
-      } as Express.Multer.File;
+    it('should create a new comment', async () => {
+      const commentData = { content: 'Test comment' };
+      const micropostId = '1';
 
-      const expectedResult: DetailedMicropost = {
-        id: 1,
-        userId: 1,
-        title: 'Test Micropost',
-        imagePath: 'test-image.jpg',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        likesCount: 0,
-        user: {
-          id: 1,
-          name: 'Test User',
-        },
-        comments: []
-      };
-      
-      jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
-      
-      const result = await controller.create(data, mockImage, mockCurrentUser);
-      
+      const result = await controller.create(micropostId, commentData, mockUser);
+
+      expect(result).toEqual(mockComment);
       expect(service.create).toHaveBeenCalledWith({
-        title: data.title,
-        imagePath: mockImage.filename,
-        user: {
-          connect: { id: mockCurrentUser.id }
-        }
+        content: commentData.content,
+        micropost: { connect: { id: 1 } },
+        user: { connect: { id: mockUser.id } },
       });
-      expect(result).toEqual(expectedResult);
-    });
-
-    it('should create a micropost without image', async () => {
-      const data = { title: 'Test Micropost' };
-
-      const expectedResult: DetailedMicropost = {
-        id: 1,
-        userId: 1,
-        title: 'Test Micropost',
-        imagePath: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        likesCount: 0,
-        user: {
-          id: 1,
-          name: 'Test User',
-        },
-        comments: []
-      };
-      
-      jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
-      
-      const result = await controller.create(data, null, mockCurrentUser);
-      
-      expect(service.create).toHaveBeenCalledWith({
-        title: data.title,
-        imagePath: null,
-        user: {
-          connect: { id: mockCurrentUser.id }
-        }
-      });
-      expect(result).toEqual(expectedResult);
     });
   });
 
-  describe('findOne', () => {
-    it('should return a detailed micropost', async () => {
+  describe('findAll', () => {
+    it('should return an array of comments', async () => {
+      const micropostId = '1';
+
+      const result = await controller.findAll(micropostId);
+
+      expect(result).toEqual([mockComment]);
+      expect(service.findAllByMicropostId).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a comment', async () => {
       const id = '1';
-      const expectedResponse: DetailedMicropost = {
-        id: 1,
-        userId: 1,
-        title: 'Test Micropost',
-        imagePath: 'test.jpg',
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-02T00:00:00.000Z',
-        likesCount: 5,
-        isLiked: false,
-        user: {
-          id: 1,
-          name: 'Test User',
-        },
-        comments: [
-          {
-            id: 1,
-            content: 'Test Comment',
-            userId: 2,
-            micropostId: 1,
-            createdAt: '2023-01-03T00:00:00.000Z',
-            updatedAt: '2023-01-03T00:00:00.000Z',
-            user: {
-              id: 2,
-              name: 'Commenter',
-              profile: {
-                avatarPath: 'commenter-avatar.jpg',
-              },
-            },
-          },
-        ],
-      };
+      const commentData = { content: 'Updated comment' };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(expectedResponse);
+      const result = await controller.update(id, commentData, mockUser);
 
-      const result = await controller.findOne(id, mockCurrentUser);
-
-      expect(result).toEqual(expectedResponse);
-      expect(service.findOne).toHaveBeenCalledWith(1, mockCurrentUser.id);
-    });
-
-    it('should throw NotFoundException when micropost is not found', async () => {
-      const id = '999';
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
-
-      await expect(controller.findOne(id, mockCurrentUser)).rejects.toThrow(NotFoundException);
-      expect(service.findOne).toHaveBeenCalledWith(999, mockCurrentUser.id);
+      expect(result).toEqual(mockComment);
+      expect(service.update).toHaveBeenCalledWith(1, commentData, mockUser.id);
     });
   });
 
-  describe('index', () => {
-    it('should return an array of detailed microposts', async () => {
-      const expectedResult: DetailedMicropost[] = [
-        {
-          id: 1,
-          userId: 1,
-          title: 'Micropost 1',
-          imagePath: 'path1.jpg',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          likesCount: 5,
-          user: { id: 1, name: 'User 1' },
-          comments: [],
-        },
-        {
-          id: 2,
-          userId: 2,
-          title: 'Micropost 2',
-          imagePath: 'path2.jpg',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          likesCount: 3,
-          user: { id: 2, name: 'User 2' },
-          comments: [],
-        },
-      ];
-      
-      jest.spyOn(service, 'all').mockResolvedValue(expectedResult);
-      
-      const result = await controller.index();
-      
-      expect(service.all).toHaveBeenCalled();
-      expect(result).toEqual(expectedResult);
+  describe('remove', () => {
+    it('should remove a comment', async () => {
+      const id = '1';
+
+      const result = await controller.remove(id, mockUser);
+
+      expect(result).toEqual(mockComment);
+      expect(service.remove).toHaveBeenCalledWith(1, mockUser.id);
     });
   });
 });
