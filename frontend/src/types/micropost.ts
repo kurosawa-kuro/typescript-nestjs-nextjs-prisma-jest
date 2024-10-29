@@ -22,6 +22,7 @@ export interface Micropost {
   createdAt: string;
   updatedAt: string;
   likesCount: number;
+  isLiked?: boolean;
   comments: Comment[];
 }
 

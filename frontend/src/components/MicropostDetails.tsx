@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Micropost } from '@/types/micropost';
 import CommentList from '@/components/CommentList';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import CreateCommentModal from '@/components/CreateCommentModal';
 import { useAuthStore } from '@/store/authStore';
 import { ClientSideApiService } from '@/services/ClientSideApiService';
@@ -15,6 +15,8 @@ interface MicropostDetailsProps {
 const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [comments, setComments] = useState(micropost.comments);
+  const [likesCount, setLikesCount] = useState(micropost.likesCount);
+  const [isLiked, setIsLiked] = useState(micropost.isLiked || false);
   const { user } = useAuthStore();
 
   const handleCommentCreated = async () => {
@@ -25,6 +27,33 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
       window.location.reload();
     } catch (error) {
       console.error('Failed to refresh comments:', error);
+    }
+  };
+
+  const updateLikeStatus = async () => {
+    try {
+      const response = await fetch(`/api/microposts/${micropost.id}`);
+      const updatedMicropost = await response.json();
+      setLikesCount(updatedMicropost.likesCount);
+      setIsLiked(updatedMicropost.isLiked);
+    } catch (error) {
+      console.error('Failed to fetch like status:', error);
+    }
+  };
+
+  const handleLikeClick = async () => {
+    if (!user) return;
+
+    try {
+      if (isLiked) {
+        await ClientSideApiService.removeLike(micropost.id);
+      } else {
+        await ClientSideApiService.addLike(micropost.id);
+      }
+      // いいねの状態を更新
+      await updateLikeStatus();
+    } catch (error) {
+      console.error('Failed to handle like:', error);
     }
   };
 
@@ -46,9 +75,18 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
             <p>
               Posted by <span className="font-semibold">{micropost.user.name}</span> on {new Date(micropost.createdAt).toLocaleDateString()}
             </p>
-            <span className="flex items-center">
-              <FaHeart className="text-red-500 mr-1" /> {micropost.likesCount}
-            </span>
+            <button 
+              onClick={handleLikeClick}
+              className="flex items-center gap-1 focus:outline-none"
+              disabled={!user}
+            >
+              {isLiked ? (
+                <FaHeart className="text-red-500 hover:text-red-600 transition-colors" size={20} />
+              ) : (
+                <FaRegHeart className="text-gray-500 hover:text-red-500 transition-colors" size={20} />
+              )}
+              <span>{likesCount}</span>
+            </button>
           </div>
         </div>
       </div>

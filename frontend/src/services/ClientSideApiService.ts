@@ -48,4 +48,22 @@ export const ClientSideApiService = {
 
   getComments: (micropostId: number) =>
     ApiClient.get(`/microposts/${micropostId}/comments`),
+
+  addLike: async (micropostId: number) => {
+    const response = await ApiClient.post(`/microposts/${micropostId}/likes`, {});
+    return response;
+  },
+
+  removeLike: async (micropostId: number) => {
+    const response = await ApiClient.delete(`/microposts/${micropostId}/likes`);
+    return response;
+  },
+
+  getLikeStatus: (micropostId: number) =>
+    ApiClient.get(`/microposts/${micropostId}/likes`),
+
+  getMicropostDetails: async (micropostId: number) => {
+    const response = await ApiClient.get(`/microposts/${micropostId}`);
+    return response;
+  },
 };

@@ -49,13 +49,24 @@ export class AuthService {
     return { message: 'Logout successful' };
   }
 
-  async getUserFromToken(request: Request): Promise<UserInfo> {
+  async getUserFromToken(request: Request, isOptional = false): Promise<UserInfo | null> {
     const token = this.extractTokenFromRequest(request);
 
     if (!token) {
+      if (isOptional) {
+        return null;
+      }
       throw new UnauthorizedException('No token provided');
     }
-    return await this.verifyToken(token);
+
+    try {
+      return await this.verifyToken(token);
+    } catch (error) {
+      if (isOptional) {
+        return null;
+      }
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 
   // Token management methods
