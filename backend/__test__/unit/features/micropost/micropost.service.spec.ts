@@ -446,4 +446,38 @@ describe('MicropostService', () => {
       });
     });
   });
+
+  describe('findById', () => {
+    it('should return a micropost when found', async () => {
+      const id = 1;
+      const mockMicropost = {
+        id: 1,
+        userId: 1,
+        title: 'Test Micropost',
+        imagePath: 'test.jpg',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      jest.spyOn(prismaService.micropost, 'findUnique').mockResolvedValue(mockMicropost);
+
+      const result = await service.findById(id);
+      expect(result).toEqual(mockMicropost);
+      expect(prismaService.micropost.findUnique).toHaveBeenCalledWith({
+        where: { id }
+      });
+    });
+
+    it('should throw NotFoundException when micropost is not found', async () => {
+      const id = 999;
+      jest.spyOn(prismaService.micropost, 'findUnique').mockResolvedValue(null);
+
+      await expect(service.findById(id)).rejects.toThrow(
+        new NotFoundException(`Micropost with ID ${id} not found`)
+      );
+      expect(prismaService.micropost.findUnique).toHaveBeenCalledWith({
+        where: { id }
+      });
+    });
+  });
 });
