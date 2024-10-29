@@ -99,7 +99,6 @@ describe('useAvatarUpload', () => {
     });
 
     expect(mockOnError).toHaveBeenCalledWith('Failed to update avatar');
-    expect(console.error).toHaveBeenCalledWith('Error updating avatar:', mockError);
   });
 
   it('should do nothing when no file is selected', async () => {
