@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MicropostService } from '@/features/micropost/micropost.service';
 import { PrismaService } from '@/core/database/prisma.service';
 import { NotFoundException } from '@nestjs/common';
-import { Micropost } from '@prisma/client';
+import { Micropost, PrismaClient } from '@prisma/client';
 import { DetailedMicropost } from '@/shared/types/micropost.types';
 
 describe('MicropostService', () => {
@@ -22,7 +22,7 @@ describe('MicropostService', () => {
               findUnique: jest.fn(),
               update: jest.fn(),
               delete: jest.fn(),
-            },
+            } as unknown as PrismaClient['micropost'],
           },
         },
       ],
@@ -86,7 +86,7 @@ describe('MicropostService', () => {
   });
 
   describe('all', () => {
-    it('should return all microposts', async () => {
+    it('should return all microposts with comments', async () => {
       const mockMicroposts = [
         {
           id: 1,
@@ -105,9 +105,24 @@ describe('MicropostService', () => {
           _count: {
             likes: 5
           },
-          comments: []
-        },
-        // ... similar structure for second micropost
+          comments: [
+            {
+              id: 1,
+              content: 'Test Comment',
+              userId: 2,
+              micropostId: 1,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              user: {
+                id: 2,
+                name: 'Commenter',
+                profile: {
+                  avatarPath: 'commenter-avatar.jpg'
+                }
+              }
+            }
+          ]
+        }
       ];
 
       jest.spyOn(prismaService.micropost, 'findMany').mockResolvedValue(mockMicroposts);
@@ -126,8 +141,59 @@ describe('MicropostService', () => {
           id: micropost.user.id,
           name: micropost.user.name,
         },
-        comments: []
+        comments: micropost.comments.map(comment => ({
+          id: comment.id,
+          content: comment.content,
+          userId: comment.userId,
+          micropostId: comment.micropostId,
+          createdAt: comment.createdAt.toISOString(),
+          updatedAt: comment.updatedAt.toISOString(),
+          user: {
+            id: comment.user.id,
+            name: comment.user.name,
+            profile: {
+              avatarPath: comment.user.profile?.avatarPath
+            }
+          }
+        }))
       })));
+
+      expect(prismaService.micropost.findMany).toHaveBeenCalledWith({
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profile: {
+                select: {
+                  avatarPath: true
+                }
+              }
+            },
+          },
+          _count: {
+            select: { likes: true },
+          },
+          comments: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  profile: {
+                    select: {
+                      avatarPath: true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
     });
   });
 
@@ -191,6 +257,74 @@ describe('MicropostService', () => {
           updatedAt: comment.updatedAt.toISOString()
         }))
       });
+    });
+
+    it('should return null when micropost is not found', async () => {
+      const id = 999;
+      jest.spyOn(prismaService.micropost, 'findUnique').mockResolvedValue(null);
+
+      const result = await service.findOne(id);
+      expect(result).toBeNull();
+    });
+
+    it('should correctly determine isLiked when currentUserId is provided', async () => {
+      const id = 1;
+      const currentUserId = 2;
+      const mockMicropost = {
+        id: 1,
+        userId: 1,
+        title: 'Test Micropost',
+        imagePath: 'test.jpg',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: {
+          id: 1,
+          name: 'Test User',
+          profile: {
+            avatarPath: 'avatar.jpg'
+          }
+        },
+        _count: {
+          likes: 5
+        },
+        likes: [{ userId: currentUserId }],
+        comments: []
+      };
+
+      jest.spyOn(prismaService.micropost, 'findUnique').mockResolvedValue(mockMicropost);
+
+      const result = await service.findOne(id, currentUserId);
+      expect(result?.isLiked).toBe(true);
+    });
+
+    it('should handle case when likes array is empty', async () => {
+      const id = 1;
+      const currentUserId = 2;
+      const mockMicropost = {
+        id: 1,
+        userId: 1,
+        title: 'Test Micropost',
+        imagePath: 'test.jpg',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        user: {
+          id: 1,
+          name: 'Test User',
+          profile: {
+            avatarPath: 'avatar.jpg'
+          }
+        },
+        _count: {
+          likes: 0
+        },
+        likes: [],
+        comments: []
+      };
+
+      jest.spyOn(prismaService.micropost, 'findUnique').mockResolvedValue(mockMicropost);
+
+      const result = await service.findOne(id, currentUserId);
+      expect(result?.isLiked).toBe(false);
     });
   });
 
