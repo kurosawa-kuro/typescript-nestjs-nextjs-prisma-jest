@@ -3,16 +3,12 @@
 import React, { useState } from 'react';
 import MicropostCard from '@/components/MicropostCard';
 import Link from 'next/link';
-import { Micropost } from '@/types/micropost'; // 適切なパスに調整してください
+import { TimelineProps } from '@/types/micropost'; // 適切なパスに調整してください
 import CreatePostModal from './CreatePostModal';
 
 const POSTS_PER_PAGE = 6;
 
-interface TimelineProps {
-  microposts: Micropost[];
-  currentPage: number;
-  totalPages: number;
-}
+
 
 const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -32,3 +32,9 @@ export interface NewMicropost {
   title: string;
   imagePath: string;
 }
+
+export interface TimelineProps {
+  microposts: Micropost[];
+  currentPage: number;
+  totalPages: number;
+}
