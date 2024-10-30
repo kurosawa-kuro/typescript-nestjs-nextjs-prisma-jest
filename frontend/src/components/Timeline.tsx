@@ -32,8 +32,8 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <form onSubmit={handleSearch} className="flex gap-2">
+      <div className="flex gap-4 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
           <input
             type="text"
             value={searchQuery}
@@ -48,13 +48,11 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
             Search
           </button>
         </form>
-      </div>
 
-      <div className="mb-6">
         {user && (
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap"
           >
             Create New Post
           </button>

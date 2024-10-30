@@ -162,12 +162,14 @@ model Micropost {
   userId     Int
   title      String
   imagePath  String?
+  viewCount  Int                 @default(0)
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments   Comment[]
   likes      Like[]
   categories CategoryMicropost[]
+  views      MicropostView[]
 }
 
 model CategoryMicropost {
@@ -208,4 +210,15 @@ model Like {
   micropost  Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
 
   @@unique([userId, micropostId])
+}
+
+model MicropostView {
+  id          Int      @id @default(autoincrement())
+  micropostId Int
+  ipAddress   String
+  viewedAt    DateTime @default(now())
+  micropost   Micropost @relation(fields: [micropostId], references: [id], onDelete: Cascade)
+
+  @@unique([micropostId, ipAddress])
+  @@index([micropostId])
 }

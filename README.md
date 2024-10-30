@@ -16,6 +16,7 @@ npm run test:e2e
 
 Zod
 
+SmartHR作業
 
 Swagger
 管理画面 Swagger
@@ -25,7 +26,6 @@ Swagger
 カテゴリーを作るとチャートが華やかになる
 マイクロポストにmost view機能
 テストのカバレッジ設定見直し
-検索
 ソート機能
 画像投稿をhook分離
 ローでイングの仕方を大幅に変える
