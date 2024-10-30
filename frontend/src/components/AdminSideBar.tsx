@@ -19,6 +19,9 @@ export default function AdminSideBar() {
           <Link href="/admin/users" className="block py-2 px-4 hover:bg-gray-700 rounded">Manage Users</Link>
         </li>
         <li>
+          <Link href="/admin/ranking" className="block py-2 px-4 hover:bg-gray-700 rounded">Ranking</Link>
+        </li>
+        <li>
           <Link href="/admin/settings" className="block py-2 px-4 hover:bg-gray-700 rounded">Settings</Link>
         </li>
         <li>
