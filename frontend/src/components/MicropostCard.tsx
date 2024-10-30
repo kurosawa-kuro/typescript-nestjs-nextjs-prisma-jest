@@ -13,11 +13,11 @@ const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
       <Link href={`/timeline/${micropost.id}`}>
         <h2 className="text-xl font-semibold mb-2 hover:text-blue-600">{micropost.title}</h2>
 
-        <div className="mb-2 flex justify-center items-center" style={{ maxHeight: '300px' }}>
+        <div className="mb-2 flex justify-center items-center h-[200px]">
           <img
             src={`http://localhost:3001/uploads/${micropost.imagePath}`}
             alt={micropost.title}
-            className="max-w-full min-h-[300px] object-contain rounded"
+            className="max-w-full max-h-[200px] w-auto h-auto object-contain rounded"
           />
         </div>
         <div className="flex justify-between items-center text-gray-600 text-sm">
