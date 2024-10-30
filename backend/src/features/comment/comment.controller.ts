@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { Comment } from '@prisma/client';
 import { AuthGuard } from '@/features/auth/guards/auth.guard';
@@ -13,7 +22,7 @@ export class CommentController {
   async create(
     @Param('micropostId') micropostId: string,
     @Body() commentData: Pick<Comment, 'content'>,
-    @User() user: { id: number }
+    @User() user: { id: number },
   ): Promise<Comment> {
     return this.commentService.create({
       content: commentData.content,
@@ -31,13 +40,16 @@ export class CommentController {
   async update(
     @Param('id') id: string,
     @Body() commentData: Pick<Comment, 'content'>,
-    @User() user: { id: number }
+    @User() user: { id: number },
   ): Promise<Comment> {
     return this.commentService.update(Number(id), commentData, user.id);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string, @User() user: { id: number }): Promise<Comment> {
+  async remove(
+    @Param('id') id: string,
+    @User() user: { id: number },
+  ): Promise<Comment> {
     return this.commentService.remove(Number(id), user.id);
   }
 }

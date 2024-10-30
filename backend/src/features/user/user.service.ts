@@ -7,7 +7,11 @@ import { PrismaService } from '@/core/database/prisma.service';
 import { User, Prisma, Role } from '@prisma/client';
 import { BaseService } from '@/core/common/base.service';
 import * as bcrypt from 'bcryptjs';
-import { UserWithoutPassword, UserInfo, UserDetails } from '@/shared/types/user.types';
+import {
+  UserWithoutPassword,
+  UserInfo,
+  UserDetails,
+} from '@/shared/types/user.types';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -127,7 +131,7 @@ export class UserService extends BaseService<
 
   async findByIdWithRelations(
     id: number,
-    currentUserId: number
+    currentUserId: number,
   ): Promise<UserWithoutPassword & { userRoles: string[] }> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -198,16 +202,18 @@ export class UserService extends BaseService<
       },
     });
 
-    return users.map((user): UserDetails => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      userRoles: user.userRoles.map(ur => ur.role.name),
-      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
-      isFollowing: user.followers.length > 0,
-    }));
+    return users.map(
+      (user): UserDetails => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        userRoles: user.userRoles.map((ur) => ur.role.name),
+        profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+        isFollowing: user.followers.length > 0,
+      }),
+    );
   }
 
   // ユーザー情報更新
@@ -282,7 +288,10 @@ export class UserService extends BaseService<
   }
 
   // フォロー関連
-  async follow(followerId: number, followingId: number): Promise<UserDetails[]> {
+  async follow(
+    followerId: number,
+    followingId: number,
+  ): Promise<UserDetails[]> {
     // Check if the follow relationship already exists
     const existingFollow = await this.prisma.follow.findUnique({
       where: {
@@ -307,7 +316,10 @@ export class UserService extends BaseService<
     return this.findAllWithFollowStatus(followerId);
   }
 
-  async unfollow(followerId: number, followingId: number): Promise<UserDetails[]> {
+  async unfollow(
+    followerId: number,
+    followingId: number,
+  ): Promise<UserDetails[]> {
     // Check if the follow relationship exists
     const existingFollow = await this.prisma.follow.findUnique({
       where: {
@@ -334,7 +346,10 @@ export class UserService extends BaseService<
     return this.findAllWithFollowStatus(followerId);
   }
 
-  async getFollowers(userId: number, currentUserId: number): Promise<UserDetails[]> {
+  async getFollowers(
+    userId: number,
+    currentUserId: number,
+  ): Promise<UserDetails[]> {
     const followers = await this.prisma.follow.findMany({
       where: { followingId: userId },
       select: {
@@ -364,7 +379,7 @@ export class UserService extends BaseService<
       },
     });
 
-    const followerIds = followers.map(f => f.follower.id);
+    const followerIds = followers.map((f) => f.follower.id);
     const followedByCurrentUser = await this.prisma.follow.findMany({
       where: {
         followerId: currentUserId,
@@ -372,18 +387,24 @@ export class UserService extends BaseService<
       },
     });
 
-    const followedByCurrentUserSet = new Set(followedByCurrentUser.map(f => f.followingId));
+    const followedByCurrentUserSet = new Set(
+      followedByCurrentUser.map((f) => f.followingId),
+    );
 
-    return followers.map((follow): UserDetails => ({
-      id: follow.follower.id,
-      name: follow.follower.name,
-      email: follow.follower.email,
-      createdAt: follow.follower.createdAt,
-      updatedAt: follow.follower.updatedAt,
-      userRoles: follow.follower.userRoles.map(ur => ur.role.name),
-      profile: { avatarPath: follow.follower.profile?.avatarPath || 'default.png' },
-      isFollowing: followedByCurrentUserSet.has(follow.follower.id),
-    }));
+    return followers.map(
+      (follow): UserDetails => ({
+        id: follow.follower.id,
+        name: follow.follower.name,
+        email: follow.follower.email,
+        createdAt: follow.follower.createdAt,
+        updatedAt: follow.follower.updatedAt,
+        userRoles: follow.follower.userRoles.map((ur) => ur.role.name),
+        profile: {
+          avatarPath: follow.follower.profile?.avatarPath || 'default.png',
+        },
+        isFollowing: followedByCurrentUserSet.has(follow.follower.id),
+      }),
+    );
   }
 
   async getFollowing(userId: number): Promise<UserDetails[]> {
@@ -416,16 +437,20 @@ export class UserService extends BaseService<
       },
     });
 
-    return following.map((follow): UserDetails => ({
-      id: follow.following.id,
-      name: follow.following.name,
-      email: follow.following.email,
-      createdAt: follow.following.createdAt,
-      updatedAt: follow.following.updatedAt,
-      userRoles: follow.following.userRoles.map(ur => ur.role.name),
-      profile: { avatarPath: follow.following.profile?.avatarPath || 'default.png' },
-      isFollowing: true, // フォローしているユーザーのリストなので、常にtrueになります
-    }));
+    return following.map(
+      (follow): UserDetails => ({
+        id: follow.following.id,
+        name: follow.following.name,
+        email: follow.following.email,
+        createdAt: follow.following.createdAt,
+        updatedAt: follow.following.updatedAt,
+        userRoles: follow.following.userRoles.map((ur) => ur.role.name),
+        profile: {
+          avatarPath: follow.following.profile?.avatarPath || 'default.png',
+        },
+        isFollowing: true, // フォローしているユーザーのリストなので、常にtrueになります
+      }),
+    );
   }
 
   // ヘルパーメソッド
@@ -470,7 +495,7 @@ export class UserService extends BaseService<
 
   async findByIdWithRelationsAndFollowStatus(
     id: number,
-    currentUserId: number
+    currentUserId: number,
   ): Promise<UserDetails> {
     const user = await this.prisma.user.findUnique({
       where: { id },

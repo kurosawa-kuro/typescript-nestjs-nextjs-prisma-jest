@@ -17,7 +17,7 @@ export interface Comment {
   createdAt: string;
   updatedAt: string;
   user: Pick<User, 'id' | 'name'> & {
-    profile: Pick<UserProfile, 'avatarPath'>
+    profile: Pick<UserProfile, 'avatarPath'>;
   };
 }
 

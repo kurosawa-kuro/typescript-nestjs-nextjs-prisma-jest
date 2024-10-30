@@ -15,7 +15,11 @@ import { BaseController } from '@/core/common/base.controller';
 import { Public } from '@/features/auth/decorators/public.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig, multerOptions } from '@/core/common/multer-config';
-import { UserDetails, UserInfo, UserWithoutPassword } from '@/shared/types/user.types';
+import {
+  UserDetails,
+  UserInfo,
+  UserWithoutPassword,
+} from '@/shared/types/user.types';
 import { User as UserDecorator } from '@/features/auth/decorators/user.decorator';
 
 @Controller('users')
@@ -43,14 +47,16 @@ export class UserController extends BaseController<UserDetails> {
   @Get(':id/followers')
   async getFollowers(
     @Param('id', ParseIntPipe) id: number,
-    @UserDecorator() currentUser: UserInfo
+    @UserDecorator() currentUser: UserInfo,
   ): Promise<UserDetails[]> {
     return this.userService.getFollowers(id, currentUser.id);
   }
 
   // 特定ユーザーのフォロー中ユーザーリストを取得
   @Get(':id/following')
-  async getFollowing(@Param('id', ParseIntPipe) id: number): Promise<UserDetails[]> {
+  async getFollowing(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserDetails[]> {
     return this.userService.getFollowing(id);
   }
 
@@ -59,9 +65,12 @@ export class UserController extends BaseController<UserDetails> {
   @Get(':id')
   async show(
     @Param('id', ParseIntPipe) id: number,
-    @UserDecorator() currentUser?: UserInfo
+    @UserDecorator() currentUser?: UserInfo,
   ): Promise<UserDetails> {
-    return this.userService.findByIdWithRelationsAndFollowStatus(id, currentUser?.id);
+    return this.userService.findByIdWithRelationsAndFollowStatus(
+      id,
+      currentUser?.id,
+    );
   }
 
   // ユーザーのアバター画像を更新
@@ -87,7 +96,7 @@ export class UserController extends BaseController<UserDetails> {
   @Post(':id/follow')
   async follow(
     @Param('id', ParseIntPipe) id: number,
-    @UserDecorator() currentUser: UserInfo
+    @UserDecorator() currentUser: UserInfo,
   ): Promise<UserDetails[]> {
     return this.userService.follow(currentUser.id, id);
   }
@@ -96,14 +105,16 @@ export class UserController extends BaseController<UserDetails> {
   @Delete(':id/follow')
   async unfollow(
     @Param('id', ParseIntPipe) id: number,
-    @UserDecorator() currentUser: UserInfo
+    @UserDecorator() currentUser: UserInfo,
   ): Promise<UserDetails[]> {
     return this.userService.unfollow(currentUser.id, id);
   }
 
   // ユーザーの管理者権限を削除
   @Put(':id/admin/remove')
-  async removeAdmin(@Param('id', ParseIntPipe) id: number): Promise<UserDetails> {
+  async removeAdmin(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserDetails> {
     return this.userService.updateUserRole(id, 'remove');
   }
 }

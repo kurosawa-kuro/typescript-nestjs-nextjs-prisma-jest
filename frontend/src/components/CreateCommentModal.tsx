@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
+import { useRouter } from 'next/navigation';
+import Spinner from './common/Spinner';
 
 interface CreateCommentModalProps {
   isOpen: boolean;
@@ -13,6 +15,7 @@ interface CreateCommentModalProps {
 const CreateCommentModal = ({ isOpen, onClose, micropostId, onCommentCreated }: CreateCommentModalProps) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
@@ -22,6 +25,7 @@ const CreateCommentModal = ({ isOpen, onClose, micropostId, onCommentCreated }: 
       await ClientSideApiService.createComment(micropostId, content);
       setContent('');
       onCommentCreated();
+      router.refresh();
       onClose();
     } catch (error) {
       console.error('Failed to create comment:', error);
@@ -48,6 +52,7 @@ const CreateCommentModal = ({ isOpen, onClose, micropostId, onCommentCreated }: 
             placeholder="Write your comment..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -62,9 +67,16 @@ const CreateCommentModal = ({ isOpen, onClose, micropostId, onCommentCreated }: 
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || !content.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {isSubmitting ? 'Posting...' : 'Post Comment'}
+            {isSubmitting ? (
+              <>
+                <Spinner />
+                <span>Posting...</span>
+              </>
+            ) : (
+              'Post Comment'
+            )}
           </button>
         </div>
       </div>

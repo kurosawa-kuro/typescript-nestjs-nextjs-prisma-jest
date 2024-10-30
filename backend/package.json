@@ -24,7 +24,9 @@
     "prisma:generate:test": "cross-env NODE_ENV=test dotenv -e .env.test -- prisma generate",
     "prisma:migrate:test": "cross-env NODE_ENV=test dotenv -e .env.test -- prisma migrate dev",
     "prisma:deploy:test": "npm run prisma:generate:test && npm run prisma:migrate:test ",
-    "prisma:deploy:all": "npm run prisma:deploy:dev && npm run prisma:deploy:test"
+    "prisma:deploy:all": "npm run prisma:deploy:dev && npm run prisma:deploy:test",
+    "prisma:reset:dev": "cross-env NODE_ENV=development dotenv -e .env.development -- ts-node -r tsconfig-paths/register src/scripts/resetDb.ts",
+    "prisma:reset:test": "cross-env NODE_ENV=test dotenv -e .env.test -- ts-node -r tsconfig-paths/register src/scripts/resetDb.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

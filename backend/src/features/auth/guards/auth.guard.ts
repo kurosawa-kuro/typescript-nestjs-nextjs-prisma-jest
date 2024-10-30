@@ -31,7 +31,7 @@ export class AuthGuard {
 
     if (user) {
       request['user'] = user;
-      
+
       if (this.isAdminRoute(context) && !user.userRoles.includes('admin')) {
         throw new UnauthorizedException('Admin access required');
       }

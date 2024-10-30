@@ -11,7 +11,7 @@ export class LikeController {
   @Post()
   async create(
     @Param('micropostId') micropostId: string,
-    @User() user: { id: number }
+    @User() user: { id: number },
   ) {
     return this.likeService.create(Number(micropostId), user.id);
   }
@@ -19,7 +19,7 @@ export class LikeController {
   @Delete()
   async remove(
     @Param('micropostId') micropostId: string,
-    @User() user: { id: number }
+    @User() user: { id: number },
   ) {
     return this.likeService.remove(Number(micropostId), user.id);
   }

@@ -1,8 +1,9 @@
 'use client';
 
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,8 +39,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
       setTitle('');
       setSelectedImage(null);
       setPreviewUrl(null);
+      router.refresh(); // サーバーコンポーネントを再フェッチ
       onClose();
-      window.location.reload(); 
+      // window.location.reload(); 
     } catch (error) {
       console.error('Failed to create post:', error);
     } finally {

@@ -89,7 +89,11 @@ describe('AuthGuard', () => {
     });
 
     it('should throw UnauthorizedException for general user on admin route', async () => {
-      reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
+      reflector.getAllAndOverride
+        .mockReturnValueOnce(false)  // isPublic
+        .mockReturnValueOnce(false)  // isOptional
+        .mockReturnValueOnce(true);  // isAdmin
+
       authService.getUserFromToken.mockResolvedValue({ 
         id: 1, 
         userRoles: ['general'], 
@@ -101,12 +105,16 @@ describe('AuthGuard', () => {
       });
 
       await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        UnauthorizedException,
+        'Admin access required'
       );
     });
 
     it('should throw UnauthorizedException for read_only_admin on admin route', async () => {
-      reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
+      reflector.getAllAndOverride
+        .mockReturnValueOnce(false)  // isPublic
+        .mockReturnValueOnce(false)  // isOptional
+        .mockReturnValueOnce(true);  // isAdmin
+
       authService.getUserFromToken.mockResolvedValue({ 
         id: 2, 
         userRoles: ['read_only_admin'], 
@@ -118,12 +126,16 @@ describe('AuthGuard', () => {
       });
 
       await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        UnauthorizedException,
+        'Admin access required'
       );
     });
 
     it('should allow access for admin user on admin route', async () => {
-      reflector.getAllAndOverride.mockReturnValueOnce(false).mockReturnValueOnce(true);
+      reflector.getAllAndOverride
+        .mockReturnValueOnce(false)  // isPublic
+        .mockReturnValueOnce(false)  // isOptional
+        .mockReturnValueOnce(true);  // isAdmin
+
       authService.getUserFromToken.mockResolvedValue({ 
         id: 3, 
         userRoles: ['admin'], 

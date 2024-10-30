@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserDetails } from '@/types/models';
-import { ClientSideApiService } from '@/services/ClientSideApiService';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 import { useUserStore } from '@/store/userStore';
 
 interface RoleChangeModalProps {

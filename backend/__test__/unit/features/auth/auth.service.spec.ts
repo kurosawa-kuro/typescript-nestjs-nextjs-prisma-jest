@@ -126,6 +126,49 @@ describe('AuthService', () => {
 
       await expect(service.getUserFromToken(mockRequest)).rejects.toThrow('No token provided');
     });
+
+    describe('with optional auth', () => {
+      it('should return null when no token is provided and isOptional is true', async () => {
+        const mockRequest = createMockRequest({});
+        
+        const result = await service.getUserFromToken(mockRequest, true);
+        
+        expect(result).toBeNull();
+      });
+
+      it('should return null when token is invalid and isOptional is true', async () => {
+        const mockRequest = createMockRequest({ jwt: 'invalid_token' });
+        jwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
+
+        const result = await service.getUserFromToken(mockRequest, true);
+
+        expect(result).toBeNull();
+      });
+
+      it('should return user info when valid token is provided and isOptional is true', async () => {
+        const mockRequest = createMockRequest({ jwt: 'valid_token' });
+        jwtService.verifyAsync.mockResolvedValue(mockUserInfo);
+
+        const result = await service.getUserFromToken(mockRequest, true);
+
+        expect(result).toEqual(mockUserInfo);
+      });
+    });
+
+    describe('with required auth', () => {
+      it('should throw UnauthorizedException when no token is provided and isOptional is false', async () => {
+        const mockRequest = createMockRequest({});
+
+        await expect(service.getUserFromToken(mockRequest, false)).rejects.toThrow('No token provided');
+      });
+
+      it('should throw UnauthorizedException when token is invalid and isOptional is false', async () => {
+        const mockRequest = createMockRequest({ jwt: 'invalid_token' });
+        jwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
+
+        await expect(service.getUserFromToken(mockRequest, false)).rejects.toThrow('Invalid token');
+      });
+    });
   });
 
   describe('setTokenCookie', () => {

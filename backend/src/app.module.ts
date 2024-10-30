@@ -16,6 +16,7 @@ import { FollowModule } from './features/follow/follow.module';
 import { TeamModule } from './features/team/team.module';
 import { LikeModule } from './features/like/like.module';
 import { CommentModule } from './features/comment/comment.module';
+import { RankingModule } from './features/admin/ranking/ranking.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CommentModule } from './features/comment/comment.module';
     TeamModule,
     LikeModule,
     CommentModule,
+    RankingModule,
   ],
   controllers: [TestController],
   providers: [

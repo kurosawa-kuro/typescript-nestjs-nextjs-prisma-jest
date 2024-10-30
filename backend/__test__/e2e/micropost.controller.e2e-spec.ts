@@ -10,6 +10,8 @@ import {
   createTestMicropost,
   loginTestUser,
 } from './test-utils';
+import * as path from 'path';
+import * as fs from 'fs';
 
 describe('MicropostController (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +47,44 @@ describe('MicropostController (e2e)', () => {
       expect(response.body).toBeInstanceOf(Array);
       expect(response.body).toHaveLength(2);
       expectValidMicropost(response.body[0], testUser.id);
+    });
+  });
+
+  describe('POST /microposts', () => {
+    it('should create a new micropost with image', async () => {
+      // Arrange
+      const testUser = await createTestUser(prismaService, {
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      const { token } = await loginTestUser(app, testUser.email, 'password123');
+      
+      // 正しい画像パスを使用
+      const testImagePath = path.join(process.cwd(), 'uploads', 'test.png');
+      
+      // 画像ファイルが存在することを確認
+      expect(fs.existsSync(testImagePath)).toBeTruthy();
+      
+      // Act
+      const response = await request(app.getHttpServer())
+        .post('/microposts')
+        .set('Authorization', `Bearer ${token}`)
+        .field('title', 'My First Post')
+        .attach('image', testImagePath, 'test.png')
+        .expect(201);
+
+      // Assert
+      expect(response.body).toMatchObject({
+        title: 'My First Post',
+        userId: testUser.id,
+        user: {
+          id: testUser.id,
+          name: expect.any(String)
+        },
+        imagePath: expect.stringMatching(/.*\.png$/),
+        likesCount: 0,
+        comments: []
+      });
     });
   });
 });

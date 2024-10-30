@@ -1,4 +1,4 @@
-import { getUsers, getUserDetails, getUsersWithFollowStatus, followUser, unfollowUser, getFollowers, getFollowing } from '../../src/app/actions/users';
+import { getUsers, getUserDetails, getUsersWithFollowStatus, followUser, unfollowUser, getFollowers, getFollowing, getMe } from '../../src/app/actions/users';
 import { ApiClient } from '../../src/services/apiClient';
 
 // ApiClient をモック化
@@ -182,6 +182,46 @@ describe('User Actions', () => {
       (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
 
       await expect(getFollowing(1)).rejects.toThrow('Failed to fetch following users');
+    });
+  });
+
+  describe('getMe', () => {
+    it('should call ApiClient.get with correct endpoint and headers and return user details', async () => {
+      const mockUserDetails = {
+        id: 1,
+        name: 'Current User',
+        email: 'current@example.com',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userRoles: ['user'],
+        profile: { avatarPath: 'path/to/avatar' }
+      };
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const result = await getMe();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me', {
+        headers: {
+          Authorization: 'Bearer mocked-jwt-token',
+        },
+      });
+      expect(result).toEqual(mockUserDetails);
+    });
+
+    it('should return null and log error if ApiClient.get fails', async () => {
+      const mockError = new Error('Failed to fetch current user');
+      (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
+      console.error = jest.fn();
+
+      const result = await getMe();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me', {
+        headers: {
+          Authorization: 'Bearer mocked-jwt-token',
+        },
+      });
+      expect(console.error).toHaveBeenCalledWith('Error fetching current user:', mockError);
+      expect(result).toBeNull();
     });
   });
 });
