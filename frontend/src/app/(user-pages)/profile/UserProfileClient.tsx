@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UserDetails } from '@/types/user';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
-import { useUserProfileStore } from '@/store/userProfileStore';
+import { useUserProfileStore } from '@/store/UserProfileStore';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUserProfileUpdate } from '@/hooks/useUserProfileUpdate';
 import LoadingSpinner from '@/components/LoadingSpinner';
