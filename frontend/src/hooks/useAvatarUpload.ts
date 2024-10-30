@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { ClientSideApiService } from '@/services/clientSideApiService';
-import { useUserProfileStore } from '@/store/UserProfileStore';
+import { useUserProfileStore } from '@/store/userProfileStore';   
 
 type MessageCallback = (message: string) => void;
 

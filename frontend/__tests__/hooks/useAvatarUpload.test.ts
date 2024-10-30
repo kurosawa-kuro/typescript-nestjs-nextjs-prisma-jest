@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { ClientSideApiService } from '@/services/clientSideApiService';
-import { useUserProfileStore } from '@/store/UserProfileStore';
+import { useUserProfileStore } from '@/store/userProfileStore';
 import { UserDetails } from '@/types/user';
 
 // ClientSideApiServiceのモック
