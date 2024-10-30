@@ -1,4 +1,4 @@
-import { useUserProfileStore } from '@/store/UserProfileStore';
+import { useUserProfileStore } from '@/store/userProfileStore';
 import { UserDetails } from '@/types/user';
 
 describe('UserProfileStore', () => {
