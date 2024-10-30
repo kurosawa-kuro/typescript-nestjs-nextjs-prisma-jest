@@ -4,9 +4,19 @@ import Timeline from '@/components/Timeline';
 
 const POSTS_PER_PAGE = 6;
 
-export default async function TimelinePage({ searchParams }: { searchParams: { page?: string } }) {
+export default async function TimelinePage({ 
+  searchParams 
+}: { 
+  searchParams: { 
+    page?: string;
+    search?: string;
+  } 
+}) {
   const currentPage = Number(searchParams.page) || 1;
-  const allMicroposts = await getMicroposts();
+  const searchQuery = searchParams.search || '';
+
+  // 検索クエリをバックエンドに渡す
+  const allMicroposts = await getMicroposts(searchQuery);
   
   const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
   const endIndex = startIndex + POSTS_PER_PAGE;

@@ -9,20 +9,49 @@ import { useAuthStore } from '@/store/authStore';
 
 const POSTS_PER_PAGE = 6;
 
-
-
 const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user} = useAuthStore();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuthStore();
+
+  const currentSearchQuery = new URLSearchParams(window.location.search).get('search') || '';
+
+  const getPageUrl = (page: number) => {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+    if (currentSearchQuery) {
+      params.set('search', currentSearchQuery);
+    }
+    return `/timeline?${params.toString()}`;
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    window.location.href = `/timeline?search=${encodeURIComponent(searchQuery)}`;
+  };
 
   return (
-    // ユーザーログインしていないときはCreate New Postを表示しない
-
-    // ユーザーログインしているときはCreate New Postを表示する
-    
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        {user && ( // Check if the user is logged in
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search posts..."
+            className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+
+      <div className="mb-6">
+        {user && (
           <button
             onClick={() => setIsModalOpen(true)}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -38,18 +67,20 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
         ))}
       </div>
       
-      {/* ページャー */}
       <div className="flex justify-center">
         <nav className="inline-flex rounded-md shadow">
           {currentPage > 1 && (
-            <Link href={`/timeline?page=${currentPage - 1}`} className="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <Link 
+              href={getPageUrl(currentPage - 1)} 
+              className="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
               Previous
             </Link>
           )}
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <Link
               key={page}
-              href={`/timeline?page=${page}`}
+              href={getPageUrl(page)}
               className={`px-4 py-2 bg-white border border-gray-300 text-sm font-medium ${
                 currentPage === page ? 'text-blue-600 hover:bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
               }`}
@@ -58,7 +89,10 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
             </Link>
           ))}
           {currentPage < totalPages && (
-            <Link href={`/timeline?page=${currentPage + 1}`} className="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <Link 
+              href={getPageUrl(currentPage + 1)} 
+              className="px-4 py-2 bg-white border border-gray-300 text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
               Next
             </Link>
           )}

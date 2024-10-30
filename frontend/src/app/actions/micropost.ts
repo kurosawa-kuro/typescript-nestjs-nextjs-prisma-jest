@@ -16,10 +16,12 @@ function getAuthHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function getMicroposts(): Promise<Micropost[]> {
+export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> {
+  console.log('Search Query:', searchQuery);
   try {
     const response = await ApiClient.get<Micropost[]>('/microposts', {
       headers: getAuthHeaders(),
+      params: { search: searchQuery },
     });
     return response;
   } catch (error) {

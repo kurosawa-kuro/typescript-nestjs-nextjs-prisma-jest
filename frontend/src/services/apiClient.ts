@@ -1,9 +1,20 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
-type RequestOptions = RequestInit & { useCache?: boolean; rawBody?: boolean };
+type RequestOptions = RequestInit & { useCache?: boolean; rawBody?: boolean; params?: Record<string, string | undefined> };
 
 async function request<T>(method: string, endpoint: string, options?: RequestOptions): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  let url = `${API_BASE_URL}${endpoint}`;
+
+  if (options?.params) {
+    const searchParams = new URLSearchParams();
+    Object.entries(options.params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.append(key, value);
+      }
+    });
+    url += `?${searchParams.toString()}`;
+  }
+
   const defaultOptions: RequestInit = {
     method,
     headers: { 'Content-Type': 'application/json' },
@@ -18,7 +29,6 @@ async function request<T>(method: string, endpoint: string, options?: RequestOpt
     cache: options?.useCache ? undefined : 'no-store',
   };
 
-  // rawBody オプションが true の場合、body をそのまま使用
   if (options?.rawBody && options.body instanceof FormData) {
     delete (mergedOptions.headers as Record<string, string>)['Content-Type'];
   } else if (typeof options?.body === 'object' && !(options?.body instanceof FormData)) {
@@ -41,7 +51,6 @@ export const ApiClient = {
   delete: <T>(endpoint: string, options?: RequestOptions) => request<T>('DELETE', endpoint, options)
 };
 
-// Add this new function for server-side requests
 export async function serverRequest<T>(method: string, endpoint: string, body?: unknown): Promise<T> {
   return request<T>(method, endpoint, body ? { body: JSON.stringify(body) } : undefined);
 }

@@ -49,6 +49,7 @@ export class MicropostController {
   @OptionalAuth()
   @Get()
   async index(@Query('search') search?: string): Promise<DetailedMicropost[]> {
+    console.log('Search Query:', search);
     return this.micropostService.all(search);
   }
 
