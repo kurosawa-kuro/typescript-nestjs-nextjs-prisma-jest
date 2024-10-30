@@ -149,6 +149,11 @@ Content-Type: image/jpeg
 GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}
 
+### マイクロポスト一覧を取得（検索機能）
+GET {{baseUrl}}/microposts?search=post
+Content-Type: {{contentType}}
+
+
 ### マイクロポスト詳細を取得
 GET {{baseUrl}}/microposts/72
 Content-Type: {{contentType}}

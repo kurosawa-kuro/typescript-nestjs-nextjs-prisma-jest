@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MicropostService } from './micropost.service';
@@ -44,11 +45,11 @@ export class MicropostController {
   }
 
   // マイクロポストに紐づく、「紐づいたユーザーID、ユーザー名」「いいねの数」も取得
-  // Publicに変更
+  // 検索機能を追加
   @OptionalAuth()
   @Get()
-  async index(): Promise<DetailedMicropost[]> {
-    return this.micropostService.all();
+  async index(@Query('search') search?: string): Promise<DetailedMicropost[]> {
+    return this.micropostService.all(search);
   }
 
   // マイクロポストに紐づく、「コメント 紐づいたユーザーID、ユーザー名、アバター」「いいねの数」も取得

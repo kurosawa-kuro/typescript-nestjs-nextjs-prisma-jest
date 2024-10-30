@@ -77,9 +77,16 @@ export class MicropostService {
     };
   }
 
-  async all(): Promise<DetailedMicropost[]> {
+  async all(search?: string): Promise<DetailedMicropost[]> {
     return this.prisma.micropost
       .findMany({
+        where: search ? {
+          title: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          }
+          : undefined,
         include: {
           user: {
             select: {
