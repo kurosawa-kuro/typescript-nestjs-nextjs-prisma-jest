@@ -294,3 +294,10 @@ Content-Type: image/jpeg
 < ./backend/uploads/test.png
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
+
+# Admin エンドポイント
+
+### マイクロポストのランキングを取得
+GET {{baseUrl}}/admin/ranking
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
