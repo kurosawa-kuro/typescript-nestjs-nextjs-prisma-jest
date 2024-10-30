@@ -51,3 +51,15 @@ export async function getMicropostComments(micropostId: number): Promise<Comment
     return [];
   }
 }
+
+export async function getMicropostRanking(): Promise<Micropost[]> {
+  try {
+    const response = await ApiClient.get<Micropost[]>('/admin/ranking', {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching micropost ranking:', error);
+    return [];
+  }
+}
