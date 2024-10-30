@@ -11,7 +11,9 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
       <p className="mb-2">{comment.content}</p>
       <div className="flex items-center text-sm text-gray-600">
         <img
-          src={`http://localhost:3001/uploads/${comment.user.profile.avatarPath}`}
+          src={comment.user.profile?.avatarPath 
+            ? `http://localhost:3001/uploads/${comment.user.profile.avatarPath}`
+            : `http://localhost:3001/uploads/default_avatar.png`}
           alt={`${comment.user.name}'s avatar`}
           className="w-8 h-8 rounded-full mr-2"
         />

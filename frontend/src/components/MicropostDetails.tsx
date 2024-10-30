@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Micropost } from '@/types/micropost';
+import { Micropost, Comment } from '@/types/micropost';
 import CommentList from '@/components/CommentList';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import CreateCommentModal from '@/components/CreateCommentModal';
@@ -21,8 +21,9 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
 
   const handleCommentCreated = async () => {
     try {
-      await ClientSideApiService.getComments(micropost.id);
-
+      const updatedComments = await ClientSideApiService.getComments(micropost.id);
+      setComments(updatedComments as Comment[]);
+      setIsCommentModalOpen(false);
       window.location.reload();
     } catch (error) {
       console.error('Failed to refresh comments:', error);
@@ -93,14 +94,12 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
         <CommentList comments={comments} />
       </div>
 
-      {isCommentModalOpen && (
-        <CreateCommentModal
-          isOpen={isCommentModalOpen}
-          onClose={() => setIsCommentModalOpen(false)}
-          micropostId={micropost.id}
-          onCommentCreated={handleCommentCreated}
-        />
-      )}
+      <CreateCommentModal
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        micropostId={micropost.id}
+        onCommentCreated={handleCommentCreated}
+      />
     </div>
   );
 };
