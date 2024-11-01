@@ -24,6 +24,15 @@ export class CategoryService {
                     likes: true,
                     views: true
                   }
+                },
+                user: {
+                  include: {
+                    profile: {
+                      select: {
+                        avatarPath: true
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -39,9 +48,20 @@ export class CategoryService {
       name: category.name,
       microposts: category.microposts.map(relation => ({
         id: relation.micropost.id,
+        title: relation.micropost.title,
+        imagePath: relation.micropost.imagePath || '',
+        createdAt: relation.micropost.createdAt.toISOString(),
+        updatedAt: relation.micropost.updatedAt.toISOString(),
         likesCount: relation.micropost._count.likes,
         viewsCount: relation.micropost._count.views,
-        isLiked: false
+        isLiked: false,
+        user: {
+          id: relation.micropost.user.id,
+          name: relation.micropost.user.name,
+          profile: {
+            avatarPath: relation.micropost.user.profile?.avatarPath || 'default_avatar.png'
+          }
+        }
       }))
     };
   }

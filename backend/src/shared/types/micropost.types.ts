@@ -35,8 +35,19 @@ export interface CategoryWithMicroposts {
   name: string;
   microposts: Array<{
     id: number;
+    title: string;
+    imagePath: string;
+    createdAt: string;
+    updatedAt: string;
     likesCount: number;
     viewsCount: number;
     isLiked: boolean;
+    user: {
+      id: number;
+      name: string;
+      profile: {
+        avatarPath: string;
+      };
+    };
   }>;
 }
