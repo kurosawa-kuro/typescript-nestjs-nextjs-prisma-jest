@@ -82,7 +82,7 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
         </div>
 
         {micropost.categories && micropost.categories.length > 0 && (
-        <div className="mb-8">
+        <div className="m-8">
           <div className="flex flex-wrap gap-2">
             {micropost.categories.map(category => (
               <span
