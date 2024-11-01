@@ -1,4 +1,4 @@
-import { MicropostView, User, UserProfile } from '@prisma/client';
+import { Category, MicropostView, User, UserProfile } from '@prisma/client';
 
 export interface BasicMicropost {
   id: number;
@@ -27,4 +27,5 @@ export interface DetailedMicropost extends BasicMicropost {
   comments: Comment[];
   isLiked?: boolean;
   viewsCount: number;
+  categories: Pick<Category, 'id' | 'name'>[];
 }

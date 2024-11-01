@@ -92,21 +92,28 @@ export async function seed() {
 
   // Create microposts with multiple categories
   const microposts = await Promise.all(users.flatMap((user, index) => 
-    createEntities(3, async (postIndex) => 
-      prisma.micropost.create({
+    createEntities(3, async (postIndex) => {
+      // まず、ランダムな数のユニークなカテゴリーIDを選択
+      const selectedCategoryIds = Array.from(new Set(
+        Array(Math.floor(Math.random() * 3) + 1)
+          .fill(null)
+          .map(() => categories[Math.floor(Math.random() * categories.length)].id)
+      ));
+
+      return prisma.micropost.create({
         data: {
           userId: user.id,
           title: `${user.name}'s post ${postIndex + 1}`,
           imagePath: `${user.name.toLowerCase()}${postIndex + 1}.png`,
           categories: {
-            create: {
-              categoryId: categories[Math.floor(Math.random() * categories.length)].id,
-            }
+            create: selectedCategoryIds.map(categoryId => ({
+              categoryId
+            }))
           },
         },
-      })
-    )
-  )).then(arrays => arrays.flat())
+      });
+    })
+  )).then(arrays => arrays.flat());
 
   // Create comments
   const commentContents = [
