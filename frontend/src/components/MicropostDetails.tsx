@@ -7,12 +7,14 @@ import { FaHeart, FaRegHeart, FaEye } from 'react-icons/fa';
 import CreateCommentModal from '@/components/CreateCommentModal';
 import { useAuthStore } from '@/store/authStore';
 import { ClientSideApiService } from '@/services/clientSideApiService';
+import Image from 'next/image';
 
 interface MicropostDetailsProps {
   micropost: Micropost;
 }
 
 const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
+  console.log("micropost",micropost);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [comments, setComments] = useState(micropost.comments);
   const [likesCount, setLikesCount] = useState(micropost.likesCount);
@@ -78,6 +80,20 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
             />
           </div>
         </div>
+
+        {micropost.categories && micropost.categories.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {micropost.categories.map(category => (
+            <span
+              key={category.id}
+              className="px-3 py-1 bg-gray-100 text-sm text-gray-600 rounded-full"
+            >
+              {category.name}
+            </span>
+          ))}
+        </div>
+      )}
+      
         <div className="p-6">
           <div className="flex justify-between items-center text-gray-600 text-sm mb-4">
             <p>
