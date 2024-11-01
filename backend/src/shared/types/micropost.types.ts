@@ -11,7 +11,6 @@ export interface BasicMicropost {
 export interface Comment {
   id: number;
   content: string;
-  userId: number;
   micropostId: number;
   createdAt: string;
   updatedAt: string;
