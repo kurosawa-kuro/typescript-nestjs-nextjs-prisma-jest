@@ -19,6 +19,10 @@
         {
             "filePath": "backend\\prisma\\schema.prisma",
             "group": "Default"
+        },
+        {
+            "filePath": "memo.md",
+            "group": "Default"
         }
     ]
 }

@@ -7,7 +7,6 @@ export class DevelopService {
   constructor(private prisma: PrismaService) {}
 
   async resetDb() {
-    // Call the seed function directly
     await seed();
     return { message: 'Database has been reset.' };
   }

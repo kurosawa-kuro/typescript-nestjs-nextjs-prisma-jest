@@ -66,4 +66,20 @@ export const ClientSideApiService = {
     const response = await ApiClient.get(`/microposts/${micropostId}`);
     return response;
   },
+
+  addMicropostView: async (micropostId: number) => {
+    try {
+      const response = await ApiClient.post(`/micropost-views/${micropostId}`, {});
+      return response;
+    } catch (error) {
+      // P2002 は一意性制約違反のエラーコード
+      // このエラーは既にビューが記録されている正常なケース
+      if (error instanceof Error && error.message.includes('P2002')) {
+        console.log('View already recorded for this micropost');
+        return { success: true, message: 'View already recorded' };
+      }
+      // その他のエラーは再スロー
+      throw error;
+    }
+  },
 };

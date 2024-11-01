@@ -24,6 +24,7 @@ export interface Micropost {
   likesCount: number;
   isLiked?: boolean;
   comments: Comment[];
+  viewsCount: number;
 }
 
 export interface NewMicropost {

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Micropost, Comment } from '@/types/micropost';
 import CommentList from '@/components/CommentList';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaEye } from 'react-icons/fa';
 import CreateCommentModal from '@/components/CreateCommentModal';
 import { useAuthStore } from '@/store/authStore';
 import { ClientSideApiService } from '@/services/clientSideApiService';
@@ -17,7 +17,26 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
   const [comments, setComments] = useState(micropost.comments);
   const [likesCount, setLikesCount] = useState(micropost.likesCount);
   const [isLiked, setIsLiked] = useState(micropost.isLiked || false);
+  const [viewsCount, setViewsCount] = useState(micropost.viewsCount || 0);
   const { user } = useAuthStore();
+
+  useEffect(() => {
+    const recordView = async () => {
+      try {
+        await ClientSideApiService.addMicropostView(micropost.id);
+        const updatedMicropost = await ClientSideApiService.getMicropostDetails(micropost.id) as Micropost;
+        setViewsCount(updatedMicropost.viewsCount);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('P2002')) {
+          console.log('View already recorded');
+          return;
+        }
+        console.error('Failed to record view:', error);
+      }
+    };
+
+    recordView();
+  }, [micropost.id]);
 
   const handleCommentCreated = async () => {
     try {
@@ -64,18 +83,24 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
             <p>
               Posted by <span className="font-semibold">{micropost.user.name}</span> on {new Date(micropost.createdAt).toLocaleDateString()}
             </p>
-            <button 
-              onClick={handleLikeClick}
-              className="flex items-center gap-1 focus:outline-none"
-              disabled={!user}
-            >
-              {isLiked ? (
-                <FaHeart className="text-red-500 hover:text-red-600 transition-colors" size={20} />
-              ) : (
-                <FaRegHeart className="text-gray-500 hover:text-red-500 transition-colors" size={20} />
-              )}
-              <span>{likesCount}</span>
-            </button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <FaEye className="text-gray-500" size={20} />
+                <span>{viewsCount}</span>
+              </div>
+              <button 
+                onClick={handleLikeClick}
+                className="flex items-center gap-1 focus:outline-none"
+                disabled={!user}
+              >
+                {isLiked ? (
+                  <FaHeart className="text-red-500 hover:text-red-600 transition-colors" size={20} />
+                ) : (
+                  <FaRegHeart className="text-gray-500 hover:text-red-500 transition-colors" size={20} />
+                )}
+                <span>{likesCount}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

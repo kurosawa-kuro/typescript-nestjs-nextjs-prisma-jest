@@ -11,11 +11,18 @@ interface MicropostDetailsPageProps {
 
 export default async function MicropostDetailsPage({ params }: MicropostDetailsPageProps) {
   const micropostId = parseInt(params.id, 10);
+  
+  if (isNaN(micropostId)) {
+    notFound();
+  }
+
   const micropost = await getMicropostDetails(micropostId);
 
   if (!micropost) {
     notFound();
   }
 
-  return <MicropostDetails micropost={micropost} />;
+  return (
+      <MicropostDetails micropost={micropost} />
+  );
 }

@@ -10,4 +10,4 @@ export class RankingController {
   getMicropostRanking() {
     return this.rankingService.getMicropostRanking();
   }
-} 
+}

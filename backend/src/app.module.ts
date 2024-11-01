@@ -17,6 +17,7 @@ import { TeamModule } from './features/team/team.module';
 import { LikeModule } from './features/like/like.module';
 import { CommentModule } from './features/comment/comment.module';
 import { RankingModule } from './features/admin/ranking/ranking.module';
+import { MicropostViewModule } from './features/micropost-view/micropost-view.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { RankingModule } from './features/admin/ranking/ranking.module';
     LikeModule,
     CommentModule,
     RankingModule,
+    MicropostViewModule,
   ],
   controllers: [TestController],
   providers: [
