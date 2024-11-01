@@ -54,7 +54,6 @@ export class MicropostService {
 
     return {
       id: micropost.id,
-      userId: micropost.userId,
       title: micropost.title,
       imagePath: micropost.imagePath,
       createdAt: micropost.createdAt.toISOString(),
@@ -291,7 +290,6 @@ export class MicropostService {
 
     return {
       id: micropost.id,
-      userId: micropost.userId,
       title: micropost.title,
       imagePath: micropost.imagePath,
       createdAt: micropost.createdAt.toISOString(),

@@ -2,7 +2,6 @@ import { Category, MicropostView, User, UserProfile } from '@prisma/client';
 
 export interface BasicMicropost {
   id: number;
-  userId: number;
   title: string;
   imagePath: string;
   createdAt: string;
