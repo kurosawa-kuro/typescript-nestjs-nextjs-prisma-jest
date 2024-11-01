@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MicropostCard from '@/components/MicropostCard';
 import Link from 'next/link';
-import { TimelineProps } from '@/types/micropost'; // 適切なパスに調整してください
+import { TimelineProps } from '@/types/micropost';
 import CreatePostModal from './CreatePostModal';
 import { useAuthStore } from '@/store/authStore';
+import { useSearchParams } from 'next/navigation';
 
 const POSTS_PER_PAGE = 6;
 
@@ -13,8 +14,13 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user } = useAuthStore();
+  const searchParams = useSearchParams();
+  
+  const currentSearchQuery = searchParams.get('search') || '';
 
-  const currentSearchQuery = new URLSearchParams(window.location.search).get('search') || '';
+  useEffect(() => {
+    setSearchQuery(currentSearchQuery);
+  }, [currentSearchQuery]);
 
   const getPageUrl = (page: number) => {
     const params = new URLSearchParams();

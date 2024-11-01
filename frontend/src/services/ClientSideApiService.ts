@@ -1,4 +1,4 @@
-import { Micropost, NewMicropost,Comment } from '@/types/micropost';
+import { Micropost, NewMicropost,Comment, Category } from '@/types/micropost';
 import { LoginResponse, UserDetails } from '../types/user';
 import { ApiClient } from './apiClient';
 
@@ -82,4 +82,6 @@ export const ClientSideApiService = {
       throw error;
     }
   },
+
+  getCategories: () => ApiClient.get<Category[]>('/categories'),
 };

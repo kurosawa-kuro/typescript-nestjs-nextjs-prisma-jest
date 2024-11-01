@@ -12,6 +12,11 @@ export interface Comment {
   };
 }
 
+export interface Category {
+  id: number;
+  name: string;
+}
+
 export interface Micropost {
   id: number;
   user: Pick<UserInfo, 'id' | 'name'> & {
@@ -25,6 +30,7 @@ export interface Micropost {
   isLiked?: boolean;
   comments: Comment[];
   viewsCount: number;
+  categories: Category[];
 }
 
 export interface NewMicropost {
