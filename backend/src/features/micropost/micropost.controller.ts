@@ -30,16 +30,25 @@ export class MicropostController {
     }),
   )
   async create(
-    @Body() data: { title: string },
+    @Body() data: { title: string; categoryIds: string },
     @UploadedFile() image: Express.Multer.File,
     @User() currentUser: UserInfo,
   ): Promise<DetailedMicropost> {
+    const categoryIds = JSON.parse(data.categoryIds) as number[];
+    
     const micropostData = {
       title: data.title,
       imagePath: image ? `${image.filename}` : null,
       user: {
         connect: { id: currentUser.id },
       },
+      categories: {
+        create: categoryIds.map(categoryId => ({
+          category: {
+            connect: { id: categoryId }
+          }
+        }))
+      }
     };
     return this.micropostService.create(micropostData);
   }

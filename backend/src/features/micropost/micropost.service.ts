@@ -44,6 +44,11 @@ export class MicropostService {
             },
           },
         },
+        categories: {
+          include: {
+            category: true,
+          }
+        },
       },
     });
 
@@ -75,7 +80,10 @@ export class MicropostService {
           },
         },
       })),
-      categories: [],
+      categories: micropost.categories.map(({ category }) => ({
+        id: category.id,
+        name: category.name,
+      })),
     };
   }
 
