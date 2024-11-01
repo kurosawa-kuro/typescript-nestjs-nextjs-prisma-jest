@@ -156,8 +156,6 @@ export class MicropostService {
           comments: micropost.comments.map((comment) => ({
             id: comment.id,
             content: comment.content,
-            userId: comment.userId,
-            micropostId: comment.micropostId,
             createdAt: comment.createdAt.toISOString(),
             updatedAt: comment.updatedAt.toISOString(),
             user: {
@@ -274,7 +272,6 @@ export class MicropostService {
       comments: micropost.comments.map((comment) => ({
         id: comment.id,
         content: comment.content,
-        userId: comment.userId,
         micropostId: comment.micropostId,
         createdAt: comment.createdAt.toISOString(),
         updatedAt: comment.updatedAt.toISOString(),
