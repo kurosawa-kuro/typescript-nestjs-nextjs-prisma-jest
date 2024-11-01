@@ -23,6 +23,7 @@ async function hashPassword(password: string): Promise<string> {
 export async function seed() {
   // Clear existing data
   const tables = [
+    'MicropostView',
     'TeamMember', 'Team', 'Follow', 'Like', 'Comment', 'CategoryMicropost', 'Micropost', 
     'CareerProject', 'CareerSkill', 'Career', 'UserSkill', 'Skill',
     'UserRole', 'Role', 'UserProfile', 'User', 'Category'
@@ -221,5 +222,30 @@ export async function seed() {
     })
   ))
 
-  console.log('Seed data inserted successfully, including users, relationships, teams, skills, careers, comments, and likes')
+  // Create micropost views
+  const ipAddresses = ['192.168.1.1', '192.168.1.2', '192.168.1.3', '192.168.1.4', '192.168.1.5'];
+
+  const viewsData = microposts.flatMap(micropost => {
+    const viewCount = Math.floor(Math.random() * 6) + 5; // 5-10 views per post
+    return ipAddresses.slice(0, viewCount).map(ip => ({
+      micropostId: micropost.id,
+      ipAddress: ip,
+      viewedAt: new Date(),
+    }));
+  });
+
+  await prisma.$transaction([
+    prisma.micropostView.createMany({
+      data: viewsData,
+      skipDuplicates: true,
+    }),
+    ...microposts.map(micropost => 
+      prisma.micropost.update({
+        where: { id: micropost.id },
+        data: { viewCount: ipAddresses.length },
+      })
+    ),
+  ]);
+
+  console.log('Seed data inserted successfully, including users, relationships, teams, skills, careers, comments, likes, and views')
 }
