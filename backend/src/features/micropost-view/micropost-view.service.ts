@@ -14,7 +14,9 @@ export class MicropostViewService {
         });
 
         if (!micropost) {
-          throw new NotFoundException(`Micropost with ID ${micropostId} not found`);
+          throw new NotFoundException(
+            `Micropost with ID ${micropostId} not found`,
+          );
         }
 
         // 既存の閲覧記録を確認
@@ -61,4 +63,4 @@ export class MicropostViewService {
     });
     return count;
   }
-} 
+}

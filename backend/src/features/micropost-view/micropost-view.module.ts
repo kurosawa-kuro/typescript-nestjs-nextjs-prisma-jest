@@ -9,4 +9,4 @@ import { PrismaModule } from '@/core/database/prisma.module';
   providers: [MicropostViewService],
   exports: [MicropostViewService],
 })
-export class MicropostViewModule {} 
+export class MicropostViewModule {}

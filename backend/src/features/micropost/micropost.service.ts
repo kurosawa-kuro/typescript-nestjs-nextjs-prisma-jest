@@ -90,7 +90,6 @@ export class MicropostService {
                   mode: 'insensitive',
                 },
               },
-              
             ],
           }),
         },
@@ -228,7 +227,7 @@ export class MicropostService {
           },
         },
         _count: {
-          select: { 
+          select: {
             likes: true,
             views: true,
           },

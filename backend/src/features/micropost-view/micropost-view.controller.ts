@@ -17,4 +17,4 @@ export class MicropostViewController {
     console.log(ipAddress);
     return this.micropostViewService.recordView(+micropostId, ipAddress);
   }
-} 
+}

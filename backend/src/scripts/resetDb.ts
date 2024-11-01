@@ -6,11 +6,11 @@ async function resetDatabase() {
   try {
     const app = await NestFactory.createApplicationContext(AppModule);
     const developService = app.get(DevelopService);
-    
+
     console.log('Resetting database...');
     await developService.resetDb();
     console.log('Database reset completed successfully.');
-    
+
     await app.close();
     process.exit(0);
   } catch (error) {
@@ -19,4 +19,4 @@ async function resetDatabase() {
   }
 }
 
-resetDatabase(); 
+resetDatabase();

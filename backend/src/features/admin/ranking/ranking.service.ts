@@ -39,10 +39,10 @@ export class RankingService {
     });
 
     // レスポンスの形式を変換
-    return microposts.map(post => ({
+    return microposts.map((post) => ({
       ...post,
       likesCount: post._count.likes,
-      _count: undefined // _countプロパティを削除
+      _count: undefined, // _countプロパティを削除
     }));
   }
-} 
+}
