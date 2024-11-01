@@ -11,7 +11,6 @@ export interface BasicMicropost {
 export interface Comment {
   id: number;
   content: string;
-  micropostId: number;
   createdAt: string;
   updatedAt: string;
   user: Pick<User, 'id' | 'name'> & {
