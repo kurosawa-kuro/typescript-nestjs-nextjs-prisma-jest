@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
+import { CategoryWithMicroposts } from '../../shared/types/micropost.types';
 
 @Controller('categories')
 export class CategoryController {
@@ -11,7 +12,7 @@ export class CategoryController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<CategoryWithMicroposts> {
     return this.categoryService.findOne(+id);
   }
 } 

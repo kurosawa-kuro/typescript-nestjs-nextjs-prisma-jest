@@ -29,3 +29,18 @@ export interface DetailedMicropost extends BasicMicropost {
   viewsCount: number;
   categories: Pick<Category, 'id' | 'name'>[];
 }
+
+export interface CategoryWithMicroposts {
+  id: number;
+  name: string;
+  microposts: Array<{
+    id: number;
+    _count: {
+      likes: number;
+      views: number;
+    };
+    likesCount: number;
+    viewsCount: number;
+    isLiked: boolean;
+  }>;
+}
