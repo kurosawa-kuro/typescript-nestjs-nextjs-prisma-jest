@@ -35,10 +35,6 @@ export interface CategoryWithMicroposts {
   name: string;
   microposts: Array<{
     id: number;
-    _count: {
-      likes: number;
-      views: number;
-    };
     likesCount: number;
     viewsCount: number;
     isLiked: boolean;

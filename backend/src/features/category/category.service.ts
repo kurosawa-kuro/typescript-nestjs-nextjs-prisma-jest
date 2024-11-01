@@ -39,10 +39,6 @@ export class CategoryService {
       name: category.name,
       microposts: category.microposts.map(relation => ({
         id: relation.micropost.id,
-        _count: {
-          likes: relation.micropost._count.likes,
-          views: relation.micropost._count.views
-        },
         likesCount: relation.micropost._count.likes,
         viewsCount: relation.micropost._count.views,
         isLiked: false
