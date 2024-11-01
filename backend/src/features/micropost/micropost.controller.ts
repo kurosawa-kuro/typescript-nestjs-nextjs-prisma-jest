@@ -69,8 +69,7 @@ export class MicropostController {
     @Param('id') id: string,
     @User() currentUser?: UserInfo,
   ): Promise<DetailedMicropost> {
-    console.log('Current User:', currentUser);
-    const micropost = await this.micropostService.findOne(+id, currentUser?.id);
+    const micropost = await this.micropostService.findById(+id, currentUser?.id);
 
     if (!micropost) {
       throw new NotFoundException(`Micropost with ID ${id} not found`);

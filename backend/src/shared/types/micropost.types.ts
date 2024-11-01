@@ -1,4 +1,4 @@
-import { Category, MicropostView, User, UserProfile } from '@prisma/client';
+import { Category,   User, UserProfile } from '@prisma/client';
 
 export interface BasicMicropost {
   id: number;

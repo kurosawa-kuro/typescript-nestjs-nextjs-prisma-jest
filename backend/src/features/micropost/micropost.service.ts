@@ -178,31 +178,6 @@ export class MicropostService {
       );
   }
 
-  async findById(id: number): Promise<Micropost> {
-    const micropost = await this.prisma.micropost.findUnique({ where: { id } });
-    if (!micropost) {
-      throw new NotFoundException(`Micropost with ID ${id} not found`);
-    }
-    return micropost;
-  }
-
-  async update(
-    id: number,
-    data: Prisma.MicropostUpdateInput,
-  ): Promise<Micropost> {
-    try {
-      return await this.prisma.micropost.update({
-        where: { id },
-        data,
-      });
-    } catch (error) {
-      if (error.code === 'P2025') {
-        throw new NotFoundException(`Micropost with ID ${id} not found`);
-      }
-      throw error;
-    }
-  }
-
   async destroy(id: number): Promise<Micropost> {
     try {
       return await this.prisma.micropost.delete({
@@ -224,7 +199,7 @@ export class MicropostService {
   }
 
   // micropost.viewsを取得するようにしたい
-  async findOne(
+  async findById(
     id: number,
     currentUserId?: number,
   ): Promise<DetailedMicropost | null> {
