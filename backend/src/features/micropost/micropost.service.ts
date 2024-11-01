@@ -2,8 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/core/database/prisma.service';
 import { Micropost, Prisma } from '@prisma/client';
 import {
-  BasicMicropost,
-  Comment,
   DetailedMicropost,
 } from '@/shared/types/micropost.types';
 
