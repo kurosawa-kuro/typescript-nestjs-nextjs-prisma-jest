@@ -1,9 +1,10 @@
 'use client';
 
 import { ClientSideApiService } from '@/services/clientSideApiService';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { Category } from '@/types/micropost';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -15,8 +16,26 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await ClientSideApiService.getCategories();
+        console.log("response",response);
+        setCategories(response);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,6 +43,14 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const handleCategoryToggle = (categoryId: number) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
   };
 
   const handleSubmit = async () => {
@@ -34,14 +61,15 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
       const formData = new FormData();
       formData.append('title', title);
       formData.append('image', selectedImage);
+      formData.append('categoryIds', JSON.stringify(selectedCategories));
 
       await ClientSideApiService.createPost(formData);
       setTitle('');
       setSelectedImage(null);
       setPreviewUrl(null);
-      router.refresh(); // サーバーコンポーネントを再フェッチ
+      setSelectedCategories([]);
+      router.refresh();
       onClose();
-      // window.location.reload(); 
     } catch (error) {
       console.error('Failed to create post:', error);
     } finally {
@@ -77,6 +105,27 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Categories (optional)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => handleCategoryToggle(category.id)}
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    selectedCategories.includes(category.id)
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 text-gray-700'
+                  }`}
+                >
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
             <input
