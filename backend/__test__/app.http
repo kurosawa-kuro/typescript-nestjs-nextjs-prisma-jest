@@ -158,6 +158,10 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/microposts/72
 Content-Type: {{contentType}}
 
+### マイクロポスト閲覧記録を追加
+POST {{baseUrl}}/micropost-views/1
+Content-Type: {{contentType}}
+
 
 ### チーム関連エンドポイント
 
