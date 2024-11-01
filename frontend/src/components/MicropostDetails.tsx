@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Micropost, Comment } from '@/types/micropost';
 import CommentList from '@/components/CommentList';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
@@ -18,6 +18,25 @@ const MicropostDetails: React.FC<MicropostDetailsProps> = ({ micropost }) => {
   const [likesCount, setLikesCount] = useState(micropost.likesCount);
   const [isLiked, setIsLiked] = useState(micropost.isLiked || false);
   const { user } = useAuthStore();
+
+  useEffect(() => {
+    // ページ表示時に1回だけビューカウントを記録
+    const recordView = async () => {
+      try {
+        await fetch(`http://localhost:3001/micropost-views/${micropost.id}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ micropostId: micropost.id }),
+        });
+      } catch (error) {
+        console.error('Failed to record view:', error);
+      }
+    };
+
+    recordView();
+  }, [micropost.id]);
 
   const handleCommentCreated = async () => {
     try {

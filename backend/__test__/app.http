@@ -155,11 +155,11 @@ Content-Type: {{contentType}}
 
 
 ### マイクロポスト詳細を取得
-GET {{baseUrl}}/microposts/1
+GET {{baseUrl}}/microposts/5
 Content-Type: {{contentType}}
 
 ### マイクロポスト閲覧記録を追加
-POST {{baseUrl}}/micropost-views/1
+POST {{baseUrl}}/micropost-views/5
 Content-Type: {{contentType}}
 
 
