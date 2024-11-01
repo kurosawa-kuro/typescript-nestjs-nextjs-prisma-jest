@@ -162,6 +162,17 @@ Content-Type: {{contentType}}
 POST {{baseUrl}}/micropost-views/5
 Content-Type: {{contentType}}
 
+### カテゴリー関連エンドポイント
+
+### カテゴリー一覧を取得
+GET {{baseUrl}}/categories
+Content-Type: {{contentType}}
+
+### カテゴリー詳細を取得
+GET {{baseUrl}}/categories/1
+Content-Type: {{contentType}}
+
+
 
 ### チーム関連エンドポイント
 

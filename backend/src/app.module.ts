@@ -18,6 +18,7 @@ import { LikeModule } from './features/like/like.module';
 import { CommentModule } from './features/comment/comment.module';
 import { RankingModule } from './features/admin/ranking/ranking.module';
 import { MicropostViewModule } from './features/micropost-view/micropost-view.module';
+import { CategoryModule } from './features/category/category.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { MicropostViewModule } from './features/micropost-view/micropost-view.mo
     LikeModule,
     CommentModule,
     RankingModule,
+    CategoryModule,
     MicropostViewModule,
   ],
   controllers: [TestController],
