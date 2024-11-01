@@ -79,21 +79,30 @@ export async function seed() {
     })
   })
 
-  // Create categories
-  const categoryNames = ['Art', 'Technology', 'Animal']
+  // Create categories with more variety
+  const categoryNames = [
+    'Technology', 'Programming', 'Design', 
+    'Career', 'Lifestyle', 'Education',
+    'Gaming', 'Sports', 'Food',
+    'Travel', 'Music', 'Movies'
+  ]
   const categories = await createEntities(categoryNames.length, (i) => 
     prisma.category.create({ data: { name: categoryNames[i] } })
   )
 
-  // Create microposts
+  // Create microposts with multiple categories
   const microposts = await Promise.all(users.flatMap((user, index) => 
-    createEntities(3, (postIndex) => 
+    createEntities(3, async (postIndex) => 
       prisma.micropost.create({
         data: {
           userId: user.id,
           title: `${user.name}'s post ${postIndex + 1}`,
           imagePath: `${user.name.toLowerCase()}${postIndex + 1}.png`,
-          categories: { create: [{ categoryId: categories[index % 3].id }] },
+          categories: {
+            create: {
+              categoryId: categories[Math.floor(Math.random() * categories.length)].id,
+            }
+          },
         },
       })
     )
