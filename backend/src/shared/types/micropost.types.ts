@@ -1,4 +1,4 @@
-import { User, UserProfile } from '@prisma/client';
+import { MicropostView, User, UserProfile } from '@prisma/client';
 
 export interface BasicMicropost {
   id: number;
@@ -25,5 +25,6 @@ export interface DetailedMicropost extends BasicMicropost {
   likesCount: number;
   user: Pick<User, 'id' | 'name'>;
   comments: Comment[];
-  isLiked?: boolean; // ユーザーがいいねしているかどうか
+  isLiked?: boolean;
+  viewsCount: number;
 }

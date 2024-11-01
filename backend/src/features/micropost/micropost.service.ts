@@ -27,7 +27,7 @@ export class MicropostService {
           },
         },
         _count: {
-          select: { likes: true },
+          select: { likes: true, views: true },
         },
         comments: {
           include: {
@@ -55,6 +55,7 @@ export class MicropostService {
       createdAt: micropost.createdAt.toISOString(),
       updatedAt: micropost.updatedAt.toISOString(),
       likesCount: micropost._count.likes,
+      viewsCount: micropost._count.views,
       user: {
         id: micropost.user.id,
         name: micropost.user.name,
@@ -106,7 +107,7 @@ export class MicropostService {
             },
           },
           _count: {
-            select: { likes: true },
+            select: { likes: true, views: true },
           },
           comments: {
             include: {
@@ -137,6 +138,7 @@ export class MicropostService {
           createdAt: micropost.createdAt.toISOString(),
           updatedAt: micropost.updatedAt.toISOString(),
           likesCount: micropost._count.likes,
+          viewsCount: micropost._count.views,
           user: {
             id: micropost.user.id,
             name: micropost.user.name,
@@ -205,6 +207,7 @@ export class MicropostService {
     });
   }
 
+  // micropost.viewsを取得するようにしたい
   async findOne(
     id: number,
     currentUserId?: number,
@@ -225,7 +228,10 @@ export class MicropostService {
           },
         },
         _count: {
-          select: { likes: true },
+          select: { 
+            likes: true,
+            views: true,
+          },
         },
         likes: currentUserId
           ? {
@@ -269,6 +275,7 @@ export class MicropostService {
       createdAt: micropost.createdAt.toISOString(),
       updatedAt: micropost.updatedAt.toISOString(),
       likesCount: micropost._count.likes,
+      viewsCount: micropost._count.views,
       isLiked,
       user: micropost.user,
       comments: micropost.comments.map((comment) => ({

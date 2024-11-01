@@ -155,7 +155,7 @@ Content-Type: {{contentType}}
 
 
 ### マイクロポスト詳細を取得
-GET {{baseUrl}}/microposts/72
+GET {{baseUrl}}/microposts/1
 Content-Type: {{contentType}}
 
 ### マイクロポスト閲覧記録を追加
