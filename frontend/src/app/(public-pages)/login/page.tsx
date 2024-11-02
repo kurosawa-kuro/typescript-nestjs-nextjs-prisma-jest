@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

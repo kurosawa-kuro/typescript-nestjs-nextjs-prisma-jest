@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { UserDetails, UserInfo } from '@/types/models';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { UserDetails, UserInfo } from '@/types/user';
 
 export default function AdminDashboardClient({ initialUserDetails }: { initialUserDetails: UserInfo }) {
   const router = useRouter();

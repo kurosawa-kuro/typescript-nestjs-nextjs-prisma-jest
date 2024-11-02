@@ -8,7 +8,7 @@ import { useFlashMessageStore } from '@/store/flashMessageStore';
 import { useUserProfileStore } from '@/store/userProfileStore';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useUserProfileUpdate } from '@/hooks/useUserProfileUpdate';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
 
 export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails }) {
