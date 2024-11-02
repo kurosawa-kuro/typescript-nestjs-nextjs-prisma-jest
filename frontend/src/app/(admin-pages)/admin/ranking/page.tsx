@@ -1,7 +1,8 @@
 import { getUserDetails } from '@/app/actions/users';
-import { getMicropostRanking } from '@/app/actions/micropost';
+import { getMicropostRanking, getCategoryRanking } from '@/app/actions/micropost';
 import { headers } from 'next/headers';
 import RankingClient from './RankingClient';
+import { CategoryRanking } from '@/types/micropost';
 
 export default async function AdminPage() {
   const userId = getUserIdFromHeaders();
@@ -11,9 +12,10 @@ export default async function AdminPage() {
   }
 
   try {
-    const [userDetails, rankingData] = await Promise.all([
+    const [userDetails, rankingData, categoryRanking] = await Promise.all([
       getUserDetails(userId),
-      getMicropostRanking()
+      getMicropostRanking(),
+      getCategoryRanking()
     ]);
 
     if (!userDetails) {
@@ -24,7 +26,10 @@ export default async function AdminPage() {
       return <div>Access denied. Admin privileges required.</div>;
     }
 
-    return <RankingClient rankingData={rankingData} />;
+    return <RankingClient 
+      rankingData={rankingData} 
+      categoryRanking={categoryRanking as any[]}
+    />;
   } catch (error) {
     console.error('Error loading data:', error);
     return <div>Error loading data</div>;

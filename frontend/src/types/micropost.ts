@@ -46,3 +46,9 @@ export interface TimelineProps {
   currentPage: number;
   totalPages: number;
 }
+
+export interface CategoryRanking {
+  id: number;
+  name: string;
+  count: number;
+}

@@ -64,3 +64,15 @@ export async function getMicropostRanking(): Promise<Micropost[]> {
     return [];
   }
 }
+
+export async function getCategoryRanking() {
+  try {
+    const response = await ApiClient.get('/admin/ranking/category', {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching category ranking:', error);
+    return [];
+  }
+}
