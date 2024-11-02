@@ -84,7 +84,24 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
                 <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.userRoles.includes('admin') ? 'Admin' : 'User'}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex flex-wrap gap-1">
+                    {user.userRoles.map((role) => (
+                      <span
+                        key={role}
+                        className={`
+                          inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                          ${role === 'admin' 
+                            ? 'bg-rose-100 text-rose-700' 
+                            : 'bg-blue-100 text-blue-800'
+                          }
+                        `}
+                      >
+                        {role}
+                      </span>
+                    ))}
+                  </div>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">{new Date(user.createdAt).toLocaleDateString()}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
