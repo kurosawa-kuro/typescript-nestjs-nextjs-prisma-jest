@@ -38,7 +38,9 @@ describe('Micropost Actions', () => {
           },
           comments: [],
           likesCount: 0,
-          isLiked: false
+          isLiked: false,
+          viewsCount: 0,
+          categories: []
         }
       ];
 
@@ -48,8 +50,22 @@ describe('Micropost Actions', () => {
 
       expect(ApiClient.get).toHaveBeenCalledWith('/microposts', {
         headers: { Authorization: 'Bearer mocked-jwt-token' },
+        params: { search: undefined },
       });
       expect(result).toEqual(mockMicroposts);
+    });
+
+    it('should include search query when provided', async () => {
+      const searchQuery = 'test search';
+      const mockMicroposts: Micropost[] = [];
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockMicroposts);
+
+      await getMicroposts(searchQuery);
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/microposts', {
+        headers: { Authorization: 'Bearer mocked-jwt-token' },
+        params: { search: searchQuery },
+      });
     });
 
     it('should throw error when API call fails', async () => {
@@ -65,7 +81,7 @@ describe('Micropost Actions', () => {
     it('should return micropost details when API call is successful', async () => {
       const mockMicropost: Micropost = {
         id: 1,
-              title: 'Test Post',
+        title: 'Test Post',
         imagePath: 'path/to/image.jpg',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -76,7 +92,9 @@ describe('Micropost Actions', () => {
         },
         comments: [],
         likesCount: 0,
-        isLiked: false
+        isLiked: false,
+        viewsCount: 0,
+        categories: []
       };
 
       (ApiClient.get as jest.Mock).mockResolvedValue(mockMicropost);

@@ -28,7 +28,7 @@ describe('CommentController', () => {
           provide: CommentService,
           useValue: {
             create: jest.fn().mockResolvedValue(mockComment),
-            findAllByMicropostId: jest.fn().mockResolvedValue([mockComment]),
+            findAll: jest.fn().mockResolvedValue([mockComment]),
             update: jest.fn().mockResolvedValue(mockComment),
             remove: jest.fn().mockResolvedValue(mockComment),
           },
@@ -73,7 +73,7 @@ describe('CommentController', () => {
       const result = await controller.findAll(micropostId);
 
       expect(result).toEqual([mockComment]);
-      expect(service.findAllByMicropostId).toHaveBeenCalledWith(1);
+      expect(service.findAll).toHaveBeenCalledWith(1);
     });
   });
 

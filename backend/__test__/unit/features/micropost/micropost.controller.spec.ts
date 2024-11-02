@@ -25,7 +25,7 @@ describe('MicropostController', () => {
           useValue: {
             create: jest.fn(),
             all: jest.fn(),
-            findOne: jest.fn(),
+            findById: jest.fn(),
           },
         },
       ],
@@ -41,14 +41,16 @@ describe('MicropostController', () => {
 
   describe('create', () => {
     it('should create a micropost', async () => {
-      const data = { title: 'Test Micropost' };
+      const data = { 
+        title: 'Test Micropost',
+        categoryIds: JSON.stringify([1, 2])
+      };
       const mockImage = {
         filename: 'test-image.jpg'
       } as Express.Multer.File;
 
       const expectedResult: DetailedMicropost = {
         id: 1,
-        userId: 1,
         title: 'Test Micropost',
         imagePath: 'test-image.jpg',
         createdAt: new Date().toISOString(),
@@ -58,7 +60,9 @@ describe('MicropostController', () => {
           id: 1,
           name: 'Test User',
         },
-        comments: []
+        comments: [],
+        viewsCount: 0,
+        categories: []
       };
       
       jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
@@ -68,19 +72,20 @@ describe('MicropostController', () => {
       expect(service.create).toHaveBeenCalledWith({
         title: data.title,
         imagePath: mockImage.filename,
-        user: {
-          connect: { id: mockCurrentUser.id }
-        }
+        userId: mockCurrentUser.id,
+        categoryIds: [1, 2]
       });
       expect(result).toEqual(expectedResult);
     });
 
     it('should create a micropost without image', async () => {
-      const data = { title: 'Test Micropost' };
+      const data = { 
+        title: 'Test Micropost',
+        categoryIds: JSON.stringify([])
+      };
 
       const expectedResult: DetailedMicropost = {
         id: 1,
-        userId: 1,
         title: 'Test Micropost',
         imagePath: null,
         createdAt: new Date().toISOString(),
@@ -90,7 +95,9 @@ describe('MicropostController', () => {
           id: 1,
           name: 'Test User',
         },
-        comments: []
+        comments: [],
+        viewsCount: 0,
+        categories: []
       };
       
       jest.spyOn(service, 'create').mockResolvedValue(expectedResult);
@@ -100,9 +107,8 @@ describe('MicropostController', () => {
       expect(service.create).toHaveBeenCalledWith({
         title: data.title,
         imagePath: null,
-        user: {
-          connect: { id: mockCurrentUser.id }
-        }
+        userId: mockCurrentUser.id,
+        categoryIds: []
       });
       expect(result).toEqual(expectedResult);
     });
@@ -113,7 +119,6 @@ describe('MicropostController', () => {
       const id = '1';
       const expectedResponse: DetailedMicropost = {
         id: 1,
-        userId: 1,
         title: 'Test Micropost',
         imagePath: 'test.jpg',
         createdAt: '2023-01-01T00:00:00.000Z',
@@ -124,48 +129,33 @@ describe('MicropostController', () => {
           id: 1,
           name: 'Test User',
         },
-        comments: [
-          {
-            id: 1,
-            content: 'Test Comment',
-            userId: 2,
-            micropostId: 1,
-            createdAt: '2023-01-03T00:00:00.000Z',
-            updatedAt: '2023-01-03T00:00:00.000Z',
-            user: {
-              id: 2,
-              name: 'Commenter',
-              profile: {
-                avatarPath: 'commenter-avatar.jpg',
-              },
-            },
-          },
-        ],
+        comments: [],
+        viewsCount: 0,
+        categories: []
       };
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(expectedResponse);
+      jest.spyOn(service, 'findById').mockResolvedValue(expectedResponse);
 
       const result = await controller.findOne(id, mockCurrentUser);
 
       expect(result).toEqual(expectedResponse);
-      expect(service.findOne).toHaveBeenCalledWith(1, mockCurrentUser.id);
+      expect(service.findById).toHaveBeenCalledWith(1, mockCurrentUser.id);
     });
 
     it('should throw NotFoundException when micropost is not found', async () => {
       const id = '999';
-      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+      jest.spyOn(service, 'findById').mockResolvedValue(null);
 
       await expect(controller.findOne(id, mockCurrentUser)).rejects.toThrow(NotFoundException);
-      expect(service.findOne).toHaveBeenCalledWith(999, mockCurrentUser.id);
+      expect(service.findById).toHaveBeenCalledWith(999, mockCurrentUser.id);
     });
   });
 
-  describe('index', () => {
+  describe('findAll', () => {
     it('should return an array of detailed microposts', async () => {
       const expectedResult: DetailedMicropost[] = [
         {
           id: 1,
-          userId: 1,
           title: 'Micropost 1',
           imagePath: 'path1.jpg',
           createdAt: new Date().toISOString(),
@@ -173,10 +163,11 @@ describe('MicropostController', () => {
           likesCount: 5,
           user: { id: 1, name: 'User 1' },
           comments: [],
+          viewsCount: 0,
+          categories: []
         },
         {
           id: 2,
-          userId: 2,
           title: 'Micropost 2',
           imagePath: 'path2.jpg',
           createdAt: new Date().toISOString(),
@@ -184,12 +175,14 @@ describe('MicropostController', () => {
           likesCount: 3,
           user: { id: 2, name: 'User 2' },
           comments: [],
+          viewsCount: 0,
+          categories: []
         },
       ];
       
       jest.spyOn(service, 'all').mockResolvedValue(expectedResult);
       
-      const result = await controller.index();
+      const result = await controller.findAll();
       
       expect(service.all).toHaveBeenCalled();
       expect(result).toEqual(expectedResult);
