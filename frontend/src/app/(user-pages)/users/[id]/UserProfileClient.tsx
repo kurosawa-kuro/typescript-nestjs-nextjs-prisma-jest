@@ -8,6 +8,7 @@ import { useUserProfileStore } from '@/store/userProfileStore';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
 import { ClientSideApiService } from '@/services/clientSideApiService';
+import { AvatarSection } from '@/components/profile/AvatarSection';
 
 // Add this custom hook at the top of the file
 function useCurrentUser(): CurrentUser {
@@ -45,33 +46,15 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow-xl rounded-lg overflow-hidden max-w-md w-full">
-        <AvatarSection user={user} />
+        <AvatarSection 
+          user={user} 
+          isEditable={false} 
+        />
         <div className="p-6">
           <h1 className="text-2xl font-bold text-center mb-4">User Profile</h1>
           <div className="space-y-3">
             <ProfileDisplay user={user} />
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AvatarSection({ user }: { user: UserDetails }) {
-  return (
-    <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-center relative">
-      <div 
-        className="relative inline-block group cursor-pointer"
-      >
-        <Image 
-          src={`http://localhost:3001/uploads/${user.profile?.avatarPath}`}
-          alt="User Avatar"
-          width={120}
-          height={120}
-          className="rounded-full border-4 border-white mx-auto"
-        />
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-white text-sm">Change Avatar</span>
         </div>
       </div>
     </div>
