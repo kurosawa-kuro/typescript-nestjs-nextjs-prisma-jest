@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function DevelopPage() {
   const { login, logout, isLoading, error, user, resetStore } = useAuthStore();

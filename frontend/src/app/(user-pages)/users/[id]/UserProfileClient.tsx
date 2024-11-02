@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UserDetails } from '@/types/user';
 import { useUserProfileStore } from '@/store/userProfileStore';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
 
 // Add this custom hook at the top of the file
