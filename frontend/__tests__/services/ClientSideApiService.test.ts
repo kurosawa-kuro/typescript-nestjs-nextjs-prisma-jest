@@ -186,7 +186,7 @@ describe('ClientSideApiService', () => {
     });
   });
 
-  describe('createPost', () => {
+  describe('createMicroPost', () => {
     it('should call ApiClient.post with correct parameters', async () => {
       const mockResponse = { id: 1, title: 'Test Post' };
       (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
@@ -195,7 +195,7 @@ describe('ClientSideApiService', () => {
       formData.append('title', 'Test Post');
       formData.append('image', new Blob(['test']), 'test.jpg');
 
-      const result = await ClientSideApiService.createPost(formData);
+      const result = await ClientSideApiService.createMicroPost(formData);
 
       expect(ApiClient.post).toHaveBeenCalledWith('/microposts', formData, {
         rawBody: true,

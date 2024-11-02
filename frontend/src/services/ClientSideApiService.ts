@@ -29,7 +29,7 @@ export const ClientSideApiService = {
   unfollowUser: (userId: number) => 
     ApiClient.delete<UserDetails[]>(`/follow/${userId}`),
 
-  createPost: (formData: FormData) => 
+  createMicroPost: (formData: FormData) => 
     ApiClient.post<NewMicropost>('/microposts', formData, {
       rawBody: true,
     }),

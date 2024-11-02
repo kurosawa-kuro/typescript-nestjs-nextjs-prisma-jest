@@ -10,7 +10,7 @@ export async function loginUser(page: Page): Promise<void> {
   await expect(page.getByText('Alice', { exact: true })).toBeVisible();
 }
 
-export async function createPost(page: Page, postTitle: string): Promise<void> {
+export async function createMicroPost(page: Page, postTitle: string): Promise<void> {
   await page.getByRole('button').first().click();
   await page.locator('input[type="file"]').setInputFiles(CONFIG.TEST_IMAGE_PATH);
   await page.getByLabel('Title').fill(postTitle);

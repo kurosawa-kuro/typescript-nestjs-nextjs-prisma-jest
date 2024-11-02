@@ -7,12 +7,12 @@ import { useRouter } from 'next/navigation';
 import { Category } from '@/types/micropost';
 import CreateCategoryModal from './CreateCategoryModal';
 
-interface CreatePostModalProps {
+interface createMicroPostModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
+const createMicroPostModal: React.FC<createMicroPostModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -65,7 +65,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
       formData.append('image', selectedImage);
       formData.append('categoryIds', JSON.stringify(selectedCategories));
 
-      await ClientSideApiService.createPost(formData);
+      await ClientSideApiService.createMicroPost(formData);
       setTitle('');
       setSelectedImage(null);
       setPreviewUrl(null);
@@ -212,4 +212,4 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
   );
 };
 
-export default CreatePostModal;
+export default createMicroPostModal;
