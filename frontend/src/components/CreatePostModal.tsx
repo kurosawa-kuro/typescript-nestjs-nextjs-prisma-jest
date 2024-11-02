@@ -18,6 +18,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -25,7 +26,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
     const fetchCategories = async () => {
       try {
         const response = await ClientSideApiService.getCategories();
-        console.log("response",response);
         setCategories(response);
       } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -85,6 +85,27 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
+  const handleAddCategory = async () => {
+    setError(null);
+    const newCategoryName = prompt('Enter new category name:');
+    if (!newCategoryName?.trim()) return;
+
+    try {
+      console.log('Attempting to add category:', newCategoryName.trim());
+      const newCategory = await ClientSideApiService.createCategory(newCategoryName.trim());
+      console.log('Response from createCategory:', newCategory);
+      setCategories(prev => [...prev, newCategory]);
+    } catch (error) {
+      console.log('Failed to add category. Error details:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      setError('Failed to add category. Please try again.');
+      alert('Failed to add category. Please try again.');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -124,6 +145,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
                   {category.name}
                 </button>
               ))}
+              <button
+                onClick={handleAddCategory}
+                className="px-3 py-1 rounded-full text-sm bg-green-500 text-white"
+              >
+                + Add Category
+              </button>
             </div>
           </div>
 
@@ -178,6 +205,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
             {isSubmitting ? 'Posting...' : 'Post'}
           </button>
         </div>
+
+        {error && (
+          <div className="text-red-500 text-sm mt-2">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

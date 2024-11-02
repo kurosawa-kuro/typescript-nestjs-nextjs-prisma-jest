@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
 import { CategoryWithMicroposts } from '../../shared/types/micropost.types';
-import { Prisma } from '@prisma/client';
+import { Category, Prisma } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
+
+  // カテゴリー作成
+  async create(data: { name: string }): Promise<Category> {
+    return this.prisma.category.create({ data });
+  }
 
   async findAll() {
     return this.prisma.category.findMany();

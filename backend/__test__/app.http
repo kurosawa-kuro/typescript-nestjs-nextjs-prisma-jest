@@ -170,6 +170,14 @@ Content-Type: {{contentType}}
 
 ### カテゴリー関連エンドポイント
 
+### カテゴリー作成
+POST {{baseUrl}}/categories
+Content-Type: {{contentType}}
+
+{
+  "name": "New Category"
+}
+
 ### カテゴリー一覧を取得
 GET {{baseUrl}}/categories
 Content-Type: {{contentType}}

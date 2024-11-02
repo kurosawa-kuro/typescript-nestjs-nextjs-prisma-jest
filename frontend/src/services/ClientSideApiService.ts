@@ -84,4 +84,6 @@ export const ClientSideApiService = {
   },
 
   getCategories: () => ApiClient.get<Category[]>('/categories'),
+
+  createCategory: (name: string) => ApiClient.post<Category>('/categories', { name: name }),
 };
