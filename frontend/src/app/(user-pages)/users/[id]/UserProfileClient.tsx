@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { UserDetails } from '@/types/user';
-import { useUserProfileStore } from '@/store/userProfileStore';
+import { useUserProfileStore } from '@/store/UserProfileStore';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
 import { ClientSideApiService } from '@/services/clientSideApiService';

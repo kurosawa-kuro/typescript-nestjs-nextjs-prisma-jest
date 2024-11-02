@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserDetails } from '@/types/user';
 import { useFlashMessageStore } from '@/store/flashMessageStore';
-import { useUserProfileStore } from '@/store/userProfileStore';
+import { useUserProfileStore } from '@/store/UserProfileStore';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useProfileForm } from '@/hooks/useProfileForm';
 import { AvatarSection } from '@/components/profile/AvatarSection';
