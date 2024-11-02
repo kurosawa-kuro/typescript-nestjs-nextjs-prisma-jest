@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/user';
 import RoleChangeModal from './RoleChangeModal';
 import { useUserStore } from '@/store/userStore';
 import { ClientSideApiService } from '@/services/clientSideApiService';

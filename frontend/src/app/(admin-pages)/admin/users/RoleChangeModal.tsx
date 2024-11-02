@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserDetails } from '@/types/models';
+import { UserDetails } from '@/types/user';
 import { ClientSideApiService } from '@/services/clientSideApiService';
 import { useUserStore } from '@/store/userStore';
 
