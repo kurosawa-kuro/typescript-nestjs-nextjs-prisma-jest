@@ -17,6 +17,28 @@ export interface Category {
   name: string;
 }
 
+export interface CategoryMicropost {
+  id: number;
+  title: string;
+  imagePath: string;
+  createdAt: string;
+  updatedAt: string;
+  likesCount: number;
+  viewsCount: number;
+  isLiked: boolean;
+  user: {
+    id: number;
+    name: string;
+    profile: {
+      avatarPath: string;
+    };
+  };
+}
+
+export interface CategoryDetail extends Category {
+  microposts: CategoryMicropost[];
+}
+
 export interface Micropost {
   id: number;
   user: Pick<UserInfo, 'id' | 'name'> & {

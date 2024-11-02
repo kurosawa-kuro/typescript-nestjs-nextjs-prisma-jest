@@ -3,70 +3,73 @@
 import { UserDetails } from '@/types/user';
 import { ApiClient } from '@/services/apiClient';
 
-export async function getUsers(): Promise<UserDetails[]> {
-  return ApiClient.get<UserDetails[]>('/users');
-}
-
-export async function getUsersWithFollowStatus(): Promise<UserDetails[]> {
-  return ApiClient.get<UserDetails[]>('/users/with-follow-status');
-}
-
-export async function getUserDetails(id: number): Promise<UserDetails | null> {
+// エラーハンドリング用のヘルパー関数
+async function handleRequest<T>(
+  requestFn: () => Promise<T>,
+  errorMessage: string,
+  defaultValue?: T
+): Promise<T> {
   try {
-    const response = await ApiClient.get<UserDetails>(`/users/${id}`);
-    return response;
+    return await requestFn();
   } catch (error) {
-    console.error('Error fetching user details:', error);
-    return null;
-  }
-}
-
-export async function followUser(userId: number): Promise<UserDetails[]> {
-  try {
-    const response = await ApiClient.post<UserDetails[]>(`/users/${userId}/follow`, {});
-    return response;
-  } catch (error) {
-    console.error('Error following user:', error);
+    console.error(errorMessage, error);
+    if (defaultValue !== undefined) {
+      return defaultValue;
+    }
     throw error;
   }
 }
 
-export async function unfollowUser(userId: number): Promise<UserDetails[]> {
-  try {
-    const response = await ApiClient.delete<UserDetails[]>(`/users/${userId}/follow`);
-    return response;
-  } catch (error) {
-    console.error('Error unfollowing user:', error);
-    throw error;
-  }
-}
+export const getUsers = () => 
+  handleRequest(
+    () => ApiClient.get<UserDetails[]>('/users'),
+    'Error fetching users',
+    []
+  );
 
-export async function getFollowers(userId: number): Promise<UserDetails[]> {
-  try {
-    const response = await ApiClient.get<UserDetails[]>(`/users/${userId}/followers`);
-    return response;
-  } catch (error) {
-    console.error('Error fetching followers:', error);
-    throw error;
-  }
-}
+export const getUsersWithFollowStatus = () => 
+  handleRequest(
+    () => ApiClient.get<UserDetails[]>('/users/with-follow-status'),
+    'Error fetching users with follow status',
+    []
+  );
 
-export async function getFollowing(userId: number): Promise<UserDetails[]> {
-  try {
-    const response = await ApiClient.get<UserDetails[]>(`/users/${userId}/following`);
-    return response;
-  } catch (error) {
-    console.error('Error fetching following users:', error);
-    throw error;
-  }
-}
+export const getUserDetails = (id: number) => 
+  handleRequest(
+    () => ApiClient.get<UserDetails>(`/users/${id}`),
+    `Error fetching user details for id ${id}`,
+    null
+  );
 
-export async function getMe(): Promise<UserDetails | null> {
-  try {
-    const response = await ApiClient.get<UserDetails>('/auth/me');
-    return response;
-  } catch (error) {
-    console.error('Error fetching current user:', error);
-    return null;
-  }
-}
+export const followUser = (userId: number) => 
+  handleRequest(
+    () => ApiClient.post<UserDetails[]>(`/users/${userId}/follow`, {}),
+    `Error following user ${userId}`
+  );
+
+export const unfollowUser = (userId: number) => 
+  handleRequest(
+    () => ApiClient.delete<UserDetails[]>(`/users/${userId}/follow`),
+    `Error unfollowing user ${userId}`
+  );
+
+export const getFollowers = (userId: number) => 
+  handleRequest(
+    () => ApiClient.get<UserDetails[]>(`/users/${userId}/followers`),
+    `Error fetching followers for user ${userId}`,
+    []
+  );
+
+export const getFollowing = (userId: number) => 
+  handleRequest(
+    () => ApiClient.get<UserDetails[]>(`/users/${userId}/following`),
+    `Error fetching following users for user ${userId}`,
+    []
+  );
+
+export const getMe = () => 
+  handleRequest(
+    () => ApiClient.get<UserDetails>('/auth/me'),
+    'Error fetching current user',
+    null
+  );
