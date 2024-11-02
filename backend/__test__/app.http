@@ -181,7 +181,7 @@ GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}
 
 ### マイクロポスト一覧を取得（検索機能）
-GET {{baseUrl}}/microposts?search=ｍｍ
+GET {{baseUrl}}/microposts?search=abc
 Content-Type: {{contentType}}
 
 
