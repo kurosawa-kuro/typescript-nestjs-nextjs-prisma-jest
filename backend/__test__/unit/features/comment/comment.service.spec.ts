@@ -65,7 +65,7 @@ describe('CommentService', () => {
     });
   });
 
-  describe('findAllByMicropostId', () => {
+  describe('findAll', () => {
     it('should return all comments for a micropost', async () => {
       const micropostId = 1;
       const mockComments = [
@@ -77,7 +77,7 @@ describe('CommentService', () => {
 
       jest.spyOn(prismaService.comment, 'findMany').mockResolvedValue(mockComments);
 
-      const result = await service.findAllByMicropostId(micropostId);
+      const result = await service.findAll(micropostId);
 
       expect(result).toEqual(mockComments);
       expect(prismaService.comment.findMany).toHaveBeenCalledWith({
@@ -91,7 +91,7 @@ describe('CommentService', () => {
       const micropostId = 999;
       jest.spyOn(prismaService.comment, 'findMany').mockResolvedValue([]);
 
-      const result = await service.findAllByMicropostId(micropostId);
+      const result = await service.findAll(micropostId);
 
       expect(result).toEqual([]);
     });
