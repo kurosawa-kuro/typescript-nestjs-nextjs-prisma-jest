@@ -7,7 +7,6 @@ export default async function UserProfilePage({ params }: { params: { id: string
 
   try {
     const userDetails = await getUserDetails(paramsId);
-    console.log('UserProfilePage userDetails', userDetails);
 
     if (!userDetails) {
       return <div>User details not found</div>;

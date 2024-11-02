@@ -17,7 +17,6 @@ function getAuthHeaders(): Record<string, string> {
 }
 
 export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> {
-  console.log('Search Query:', searchQuery);
   try {
     const response = await ApiClient.get<Micropost[]>('/microposts', {
       headers: getAuthHeaders(),

@@ -61,7 +61,6 @@ function AvatarSection({ user }: { user: UserDetails }) {
     <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 text-center relative">
       <div 
         className="relative inline-block group cursor-pointer"
-        onClick={() => console.log('Avatar clicked')}
       >
         <Image 
           src={`http://localhost:3001/uploads/${user.profile?.avatarPath}`}

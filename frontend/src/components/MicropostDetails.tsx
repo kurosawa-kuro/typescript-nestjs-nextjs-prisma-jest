@@ -26,7 +26,6 @@ const MicropostDetails: React.FC<{ micropost: Micropost }> = ({ micropost }) => 
         setViewsCount(updatedMicropost.viewsCount);
       } catch (error) {
         if (error instanceof Error && error.message.includes('P2002')) {
-          console.log('View already recorded');
           return;
         }
         console.error('Failed to record view:', error);
