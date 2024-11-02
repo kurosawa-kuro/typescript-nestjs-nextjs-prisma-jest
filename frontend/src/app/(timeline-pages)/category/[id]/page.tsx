@@ -1,4 +1,5 @@
-import { getCategoryDetail } from '@/app/actions/category';
+import { getCategories, getCategoryDetail } from '@/app/actions/category';
+import CategoryList from '@/components/CategoryList';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -10,7 +11,11 @@ interface PageProps {
 }
 
 export default async function CategoryDetailPage({ params }: PageProps) {
-  const category = await getCategoryDetail(Number(params.id));
+  // カテゴリー詳細とカテゴリー一覧を並行して取得
+  const [category, categories] = await Promise.all([
+    getCategoryDetail(Number(params.id)),
+    getCategories()
+  ]);
 
   if (!category) {
     notFound();
@@ -18,60 +23,70 @@ export default async function CategoryDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Category: {category.name}
-        </h1>
-        <p className="text-gray-600 mt-2">
-          {category.microposts.length} posts in this category
-        </p>
-      </div>
+      <div className="flex gap-8">
+        {/* メインコンテンツ */}
+        <div className="flex-1">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Category: {category.name}
+            </h1>
+            <p className="text-gray-600 mt-2">
+              {category.microposts.length} posts in this category
+            </p>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {category.microposts.map((post) => (
-          <Link href={`/timeline/${post.id}`} key={post.id}>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="relative h-48">
-                <Image
-                  src={`http://localhost:3001/uploads/${post.imagePath}`}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                  {post.title}
-                </h2>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {category.microposts.map((post) => (
+              <Link href={`/timeline/${post.id}`} key={post.id}>
+                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative h-48">
                     <Image
-                      src={`http://localhost:3001/uploads/${post.user.profile.avatarPath}`}
-                      alt={post.user.name}
-                      width={24}
-                      height={24}
-                      className="rounded-full"
+                      src={`http://localhost:3001/uploads/${post.imagePath}`}
+                      alt={post.title}
+                      fill
+                      className="object-cover"
                     />
-                    <span className="ml-2 text-sm text-gray-600">
-                      {post.user.name}
-                    </span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <span>♥ {post.likesCount}</span>
-                    <span>👁 {post.viewsCount}</span>
+                  <div className="p-4">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                      {post.title}
+                    </h2>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center">
+                        <Image
+                          src={`http://localhost:3001/uploads/${post.user.profile.avatarPath}`}
+                          alt={post.user.name}
+                          width={24}
+                          height={24}
+                          className="rounded-full"
+                        />
+                        <span className="ml-2 text-sm text-gray-600">
+                          {post.user.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <span>♥ {post.likesCount}</span>
+                        <span>👁 {post.viewsCount}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+              </Link>
+            ))}
+          </div>
 
-      {category.microposts.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-600">No posts found in this category.</p>
+          {category.microposts.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No posts found in this category.</p>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* サイドバー */}
+        <div className="w-80 flex-shrink-0">
+          <CategoryList categories={categories} />
+        </div>
+      </div>
     </div>
   );
 }
