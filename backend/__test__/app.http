@@ -335,3 +335,14 @@ Content-Type: image/jpeg
 GET {{baseUrl}}/admin/ranking
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### MostViewのランキングを取得
+GET {{baseUrl}}/admin/ranking/most-view
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### カテゴリランキングを取得
+GET {{baseUrl}}/admin/ranking/category
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
