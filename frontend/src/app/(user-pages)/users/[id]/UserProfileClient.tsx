@@ -7,6 +7,7 @@ import { UserDetails } from '@/types/user';
 import { useUserProfileStore } from '@/store/userProfileStore';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
+import { ClientSideApiService } from '@/services/clientSideApiService';
 
 // Add this custom hook at the top of the file
 function useCurrentUser(): CurrentUser {
@@ -119,21 +120,65 @@ function ProfileItem({ label, value }: { label: string; value: string }) {
 }
 
 function FollowButton({ userId, isFollowing }: { userId: number; isFollowing: boolean }) {
-  const handleFollowAction = () => {
-    console.log(`${isFollowing ? 'Unfollow' : 'Follow'} user with ID: ${userId}`);
-    // Actual follow/unfollow logic will be implemented later
+  const [loading, setLoading] = useState(false);
+  const [followStatus, setFollowStatus] = useState(isFollowing);
+  const { setUser } = useUserProfileStore();
+  const router = useRouter();
+
+  const handleFollowAction = async () => {
+    try {
+      setLoading(true);
+      
+      if (followStatus) {
+        // フォロー解除
+        await ClientSideApiService.unfollowUser(userId);
+        // toast.success('Unfollowed successfully');
+      } else {
+        // フォロー
+        await ClientSideApiService.followUser(userId);
+        // toast.success('Followed successfully');
+      }
+
+      // フォロー状態を更新
+      setFollowStatus(!followStatus);
+      
+      // ユーザー情報を再取得して最新の状態を反映
+      // ユーザー情報自体はサーバーサイドレンダリングしているので、更新はrouter.refreshで行う
+      router.refresh();
+      // const updatedUser = await ClientSideApiService.getUserDetails(userId);
+      // if (updatedUser) {
+      //   setUser(updatedUser);
+      // }
+
+    } catch (error) {
+      console.error('Follow action failed:', error);
+      // toast.error(followStatus ? 'Failed to unfollow' : 'Failed to follow');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <button
       onClick={handleFollowAction}
-      className={`w-full mt-4 py-2 px-4 rounded-md text-white transition-colors duration-200 ${
-        isFollowing
+      disabled={loading}
+      className={`w-full mt-4 py-2 px-4 rounded-md text-white transition-colors duration-200 
+        ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+        ${followStatus
           ? 'bg-rose-400 hover:bg-rose-500'
           : 'bg-blue-500 hover:bg-blue-600'
-      }`}
+        }`}
     >
-      {isFollowing ? 'Unfollow' : 'Follow'}
+      {loading ? (
+        <span className="flex items-center justify-center">
+          <LoadingSpinner />
+          <span className="ml-2">
+            {followStatus ? 'Unfollowing...' : 'Following...'}
+          </span>
+        </span>
+      ) : (
+        followStatus ? 'Unfollow' : 'Follow'
+      )}
     </button>
   );
 }
