@@ -142,13 +142,7 @@ function FollowButton({ userId, isFollowing }: { userId: number; isFollowing: bo
       // フォロー状態を更新
       setFollowStatus(!followStatus);
       
-      // ユーザー情報を再取得して最新の状態を反映
-      // ユーザー情報自体はサーバーサイドレンダリングしているので、更新はrouter.refreshで行う
       router.refresh();
-      // const updatedUser = await ClientSideApiService.getUserDetails(userId);
-      // if (updatedUser) {
-      //   setUser(updatedUser);
-      // }
 
     } catch (error) {
       console.error('Follow action failed:', error);
