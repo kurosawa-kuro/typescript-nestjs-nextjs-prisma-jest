@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import MicropostDetails from '@/components/MicropostDetails';
 import CategoryList from '@/components/CategoryList';
 import { getCategories } from '@/app/actions/category';
+import TimelineLayout from '@/components/TimelineLayout';
 
 interface MicropostDetailsPageProps {
   params: {
@@ -26,11 +27,9 @@ export default async function MicropostDetailsPage({ params }: MicropostDetailsP
   }
 
   return (
-    <div className="flex gap-8">  
-      <MicropostDetails micropost={micropost} />
-      <div className="w-80 flex-shrink-0">
-        <CategoryList categories={categories} />  
-      </div>
-    </div>
+    <TimelineLayout
+      mainContent={<MicropostDetails micropost={micropost} />}
+      categoryList={<CategoryList categories={categories} />}
+    />
   );
 }

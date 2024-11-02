@@ -37,7 +37,7 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       <div className="flex gap-4 mb-6">
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
           <input
@@ -65,7 +65,7 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
         {microposts.map((micropost) => (
           <MicropostCard key={micropost.id} micropost={micropost} />
         ))}

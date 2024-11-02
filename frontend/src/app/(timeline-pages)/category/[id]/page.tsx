@@ -3,6 +3,7 @@ import CategoryList from '@/components/CategoryList';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import TimelineLayout from '@/components/TimelineLayout';
 
 interface PageProps {
   params: {
@@ -22,10 +23,9 @@ export default async function CategoryDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex gap-8">
-        {/* メインコンテンツ */}
-        <div className="flex-1">
+    <TimelineLayout
+      mainContent={
+        <>
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-800">
               Category: {category.name}
@@ -35,7 +35,7 @@ export default async function CategoryDetailPage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {category.microposts.map((post) => (
               <Link href={`/timeline/${post.id}`} key={post.id}>
                 <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -80,13 +80,9 @@ export default async function CategoryDetailPage({ params }: PageProps) {
               <p className="text-gray-600">No posts found in this category.</p>
             </div>
           )}
-        </div>
-
-        {/* サイドバー */}
-        <div className="w-80 flex-shrink-0">
-          <CategoryList categories={categories} />
-        </div>
-      </div>
-    </div>
+        </>
+      }
+      categoryList={<CategoryList categories={categories} />}
+    />
   );
 }

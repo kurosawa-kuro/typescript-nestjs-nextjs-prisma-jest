@@ -3,6 +3,7 @@ import { getMicroposts } from '../../actions/micropost';
 import { getCategories } from '../../actions/category';
 import Timeline from '@/components/Timeline';
 import CategoryList from '@/components/CategoryList';
+import TimelineLayout from '@/components/TimelineLayout';
 
 const POSTS_PER_PAGE = 6;
 
@@ -39,22 +40,15 @@ export default async function TimelinePage({
   const totalPages = Math.ceil(filteredMicroposts.length / POSTS_PER_PAGE);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex gap-8">
-        {/* メインコンテンツ */}
-        <div className="flex-1">
-          <Timeline
-            microposts={microposts}
-            currentPage={currentPage}
-            totalPages={totalPages}
-          />
-        </div>
-        
-        {/* サイドバー */}
-        <div className="w-80 flex-shrink-0">
-          <CategoryList categories={categories} />
-        </div>
-      </div>
-    </div>
+    <TimelineLayout
+      mainContent={
+        <Timeline
+          microposts={microposts}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      }
+      categoryList={<CategoryList categories={categories} />}
+    />
   );
 }
