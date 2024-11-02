@@ -10,7 +10,7 @@ interface UserTableRowProps {
 export function UserTableRow({ user, onChangeRole }: UserTableRowProps) {
   return (
     <tr key={user.id}>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="w-16 px-6 py-4 whitespace-nowrap">
         {user.profile?.avatarPath ? (
           <Image
             src={`http://localhost:3001/uploads/${user.profile.avatarPath}`}
@@ -25,23 +25,23 @@ export function UserTableRow({ user, onChangeRole }: UserTableRowProps) {
           </div>
         )}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">{user.id}</td>
-      <td className="px-6 py-4 whitespace-nowrap">{user.name}</td>
-      <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="w-16 px-6 py-4 whitespace-nowrap">{user.id}</td>
+      <td className="w-40 px-6 py-4 whitespace-nowrap">{user.name}</td>
+      <td className="w-52 px-6 py-4 whitespace-nowrap overflow-hidden text-ellipsis">{user.email}</td>
+      <td className="w-40 px-6 py-4 whitespace-nowrap">
         <div className="flex flex-wrap gap-1">
           {user.userRoles.map((role) => (
             <RoleBadge key={role} role={role} />
           ))}
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="w-32 px-6 py-4 whitespace-nowrap">
         {new Date(user.createdAt).toLocaleDateString()}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">
+      <td className="w-24 px-6 py-4 whitespace-nowrap">
         <button
           onClick={() => onChangeRole(user)}
-          className="text-indigo-600 hover:text-indigo-900 mr-2"
+          className="text-indigo-600 hover:text-indigo-900"
         >
           Change Role
         </button>
