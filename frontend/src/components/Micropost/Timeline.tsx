@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import MicropostCard from '@/components/Micropost/MicropostCard';
 import Link from 'next/link';
 import { TimelineProps } from '@/types/micropost';
-import CreatePostModal from './CreatePostModal';
+import CreateMicroPostModal from './CreateMicroPostModal';
 import { useAuthStore } from '@/store/authStore';
 import { useSearchParams } from 'next/navigation';
 
@@ -103,7 +103,7 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
         </nav>
       </div>
 
-      <CreatePostModal
+      <CreateMicroPostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
