@@ -70,20 +70,22 @@ describe('MicropostController (e2e)', () => {
         .post('/microposts')
         .set('Authorization', `Bearer ${token}`)
         .field('title', 'My First Post')
+        .field('categoryIds', JSON.stringify([]))
         .attach('image', testImagePath, 'test.png')
         .expect(201);
 
       // Assert
       expect(response.body).toMatchObject({
         title: 'My First Post',
-        userId: testUser.id,
         user: {
           id: testUser.id,
           name: expect.any(String)
         },
         imagePath: expect.stringMatching(/.*\.png$/),
         likesCount: 0,
-        comments: []
+        viewsCount: 0,
+        comments: [],
+        categories: []
       });
     });
   });
@@ -108,5 +110,9 @@ function expectValidMicropost(micropost: any, userId: number) {
   expect(micropost).toHaveProperty('id');
   expect(micropost).toHaveProperty('title');
   expect(micropost).toHaveProperty('imagePath');
-  expect(micropost).toHaveProperty('userId', userId);
+  expect(micropost.user).toHaveProperty('id', userId);
+  expect(micropost).toHaveProperty('likesCount');
+  expect(micropost).toHaveProperty('viewsCount');
+  expect(micropost).toHaveProperty('categories');
+  expect(micropost).toHaveProperty('comments');
 }
