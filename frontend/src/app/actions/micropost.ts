@@ -1,66 +1,64 @@
 'use server';
 
-import { Micropost, MostViewRanking, Comment } from '@/types/micropost'; 
+import { Micropost, MostViewRanking, Comment, CategoryRanking } from '@/types/micropost'; 
 import { ApiClient } from '@/services/apiClient';
 
-export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> {
+// エラーハンドリング用のヘルパー関数
+async function handleRequest<T>(
+  requestFn: () => Promise<T>,
+  errorMessage: string,
+  defaultValue?: T
+): Promise<T> {
   try {
-    const response = await ApiClient.get<Micropost[]>('/microposts', {
-      params: { search: searchQuery },
-    });
-    return response;
+    return await requestFn();
   } catch (error) {
-    console.error('Error fetching microposts:', error);
+    console.error(errorMessage, error);
+    if (defaultValue !== undefined) {
+      return defaultValue;
+    }
     throw error;
   }
 }
 
-export async function getMicropostDetails(id: number): Promise<Micropost | null> {
-  try {
-    const response = await ApiClient.get<Micropost>(`/microposts/${id}`);
-    return response;
-  } catch (error) {
-    console.error(`Error fetching micropost details for id ${id}:`, error);
-    return null;
-  }
-}
+export const getMicroposts = (searchQuery?: string) =>
+  handleRequest(
+    () => ApiClient.get<Micropost[]>('/microposts', {
+      params: { search: searchQuery },
+    }),
+    'Error fetching microposts'
+  );
 
-export async function getMicropostComments(micropostId: number): Promise<Comment[]> {
-  try {
-    const response = await ApiClient.get<Comment[]>(`/microposts/${micropostId}/comments`);
-    return response;
-  } catch (error) {
-    console.error(`Error fetching comments for micropost ${micropostId}:`, error);
-    return [];
-  }
-}
+export const getMicropostDetails = (id: number) =>
+  handleRequest(
+    () => ApiClient.get<Micropost>(`/microposts/${id}`),
+    `Error fetching micropost details for id ${id}`,
+    null
+  );
 
-export async function getMicropostRanking(): Promise<Micropost[]> {
-  try {
-    const response = await ApiClient.get<Micropost[]>('/admin/ranking');
-    return response;
-  } catch (error) {
-    console.error('Error fetching micropost ranking:', error);
-    return [];
-  }
-}
+export const getMicropostComments = (micropostId: number) =>
+  handleRequest(
+    () => ApiClient.get<Comment[]>(`/microposts/${micropostId}/comments`),
+    `Error fetching comments for micropost ${micropostId}`,
+    []
+  );
 
-export async function getCategoryRanking() {
-  try {
-    const response = await ApiClient.get('/admin/ranking/category');
-    return response;
-  } catch (error) {
-    console.error('Error fetching category ranking:', error);
-    return [];
-  }
-}
+export const getMicropostRanking = () =>
+  handleRequest(
+    () => ApiClient.get<Micropost[]>('/admin/ranking'),
+    'Error fetching micropost ranking',
+    []
+  );
 
-export async function getMostViewRanking(): Promise<MostViewRanking[]> {
-  try {
-    const response = await ApiClient.get<MostViewRanking[]>('/admin/ranking/most-view');
-    return response;
-  } catch (error) {
-    console.error('Error fetching most view ranking:', error);
-    return [];
-  }
-}
+export const getCategoryRanking = () =>
+  handleRequest(
+    () => ApiClient.get<CategoryRanking[]>('/admin/ranking/category'),
+    'Error fetching category ranking',
+    []
+  );
+
+export const getMostViewRanking = () =>
+  handleRequest(
+    () => ApiClient.get<MostViewRanking[]>('/admin/ranking/most-view'),
+    'Error fetching most view ranking',
+    []
+  );
