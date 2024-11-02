@@ -33,7 +33,7 @@ export class CommentController {
 
   @Get()
   async findAll(@Param('micropostId') micropostId: string): Promise<Comment[]> {
-    return this.commentService.findAllByMicropostId(Number(micropostId));
+    return this.commentService.findAll(Number(micropostId));
   }
 
   @Put(':id')

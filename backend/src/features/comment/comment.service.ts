@@ -14,7 +14,7 @@ export class CommentService {
     return this.prisma.comment.create({ data });
   }
 
-  async findAllByMicropostId(micropostId: number): Promise<Comment[]> {
+  async findAll(micropostId: number): Promise<Comment[]> {
     return this.prisma.comment.findMany({
       where: { micropostId },
       include: { user: { select: { id: true, name: true } } },
