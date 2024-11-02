@@ -28,7 +28,7 @@ export default async function AdminPage() {
 
     return <RankingClient 
       rankingData={rankingData} 
-      categoryRanking={categoryRanking as any[]}
+      categoryRanking={categoryRanking as CategoryRanking[]}
     />;
   } catch (error) {
     console.error('Error loading data:', error);

@@ -50,5 +50,18 @@ export interface TimelineProps {
 export interface CategoryRanking {
   id: number;
   name: string;
-  count: number;
+  postCount: number;
+  recentPosts: {
+    id: number;
+    title: string;
+    imagePath: string;
+    createdAt: string;
+    user: {
+      id: number;
+      name: string;
+      profile: {
+        avatarPath: string;
+      };
+    };
+  }[];
 }
