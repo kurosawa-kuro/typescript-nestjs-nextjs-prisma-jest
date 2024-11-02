@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { UserDetails } from '@/types/user';
 import { useUserProfileUpdate } from './useUserProfileUpdate';
-import { useUserProfileStore } from '@/store/userProfileStore';
+import { useUserProfileStore } from '@/store/UserProfileStore';
 
 export function useProfileForm(user: UserDetails | null, setFlashMessage: (message: string | null) => void) {
   const [isEditing, setIsEditing] = useState(false);
