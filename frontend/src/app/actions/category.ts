@@ -2,20 +2,7 @@
 
 import { Category, CategoryDetail } from '@/types/micropost';
 import { ApiClient } from '@/services/apiClient';
-
-// エラーハンドリング用のヘルパー関数
-async function handleRequest<T>(
-  requestFn: () => Promise<T>,
-  errorMessage: string,
-  defaultValue: T
-): Promise<T> {
-  try {
-    return await requestFn();
-  } catch (error) {
-    console.error(errorMessage, error);
-    return defaultValue;
-  }
-}
+import { handleRequest } from './utils/handleRequest';
 
 export async function getCategories(): Promise<Category[]> {
   return handleRequest(

@@ -2,63 +2,53 @@
 
 import { Micropost, MostViewRanking, Comment, CategoryRanking } from '@/types/micropost'; 
 import { ApiClient } from '@/services/apiClient';
+import { handleRequest } from './utils/handleRequest';
 
-// エラーハンドリング用のヘルパー関数
-async function handleRequest<T>(
-  requestFn: () => Promise<T>,
-  errorMessage: string,
-  defaultValue?: T
-): Promise<T> {
-  try {
-    return await requestFn();
-  } catch (error) {
-    console.error(errorMessage, error);
-    if (defaultValue !== undefined) {
-      return defaultValue;
-    }
-    throw error;
-  }
-}
-
-export const getMicroposts = (searchQuery?: string) =>
-  handleRequest(
+export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> {
+  return handleRequest(
     () => ApiClient.get<Micropost[]>('/microposts', {
       params: { search: searchQuery },
     }),
     'Error fetching microposts'
   );
+}
 
-export const getMicropostDetails = (id: number) =>
-  handleRequest(
+export async function getMicropostDetails(id: number): Promise<Micropost | null> {
+  return handleRequest(
     () => ApiClient.get<Micropost>(`/microposts/${id}`),
     `Error fetching micropost details for id ${id}`,
     null
   );
+}
 
-export const getMicropostComments = (micropostId: number) =>
-  handleRequest(
+export async function getMicropostComments(micropostId: number): Promise<Comment[]> {
+  return handleRequest(
     () => ApiClient.get<Comment[]>(`/microposts/${micropostId}/comments`),
     `Error fetching comments for micropost ${micropostId}`,
     []
   );
+}
 
-export const getMicropostRanking = () =>
-  handleRequest(
+export async function getMicropostRanking(): Promise<Micropost[]> {
+  return handleRequest(
     () => ApiClient.get<Micropost[]>('/admin/ranking'),
     'Error fetching micropost ranking',
     []
   );
+}
 
-export const getCategoryRanking = () =>
-  handleRequest(
+export async function getCategoryRanking(): Promise<CategoryRanking[]> {
+  return handleRequest(
     () => ApiClient.get<CategoryRanking[]>('/admin/ranking/category'),
     'Error fetching category ranking',
     []
   );
+}
 
-export const getMostViewRanking = () =>
-  handleRequest(
+export async function getMostViewRanking(): Promise<MostViewRanking[]> {
+  return handleRequest(
     () => ApiClient.get<MostViewRanking[]>('/admin/ranking/most-view'),
     'Error fetching most view ranking',
     []
   );
+}
