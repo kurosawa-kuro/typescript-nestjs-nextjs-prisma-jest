@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Category } from '@/types/micropost';
+import AddCategoryModal from './AddCategoryModal';
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -85,14 +87,10 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
-  const handleAddCategory = async () => {
-    setError(null);
-    const newCategoryName = prompt('Enter new category name:');
-    if (!newCategoryName?.trim()) return;
-
+  const handleAddCategory = async (name: string) => {
     try {
-      console.log('Attempting to add category:', newCategoryName.trim());
-      const newCategory = await ClientSideApiService.createCategory(newCategoryName.trim());
+      console.log('Attempting to add category:', name);
+      const newCategory = await ClientSideApiService.createCategory(name);
       console.log('Response from createCategory:', newCategory);
       setCategories(prev => [...prev, newCategory]);
     } catch (error) {
@@ -102,7 +100,6 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
         stack: error instanceof Error ? error.stack : undefined
       });
       setError('Failed to add category. Please try again.');
-      alert('Failed to add category. Please try again.');
     }
   };
 
@@ -146,7 +143,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
                 </button>
               ))}
               <button
-                onClick={handleAddCategory}
+                onClick={() => setIsAddCategoryModalOpen(true)}
                 className="px-3 py-1 rounded-full text-sm bg-green-500 text-white"
               >
                 + Add Category
@@ -212,6 +209,12 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
           </div>
         )}
       </div>
+
+      <AddCategoryModal
+        isOpen={isAddCategoryModalOpen}
+        onClose={() => setIsAddCategoryModalOpen(false)}
+        onSubmit={handleAddCategory}
+      />
     </div>
   );
 };
