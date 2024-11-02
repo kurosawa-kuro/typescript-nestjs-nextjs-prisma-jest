@@ -19,7 +19,7 @@ describe('UserController', () => {
       'findByIdWithRelationsAndFollowStatus',
       'follow',
       'unfollow',
-      'updateUserRole'
+      'updateUserRoles'
     ]);
     const module = await setupTestModule(
       [UserController],
@@ -250,22 +250,20 @@ describe('UserController', () => {
         userRoles: ['general', 'admin']
       };
 
-      jest.spyOn(userService, 'updateUserRole').mockResolvedValue(expectedUser);
+      jest.spyOn(userService, 'updateUserRoles').mockResolvedValue(expectedUser);
 
-      const result = await controller.updateAdmin(userId);
+      const result = await controller.updateUserRoles(userId, { roles: ['admin'], action: 'add' });
       expect(result).toEqual(expectedUser);
-      expect(userService.updateUserRole).toHaveBeenCalledWith(userId, 'add');
     });
 
     it('should remove admin role', async () => {
       const userId = 1;
       const expectedUser: UserDetails = { ...mockUser, userRoles: ['general'] };
 
-      jest.spyOn(userService, 'updateUserRole').mockResolvedValue(expectedUser);
+      jest.spyOn(userService, 'updateUserRoles').mockResolvedValue(expectedUser);
 
-      const result = await controller.removeAdmin(userId);
+      const result = await controller.updateUserRoles(userId, { roles: ['admin'], action: 'remove' });
       expect(result).toEqual(expectedUser);
-      expect(userService.updateUserRole).toHaveBeenCalledWith(userId, 'remove');
     });
   });
 });

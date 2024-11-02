@@ -34,6 +34,9 @@ describe('UserService', () => {
               delete: jest.fn(),
               findMany: jest.fn(),
             },
+            role: {
+              findMany: jest.fn(),
+            },
           },
         },
       ],
@@ -288,7 +291,7 @@ describe('UserService', () => {
         userRoles: [{ role: { name: 'admin' } }],
       });
 
-      const result = await userService.updateUserRole(1, 'add', 'admin');
+      const result = await userService.updateUserRoles(1, ['admin'], 'add');
 
       expect(result).toEqual({
         id: 1,
@@ -321,7 +324,7 @@ describe('UserService', () => {
         userRoles: [],
       });
 
-      const result = await userService.updateUserRole(1, 'remove', 'admin');
+      const result = await userService.updateUserRoles(1, ['admin'], 'remove');
 
       expect(result).toEqual({
         id: 1,
@@ -340,7 +343,7 @@ describe('UserService', () => {
     it('should throw NotFoundException if user is not found', async () => {
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(userService.updateUserRole(999, 'add', 'admin')).rejects.toThrow(NotFoundException);
+      await expect(userService.updateUserRoles(999, ['admin'], 'add')).rejects.toThrow(NotFoundException);
     });
   });
 
