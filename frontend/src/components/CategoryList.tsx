@@ -13,7 +13,7 @@ const CategoryList: React.FC<CategoryListProps> = ({ categories }) => {
         {categories.map((category) => (
           <Link
             key={category.id}
-            href={`/timeline?category=${category.id}`}
+            href={`/category/${category.id}`}
             className="block px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <span className="text-gray-700">{category.name}</span>
