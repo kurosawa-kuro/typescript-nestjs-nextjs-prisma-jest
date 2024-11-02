@@ -1,9 +1,9 @@
 import React from 'react';
 import { getMicroposts } from '../../actions/micropost';
 import { getCategories } from '../../actions/category';
-import Timeline from '@/components/Timeline';
-import CategoryList from '@/components/CategoryList';
-import TimelineLayout from '@/components/TimelineLayout';
+import Timeline from '@/components/Micropost/Timeline';
+import CategoryList from '@/components/Micropost/CategoryList';
+import TimelineLayout from '@/components/Micropost/TimelineLayout';
 
 const POSTS_PER_PAGE = 6;
 

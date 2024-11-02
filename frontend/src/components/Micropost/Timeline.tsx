@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import MicropostCard from '@/components/MicropostCard';
+import MicropostCard from '@/components/Micropost/MicropostCard';
 import Link from 'next/link';
 import { TimelineProps } from '@/types/micropost';
 import CreatePostModal from './CreatePostModal';

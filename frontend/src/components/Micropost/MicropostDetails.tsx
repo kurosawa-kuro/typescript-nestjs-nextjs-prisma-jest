@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Micropost, Comment } from '@/types/micropost';
-import CommentList from '@/components/CommentList';
+import CommentList from '@/components/Micropost/CommentList';
 import { FaHeart, FaRegHeart, FaEye, FaClock } from 'react-icons/fa';
-import CreateCommentModal from '@/components/CreateCommentModal';
+import CreateCommentModal from '@/components/Micropost/CreateCommentModal';
 import { useAuthStore } from '@/store/authStore';
 import Image from 'next/image';
 import { ClientSideApiService } from '@/services/clientSideApiService';

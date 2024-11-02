@@ -1,9 +1,9 @@
 import { getCategories, getCategoryDetail } from '@/app/actions/category';
-import CategoryList from '@/components/CategoryList';
+import CategoryList from '@/components/Micropost/CategoryList';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import TimelineLayout from '@/components/TimelineLayout';
+import TimelineLayout from '@/components/Micropost/TimelineLayout';
 
 interface PageProps {
   params: {
