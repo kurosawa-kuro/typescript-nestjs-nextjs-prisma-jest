@@ -40,7 +40,8 @@ const MicropostDetails: React.FC<{ micropost: Micropost }> = ({ micropost }) => 
       const updatedComments = await ClientSideApiService.getComments(micropost.id);
       setComments(updatedComments as Comment[]);
       setIsCommentModalOpen(false);
-      window.location.reload();
+      const updatedMicropost = await ClientSideApiService.getMicropostDetails(micropost.id) as Micropost;
+      setComments(updatedMicropost.comments);
     } catch (error) {
       console.error('Failed to refresh comments:', error);
     }
@@ -55,7 +56,6 @@ const MicropostDetails: React.FC<{ micropost: Micropost }> = ({ micropost }) => 
       } else {
         await ClientSideApiService.addLike(micropost.id);
       }
-      // いいね数を更新
       const updatedMicropost = await ClientSideApiService.getMicropostDetails(micropost.id) as Micropost;
       setLikesCount(updatedMicropost.likesCount);
       setIsLiked(updatedMicropost.isLiked || false);
