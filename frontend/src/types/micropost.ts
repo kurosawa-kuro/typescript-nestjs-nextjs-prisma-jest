@@ -65,3 +65,19 @@ export interface CategoryRanking {
     };
   }[];
 }
+
+export interface MostViewRanking {
+  id: number;
+  title: string;
+  imagePath: string;
+  viewCount: number;
+  createdAt: string;
+  user: {
+    id: number;
+    name: string;
+    profile: {
+      avatarPath: string;
+    };
+  };
+  viewsCount: number;
+}

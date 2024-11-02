@@ -44,12 +44,27 @@ interface CategoryRanking {
   }>;
 }
 
+interface MostViewRanking {
+  id: number;
+  title: string;
+  imagePath: string;
+  createdAt: string;
+  user: {
+    id: number;
+    name: string;
+    profile: {
+      avatarPath: string;
+    };
+  };
+}
+
 interface RankingClientProps {
   rankingData: Micropost[];
   categoryRanking: CategoryRanking[];
+  mostViewRanking: MostViewRanking[];
 }
 
-export default function RankingClient({ rankingData, categoryRanking }: RankingClientProps) {
+export default function RankingClient({ rankingData, categoryRanking, mostViewRanking }: RankingClientProps) {
   // いいねランキングのチャートオプション
   const likeOptions = {
     responsive: true,
@@ -144,14 +159,58 @@ export default function RankingClient({ rankingData, categoryRanking }: RankingC
     }],
   };
 
+  const mostViewOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: '閲覧数ランキング',
+        font: {
+          size: 20,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: '閲覧数',
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: '投稿タイトル',
+        },
+      },
+    },
+  };
+
+  const mostViewChartData = {
+    labels: mostViewRanking.map(post => post.title),
+    datasets: [{
+      data: mostViewRanking.map(post => post.user.id),
+      backgroundColor: 'rgba(75, 192, 192, 0.5)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1,
+    }],
+  };
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8">ランキング分析</h1>
-      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* いいねランキングチャート */}
         <div className="p-4 bg-white rounded-lg shadow">
           <Bar options={likeOptions} data={chartData} />
+        </div>
+
+        {/* 最も閲覧された投稿ランキングチャート */}
+        <div className="p-4 bg-white rounded-lg shadow">
+          <Bar options={mostViewOptions} data={mostViewChartData} />
         </div>
 
         {/* カテゴリランキングチャート */}

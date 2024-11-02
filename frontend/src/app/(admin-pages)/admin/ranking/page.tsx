@@ -1,8 +1,8 @@
 import { getUserDetails } from '@/app/actions/users';
-import { getMicropostRanking, getCategoryRanking } from '@/app/actions/micropost';
+import { getMicropostRanking, getCategoryRanking, getMostViewRanking } from '@/app/actions/micropost';
 import { headers } from 'next/headers';
 import RankingClient from './RankingClient';
-import { CategoryRanking, Micropost } from '@/types/micropost';
+import { CategoryRanking, Micropost, MostViewRanking } from '@/types/micropost';
 
 export default async function AdminPage() {
   const userId = getUserIdFromHeaders();
@@ -12,10 +12,11 @@ export default async function AdminPage() {
   }
 
   try {
-    const [userDetails, rankingData, categoryRanking] = await Promise.all([
+    const [userDetails, rankingData, categoryRanking, mostViewRanking] = await Promise.all([
       getUserDetails(userId),
       getMicropostRanking(),
-      getCategoryRanking()
+      getCategoryRanking(),
+      getMostViewRanking()
     ]);
 
     if (!userDetails) {
@@ -29,6 +30,7 @@ export default async function AdminPage() {
     return <RankingClient 
       rankingData={rankingData as Micropost[]} 
       categoryRanking={categoryRanking as CategoryRanking[]}
+      mostViewRanking={mostViewRanking as MostViewRanking[]}
     />;
   } catch (error) {
     console.error('Error loading data:', error);

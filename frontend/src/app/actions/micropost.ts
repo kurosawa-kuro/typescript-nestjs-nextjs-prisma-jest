@@ -1,6 +1,6 @@
 'use server';
 
-import { Micropost } from '@/types/micropost'; 
+import { Micropost, MostViewRanking } from '@/types/micropost'; 
 import { ApiClient } from '@/services/apiClient';
 import { cookies } from 'next/headers';
 import { Comment } from '@/types/micropost';
@@ -73,6 +73,18 @@ export async function getCategoryRanking() {
     return response;
   } catch (error) {
     console.error('Error fetching category ranking:', error);
+    return [];
+  }
+}
+
+export async function getMostViewRanking(): Promise<MostViewRanking[]> {
+  try {
+    const response = await ApiClient.get<MostViewRanking[]>('/admin/ranking/most-view', {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error fetching most view ranking:', error);
     return [];
   }
 }
