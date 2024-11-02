@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 
-interface AddCategoryModalProps {
+interface CreateCategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (name: string) => Promise<void>;
 }
 
-const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const CreateCategoryModal: React.FC<CreateCategoryModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [categoryName, setCategoryName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,4 +73,4 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, onClose, on
   );
 };
 
-export default AddCategoryModal; 
+export default CreateCategoryModal; 
