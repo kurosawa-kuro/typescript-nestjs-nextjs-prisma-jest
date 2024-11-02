@@ -56,6 +56,7 @@ interface MostViewRanking {
       avatarPath: string;
     };
   };
+  viewCount: number;
 }
 
 interface RankingClientProps {
@@ -64,40 +65,42 @@ interface RankingClientProps {
   mostViewRanking: MostViewRanking[];
 }
 
-export default function RankingClient({ rankingData, categoryRanking, mostViewRanking }: RankingClientProps) {
-  // いいねランキングのチャートオプション
-  const likeOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
+// チャートの共通オプションを作成
+const createChartOptions = (title: string, yAxisLabel: string) => ({
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: title,
+      font: {
+        size: 20,
       },
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
       title: {
         display: true,
-        text: 'いいね数ランキング',
-        font: {
-          size: 20,
-        },
+        text: yAxisLabel,
       },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'いいね数',
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: '投稿タイトル',
-        },
+    x: {
+      title: {
+        display: true,
+        text: '投稿タイトル',
       },
     },
-  };
+  },
+});
 
-  // カテゴリランキングのチャートオプション
+export default function RankingClient({ rankingData, categoryRanking, mostViewRanking }: RankingClientProps) {
+  const likeOptions = createChartOptions('いいね数ランキング', 'いいね数');
+  const mostViewOptions = createChartOptions('閲覧数ランキング', '閲覧数');
+  
   const categoryOptions = {
     responsive: true,
     plugins: {
@@ -114,7 +117,28 @@ export default function RankingClient({ rankingData, categoryRanking, mostViewRa
     },
   };
 
-  // カテゴリチャートのデータ
+  const createBarChartData = (labels: string[], data: number[], color: string) => ({
+    labels,
+    datasets: [{
+      data,
+      backgroundColor: `rgba(${color}, 0.5)`,
+      borderColor: `rgba(${color}, 1)`,
+      borderWidth: 1,
+    }],
+  });
+
+  const chartData = createBarChartData(
+    rankingData.map(post => post.title),
+    rankingData.map(post => post.likesCount),
+    '54, 162, 235'
+  );
+
+  const mostViewChartData = createBarChartData(
+    mostViewRanking.map(post => post.title),
+    mostViewRanking.map(post => post.viewCount),
+    '75, 192, 192'
+  );
+
   const categoryChartData = {
     labels: categoryRanking.map(category => category.name),
     datasets: [
@@ -147,57 +171,6 @@ export default function RankingClient({ rankingData, categoryRanking, mostViewRa
         borderWidth: 1,
       },
     ],
-  };
-
-  const chartData = {
-    labels: rankingData.map(post => post.title),
-    datasets: [{
-      data: rankingData.map(post => post.likesCount),
-      backgroundColor: 'rgba(54, 162, 235, 0.5)',
-      borderColor: 'rgba(54, 162, 235, 1)',
-      borderWidth: 1,
-    }],
-  };
-
-  const mostViewOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      title: {
-        display: true,
-        text: '閲覧数ランキング',
-        font: {
-          size: 20,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: '閲覧数',
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: '投稿タイトル',
-        },
-      },
-    },
-  };
-
-  const mostViewChartData = {
-    labels: mostViewRanking.map(post => post.title),
-    datasets: [{
-      data: mostViewRanking.map(post => post.user.id),
-      backgroundColor: 'rgba(75, 192, 192, 0.5)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 1,
-    }],
   };
 
   return (

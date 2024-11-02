@@ -79,5 +79,4 @@ export interface MostViewRanking {
       avatarPath: string;
     };
   };
-  viewsCount: number;
 }
