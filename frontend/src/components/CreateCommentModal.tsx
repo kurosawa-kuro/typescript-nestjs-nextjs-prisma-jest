@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ClientSideApiService } from '@/services/clientSideApiService';
 import { useRouter } from 'next/navigation';
-import Spinner from './common/Spinner';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 interface CreateCommentModalProps {
   isOpen: boolean;
@@ -71,7 +71,7 @@ const CreateCommentModal = ({ isOpen, onClose, micropostId, onCommentCreated }: 
           >
             {isSubmitting ? (
               <>
-                <Spinner />
+                <LoadingSpinner />
                 <span>Posting...</span>
               </>
             ) : (
