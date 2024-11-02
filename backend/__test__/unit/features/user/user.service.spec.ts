@@ -66,7 +66,7 @@ describe('UserService', () => {
         email: 'test@example.com',
         userRoles: ['general'],
         profile: {
-          avatarPath: 'default.png',
+          avatarPath: 'default_avatar.png',
         },
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
@@ -167,7 +167,7 @@ describe('UserService', () => {
         name: 'Test User',
         email: 'test@example.com',
         profile: {
-          avatarPath: 'default.png',
+          avatarPath: 'default_avatar.png',
         },
         userRoles: ['general'],
         createdAt: expect.any(Date),
@@ -295,7 +295,7 @@ describe('UserService', () => {
         name: 'Test User',
         email: 'test@example.com',
         profile: {
-          avatarPath: 'default.png',
+          avatarPath: 'default_avatar.png',
         },
         userRoles: ['admin'],
         createdAt: expect.any(Date),
@@ -328,7 +328,7 @@ describe('UserService', () => {
         name: 'Test User',
         email: 'test@example.com',
         profile: {
-          avatarPath: 'default.png',
+          avatarPath: 'default_avatar.png',
         },
         userRoles: [],
         createdAt: expect.any(Date),
@@ -390,7 +390,7 @@ describe('UserService', () => {
           email: 'user3@example.com',
           createdAt: expect.any(Date),
           updatedAt: expect.any(Date),
-          profile: { avatarPath: 'default.png' },
+          profile: { avatarPath: 'default_avatar.png' },
           userRoles: ['admin'],
           isFollowing: false,
         },
@@ -411,7 +411,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         userRoles: ['user'],
-        profile: { avatarPath: 'default.png' },
+        profile: { avatarPath: 'default_avatar.png' },
         isFollowing: true
       }];
       jest.spyOn(userService, 'findAllWithFollowStatus').mockResolvedValue(mockUpdatedUserList);
@@ -436,7 +436,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         userRoles: ['user'],
-        profile: { avatarPath: 'default.png' },
+        profile: { avatarPath: 'default_avatar.png' },
         isFollowing: false
       }];
       jest.spyOn(userService, 'findAllWithFollowStatus').mockResolvedValue(mockUpdatedUserList);

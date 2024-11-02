@@ -123,7 +123,7 @@ export class UserService extends BaseService<
       .then((users) =>
         users.map((user) => ({
           ...user,
-          profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+          profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
           userRoles: user.userRoles.map((ur) => ur.role.name),
         })),
       );
@@ -210,7 +210,7 @@ export class UserService extends BaseService<
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         userRoles: user.userRoles.map((ur) => ur.role.name),
-        profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+        profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
         isFollowing: user.followers.length > 0,
       }),
     );
@@ -431,7 +431,7 @@ export class UserService extends BaseService<
         updatedAt: follow.follower.updatedAt,
         userRoles: follow.follower.userRoles.map((ur) => ur.role.name),
         profile: {
-          avatarPath: follow.follower.profile?.avatarPath || 'default.png',
+          avatarPath: follow.follower.profile?.avatarPath || 'default_avatar.png',
         },
         isFollowing: followedByCurrentUserSet.has(follow.follower.id),
       }),
@@ -477,7 +477,7 @@ export class UserService extends BaseService<
         updatedAt: follow.following.updatedAt,
         userRoles: follow.following.userRoles.map((ur) => ur.role.name),
         profile: {
-          avatarPath: follow.following.profile?.avatarPath || 'default.png',
+          avatarPath: follow.following.profile?.avatarPath || 'default_avatar.png',
         },
         isFollowing: true, // フォローしているユーザーのリストなので、常にtrueになります
       }),
@@ -516,7 +516,7 @@ export class UserService extends BaseService<
       id: user.id,
       name: user.name,
       email: user.email,
-      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+      profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
       userRoles: user.userRoles.map((role) => role.name),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -564,7 +564,7 @@ export class UserService extends BaseService<
     return {
       ...userWithoutPassword,
       userRoles: user.userRoles.map((ur) => ur.role.name),
-      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+      profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
       // followersが存在する場合のみチェック
       isFollowing: user.followers ? user.followers.length > 0 : false,
     };

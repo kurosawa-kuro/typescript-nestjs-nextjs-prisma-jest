@@ -1,5 +1,5 @@
 import { Micropost, NewMicropost, Comment, Category } from '@/types/micropost';
-import { LoginResponse, UserDetails } from '../types/user';
+import { LoginResponse, UserDetails, Role } from '../types/user';
 import { ApiClient } from './apiClient';
 
 export const ClientSideApiService = {
@@ -17,11 +17,6 @@ export const ClientSideApiService = {
 
   updateUserProfile: (userId: number, updatedFields: Partial<UserDetails>) => 
     ApiClient.put<UserDetails>(`/users/${userId}`, updatedFields),
-
-  updateUserRole: (userId: number, isAdmin: boolean) => {
-    const endpoint = isAdmin ? `/users/${userId}/admin` : `/users/${userId}/admin/remove`;
-    return ApiClient.put<UserDetails>(endpoint, {});
-  },
 
   followUser: (userId: number) => 
     ApiClient.post<UserDetails[]>(`/follow/${userId}`, {}),
@@ -68,4 +63,18 @@ export const ClientSideApiService = {
 
   createCategory: (name: string) => 
     ApiClient.post<Category>('/categories', { name }),
+
+  getAvailableRoles: () => {
+    console.log('getAvailableRoles');
+    return ApiClient.get<Role[]>('/users/available-roles');
+  },
+
+  getUserDetails: (userId: number) =>
+    ApiClient.get<UserDetails>(`/users/${userId}`),
+
+  updateUserRoles: (userId: number, roles: string[], action: 'add' | 'remove') =>
+    ApiClient.put<UserDetails>(`/users/${userId}/roles`, { roles, action }),
+
+  getUserRoles: (userId: number) =>
+    ApiClient.get<string[]>(`/users/${userId}/roles`),
 };
