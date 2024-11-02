@@ -89,16 +89,9 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
 
   const handleAddCategory = async (name: string) => {
     try {
-      console.log('Attempting to add category:', name);
       const newCategory = await ClientSideApiService.createCategory(name);
-      console.log('Response from createCategory:', newCategory);
       setCategories(prev => [...prev, newCategory]);
     } catch (error) {
-      console.log('Failed to add category. Error details:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
       setError('Failed to add category. Please try again.');
     }
   };
