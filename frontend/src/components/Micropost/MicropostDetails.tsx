@@ -55,8 +55,10 @@ const MicropostDetails: React.FC<{ micropost: Micropost }> = ({ micropost }) => 
       } else {
         await ClientSideApiService.addLike(micropost.id);
       }
-
-      window.location.reload();
+      // いいね数を更新
+      const updatedMicropost = await ClientSideApiService.getMicropostDetails(micropost.id) as Micropost;
+      setLikesCount(updatedMicropost.likesCount);
+      setIsLiked(updatedMicropost.isLiked || false);
     } catch (error) {
       console.error('Failed to handle like:', error);
     }
