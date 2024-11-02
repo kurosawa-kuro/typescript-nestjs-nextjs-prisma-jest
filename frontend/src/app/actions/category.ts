@@ -2,18 +2,10 @@
 
 import { Category } from '@/types/micropost';
 import { ApiClient } from '@/services/apiClient';
-import { cookies } from 'next/headers';
-
-function getAuthHeaders(): Record<string, string> {
-  const token = cookies().get('jwt')?.value;
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    const response = await ApiClient.get<Category[]>('/categories', {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get<Category[]>('/categories');
     return response;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -44,9 +36,7 @@ interface CategoryDetail extends Category {
 
 export async function getCategoryDetail(id: number): Promise<CategoryDetail | null> {
   try {
-    const response = await ApiClient.get<CategoryDetail>(`/categories/${id}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get<CategoryDetail>(`/categories/${id}`);
     return response;
   } catch (error) {
     console.error(`Error fetching category detail for id ${id}:`, error);

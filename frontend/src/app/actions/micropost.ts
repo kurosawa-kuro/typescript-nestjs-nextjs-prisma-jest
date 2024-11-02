@@ -1,25 +1,11 @@
 'use server';
 
-import { Micropost, MostViewRanking } from '@/types/micropost'; 
+import { Micropost, MostViewRanking, Comment } from '@/types/micropost'; 
 import { ApiClient } from '@/services/apiClient';
-import { cookies } from 'next/headers';
-import { Comment } from '@/types/micropost';
-
-// Helper function to get the JWT token
-function getAuthToken(): string | undefined {
-  return cookies().get('jwt')?.value;
-}
-
-// Helper function to create headers with authorization
-function getAuthHeaders(): Record<string, string> {
-  const token = getAuthToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> {
   try {
     const response = await ApiClient.get<Micropost[]>('/microposts', {
-      headers: getAuthHeaders(),
       params: { search: searchQuery },
     });
     return response;
@@ -31,9 +17,7 @@ export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> 
 
 export async function getMicropostDetails(id: number): Promise<Micropost | null> {
   try {
-    const response = await ApiClient.get<Micropost>(`/microposts/${id}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get<Micropost>(`/microposts/${id}`);
     return response;
   } catch (error) {
     console.error(`Error fetching micropost details for id ${id}:`, error);
@@ -43,9 +27,7 @@ export async function getMicropostDetails(id: number): Promise<Micropost | null>
 
 export async function getMicropostComments(micropostId: number): Promise<Comment[]> {
   try {
-    const response = await ApiClient.get<Comment[]>(`/microposts/${micropostId}/comments`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get<Comment[]>(`/microposts/${micropostId}/comments`);
     return response;
   } catch (error) {
     console.error(`Error fetching comments for micropost ${micropostId}:`, error);
@@ -55,9 +37,7 @@ export async function getMicropostComments(micropostId: number): Promise<Comment
 
 export async function getMicropostRanking(): Promise<Micropost[]> {
   try {
-    const response = await ApiClient.get<Micropost[]>('/admin/ranking', {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get<Micropost[]>('/admin/ranking');
     return response;
   } catch (error) {
     console.error('Error fetching micropost ranking:', error);
@@ -67,9 +47,7 @@ export async function getMicropostRanking(): Promise<Micropost[]> {
 
 export async function getCategoryRanking() {
   try {
-    const response = await ApiClient.get('/admin/ranking/category', {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get('/admin/ranking/category');
     return response;
   } catch (error) {
     console.error('Error fetching category ranking:', error);
@@ -79,9 +57,7 @@ export async function getCategoryRanking() {
 
 export async function getMostViewRanking(): Promise<MostViewRanking[]> {
   try {
-    const response = await ApiClient.get<MostViewRanking[]>('/admin/ranking/most-view', {
-      headers: getAuthHeaders(),
-    });
+    const response = await ApiClient.get<MostViewRanking[]>('/admin/ranking/most-view');
     return response;
   } catch (error) {
     console.error('Error fetching most view ranking:', error);

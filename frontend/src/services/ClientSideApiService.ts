@@ -1,8 +1,6 @@
-import { Micropost, NewMicropost,Comment, Category } from '@/types/micropost';
+import { Micropost, NewMicropost, Comment, Category } from '@/types/micropost';
 import { LoginResponse, UserDetails } from '../types/user';
 import { ApiClient } from './apiClient';
-
-
 
 export const ClientSideApiService = {
   login: (email: string, password: string) => 
@@ -10,33 +8,26 @@ export const ClientSideApiService = {
 
   logout: () => ApiClient.post('/auth/logout', {}),
 
-  me: (token: string) => ApiClient.get<UserDetails>('/auth/me', {
-    headers: { Authorization: `Bearer ${token}` }
-  }),
-
+  me: () => ApiClient.get<UserDetails>('/auth/me'),
 
   updateAvatar: (userId: number, formData: FormData) => 
     ApiClient.put<UserDetails>(`/users/${userId}/avatar`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       rawBody: true,
     }),
 
-  updateUserProfile: async (userId: number, updatedFields: Partial<UserDetails>) => {
-    return ApiClient.put<UserDetails>(`/users/${userId}`, updatedFields);
-  },
+  updateUserProfile: (userId: number, updatedFields: Partial<UserDetails>) => 
+    ApiClient.put<UserDetails>(`/users/${userId}`, updatedFields),
 
-  updateUserRole: async (userId: number, isAdmin: boolean) => {
+  updateUserRole: (userId: number, isAdmin: boolean) => {
     const endpoint = isAdmin ? `/users/${userId}/admin` : `/users/${userId}/admin/remove`;
     return ApiClient.put<UserDetails>(endpoint, {});
   },
 
-  followUser: async (userId: number) => {
-    return ApiClient.post<UserDetails[]>(`/follow/${userId}`, {});
-  },
+  followUser: (userId: number) => 
+    ApiClient.post<UserDetails[]>(`/follow/${userId}`, {}),
 
-  unfollowUser: async (userId: number) => {
-    return ApiClient.delete<UserDetails[]>(`/follow/${userId}`);
-  },
+  unfollowUser: (userId: number) => 
+    ApiClient.delete<UserDetails[]>(`/follow/${userId}`),
 
   createPost: (formData: FormData) => 
     ApiClient.post<NewMicropost>('/microposts', formData, {
@@ -49,40 +40,32 @@ export const ClientSideApiService = {
   getComments: (micropostId: number) =>
     ApiClient.get(`/microposts/${micropostId}/comments`),
 
-  addLike: async (micropostId: number) => {
-    const response = await ApiClient.post(`/microposts/${micropostId}/likes`, {});
-    return response;
-  },
+  addLike: (micropostId: number) => 
+    ApiClient.post(`/microposts/${micropostId}/likes`, {}),
 
-  removeLike: async (micropostId: number) => {
-    const response = await ApiClient.delete(`/microposts/${micropostId}/likes`);
-    return response;
-  },
+  removeLike: (micropostId: number) => 
+    ApiClient.delete(`/microposts/${micropostId}/likes`),
 
   getLikeStatus: (micropostId: number) =>
     ApiClient.get(`/microposts/${micropostId}/likes`),
 
-  getMicropostDetails: async (micropostId: number) => {
-    const response = await ApiClient.get(`/microposts/${micropostId}`);
-    return response;
-  },
+  getMicropostDetails: (micropostId: number) => 
+    ApiClient.get(`/microposts/${micropostId}`),
 
   addMicropostView: async (micropostId: number) => {
     try {
       const response = await ApiClient.post(`/micropost-views/${micropostId}`, {});
       return response;
     } catch (error) {
-      // P2002 は一意性制約違反のエラーコード
-      // このエラーは既にビューが記録されている正常なケース
       if (error instanceof Error && error.message.includes('P2002')) {
         return { success: true, message: 'View already recorded' };
       }
-      // その他のエラーは再スロー
       throw error;
     }
   },
 
   getCategories: () => ApiClient.get<Category[]>('/categories'),
 
-  createCategory: (name: string) => ApiClient.post<Category>('/categories', { name: name }),
+  createCategory: (name: string) => 
+    ApiClient.post<Category>('/categories', { name }),
 };
