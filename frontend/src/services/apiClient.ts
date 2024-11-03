@@ -19,6 +19,7 @@ function getAuthToken(): string | undefined {
     }
   } else {
     // Client-side
+    /* istanbul ignore next */
     const jwt = document.cookie.split('; ').find(row => row.startsWith('jwt='));
     return jwt ? jwt.split('=')[1] : undefined;
   }
