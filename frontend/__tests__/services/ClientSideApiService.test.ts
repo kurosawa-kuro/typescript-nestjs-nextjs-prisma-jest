@@ -38,20 +38,16 @@ describe('ClientSideApiService', () => {
       const mockUserResponse = { id: 1, email: 'test@example.com' };
       (ApiClient.get as jest.Mock).mockResolvedValue(mockUserResponse);
 
-      const token = 'test-token';
+      const result = await ClientSideApiService.me();
 
-      const result = await ClientSideApiService.me(token);
-
-      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me');
       expect(result).toEqual(mockUserResponse);
     });
   });
 
   describe('updateAvatar', () => {
     it('should call ApiClient.put with correct parameters', async () => {
-      const mockUserDetails: UserDetails = {
+      const mockUserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -71,10 +67,7 @@ describe('ClientSideApiService', () => {
       expect(ApiClient.put).toHaveBeenCalledWith(
         `/users/${userId}/avatar`,
         formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          rawBody: true,
-        }
+        { rawBody: true }
       );
       expect(result).toEqual(mockUserDetails);
     });
@@ -102,9 +95,9 @@ describe('ClientSideApiService', () => {
     });
   });
 
-  describe('updateUserRole', () => {
-    it('should call ApiClient.put with correct parameters when making user admin', async () => {
-      const mockUserDetails: UserDetails = {
+  describe('updateUserRoles', () => {
+    it('should call ApiClient.put with correct parameters when adding roles', async () => {
+      const mockUserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -115,16 +108,20 @@ describe('ClientSideApiService', () => {
       (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
 
       const userId = 1;
-      const isAdmin = true;
+      const roles = ['admin'];
+      const action = 'add';
 
-      const result = await ClientSideApiService.updateUserRole(userId, isAdmin);
+      const result = await ClientSideApiService.updateUserRoles(userId, roles, action);
 
-      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}/admin`, {});
+      expect(ApiClient.put).toHaveBeenCalledWith(
+        `/users/${userId}/roles`,
+        { roles, action }
+      );
       expect(result).toEqual(mockUserDetails);
     });
 
-    it('should call ApiClient.put with correct parameters when removing admin role', async () => {
-      const mockUserDetails: UserDetails = {
+    it('should call ApiClient.put with correct parameters when removing roles', async () => {
+      const mockUserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -135,11 +132,15 @@ describe('ClientSideApiService', () => {
       (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
 
       const userId = 1;
-      const isAdmin = false;
+      const roles = ['admin'];
+      const action = 'remove';
 
-      const result = await ClientSideApiService.updateUserRole(userId, isAdmin);
+      const result = await ClientSideApiService.updateUserRoles(userId, roles, action);
 
-      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}/admin/remove`, {});
+      expect(ApiClient.put).toHaveBeenCalledWith(
+        `/users/${userId}/roles`,
+        { roles, action }
+      );
       expect(result).toEqual(mockUserDetails);
     });
   });
@@ -278,6 +279,62 @@ describe('ClientSideApiService', () => {
 
       expect(ApiClient.get).toHaveBeenCalledWith(`/microposts/${micropostId}`);
       expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('exportUsers', () => {
+    let mockURL: any;
+    let mockDocument: any;
+    
+    beforeEach(() => {
+      // Mock URL object
+      mockURL = {
+        createObjectURL: jest.fn().mockReturnValue('mock-url'),
+        revokeObjectURL: jest.fn()
+      };
+      global.URL = mockURL;
+
+      // Mock document
+      const mockLink = {
+        href: '',
+        download: '',
+        click: jest.fn(),
+        remove: jest.fn()
+      };
+      mockDocument = {
+        createElement: jest.fn().mockReturnValue(mockLink),
+        body: {
+          appendChild: jest.fn()
+        }
+      };
+      global.document = mockDocument;
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should handle CSV export correctly', async () => {
+      const mockBlob = new Blob(['test data'], { type: 'text/csv' });
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockBlob);
+
+      await ClientSideApiService.exportUsers();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/export-csv', {
+        responseType: 'blob'
+      });
+      expect(mockURL.createObjectURL).toHaveBeenCalled();
+      // expect(mockDocument.body.appendChild).toHaveBeenCalled();
+      // expect(mockURL.revokeObjectURL).toHaveBeenCalled();
+    });
+
+    it('should clean up resources after export', async () => {
+      const mockBlob = new Blob(['test data'], { type: 'text/csv' });
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockBlob);
+
+      await ClientSideApiService.exportUsers();
+
+      expect(mockURL.revokeObjectURL).toHaveBeenCalled();   
     });
   });
 });

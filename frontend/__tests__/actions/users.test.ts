@@ -23,7 +23,7 @@ describe('User Actions', () => {
   });
 
   describe('getUsers', () => {
-    it('should call ApiClient.get with correct endpoint, headers and return the result', async () => {
+    it('should call ApiClient.get with correct endpoint and return the result', async () => {
       const mockUsers = [
         { id: '1', name: 'User 1', email: 'user1@example.com', avatar_path: 'path/to/avatar1', userRoles: ['user'] },
         { id: '2', name: 'User 2', email: 'user2@example.com', avatar_path: 'path/to/avatar2', userRoles: ['admin'] },
@@ -32,11 +32,7 @@ describe('User Actions', () => {
 
       const result = await getUsers();
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users', {
-        headers: {
-          Authorization: 'Bearer mocked-jwt-token',
-        },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/users');
       expect(result).toEqual(mockUsers);
     });
 
@@ -56,17 +52,12 @@ describe('User Actions', () => {
         email: 'user1@example.com',
         avatar_path: 'path/to/avatar1',
         isAdmin: false,
-        // Add other fields as necessary
       };
       (ApiClient.get as jest.Mock).mockResolvedValue(mockUserDetails);
 
       const result = await getUserDetails(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1', {
-        headers: {
-          Authorization: 'Bearer mocked-jwt-token',
-        },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/1');
       expect(result).toEqual(mockUserDetails);
     });
 
@@ -77,11 +68,7 @@ describe('User Actions', () => {
 
       const result = await getUserDetails(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1', {
-        headers: {
-          Authorization: 'Bearer mocked-jwt-token',
-        },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/1');
       expect(console.error).toHaveBeenCalledWith('Error fetching user details:', mockError);
       expect(result).toBeNull();
     });
@@ -94,23 +81,19 @@ describe('User Actions', () => {
 
       const result = await getUsersWithFollowStatus();
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/with-follow-status', {
-        headers: { Authorization: 'Bearer mocked-jwt-token' },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/with-follow-status');
       expect(result).toEqual(mockUsers);
     });
   });
 
   describe('followUser', () => {
-    it('should call ApiClient.post with correct endpoint and headers', async () => {
+    it('should call ApiClient.post with correct endpoint', async () => {
       const mockResponse = [{ id: '1', name: 'User 1', isFollowing: true }];
       (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
 
       const result = await followUser(1);
 
-      expect(ApiClient.post).toHaveBeenCalledWith('/users/1/follow', {}, {
-        headers: { Authorization: 'Bearer mocked-jwt-token' },
-      });
+      expect(ApiClient.post).toHaveBeenCalledWith('/users/1/follow', {});
       expect(result).toEqual(mockResponse);
     });
 
@@ -123,15 +106,13 @@ describe('User Actions', () => {
   });
 
   describe('unfollowUser', () => {
-    it('should call ApiClient.delete with correct endpoint and headers', async () => {
+    it('should call ApiClient.delete with correct endpoint', async () => {
       const mockResponse = [{ id: '1', name: 'User 1', isFollowing: false }];
       (ApiClient.delete as jest.Mock).mockResolvedValue(mockResponse);
 
       const result = await unfollowUser(1);
 
-      expect(ApiClient.delete).toHaveBeenCalledWith('/users/1/follow', {
-        headers: { Authorization: 'Bearer mocked-jwt-token' },
-      });
+      expect(ApiClient.delete).toHaveBeenCalledWith('/users/1/follow');
       expect(result).toEqual(mockResponse);
     });
 
@@ -150,9 +131,7 @@ describe('User Actions', () => {
 
       const result = await getFollowers(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1/followers', {
-        headers: { Authorization: 'Bearer mocked-jwt-token' },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/1/followers');
       expect(result).toEqual(mockFollowers);
     });
 
@@ -171,9 +150,7 @@ describe('User Actions', () => {
 
       const result = await getFollowing(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1/following', {
-        headers: { Authorization: 'Bearer mocked-jwt-token' },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/1/following');
       expect(result).toEqual(mockFollowing);
     });
 
@@ -200,11 +177,7 @@ describe('User Actions', () => {
 
       const result = await getMe();
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me', {
-        headers: {
-          Authorization: 'Bearer mocked-jwt-token',
-        },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me');
       expect(result).toEqual(mockUserDetails);
     });
 
@@ -215,11 +188,7 @@ describe('User Actions', () => {
 
       const result = await getMe();
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me', {
-        headers: {
-          Authorization: 'Bearer mocked-jwt-token',
-        },
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me');
       expect(console.error).toHaveBeenCalledWith('Error fetching current user:', mockError);
       expect(result).toBeNull();
     });
