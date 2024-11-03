@@ -85,13 +85,38 @@ Content-Type: {{contentType}}
   "email": "{{randomEmail}}"
 }
 
-### ユーザー権限情報をAdminに変更
-PUT {{baseUrl}}/users/2/admin
-Content-Type: {{contentType}}
 
-### ユーザー権限情報からAdminを外す
-PUT {{baseUrl}}/users/2/admin/remove
+# ユーザー権限
+
+### 利用可能な全ての権限を取得
+GET {{baseUrl}}/users/available-roles
 Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### ユーザーの現在の権限を取得
+GET {{baseUrl}}/users/2/roles
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### ユーザーに権限を追加
+PUT {{baseUrl}}/users/2/roles
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "roles": ["admin", "read_only_admin"],
+  "action": "add"
+}
+
+### ユーザーから権限を削除
+PUT {{baseUrl}}/users/2/roles
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{
+  "roles": ["admin"],
+  "action": "remove"
+}
 
 ### ユーザーavatar情報を変更
 PUT {{baseUrl}}/users/2/avatar
@@ -156,9 +181,16 @@ GET {{baseUrl}}/microposts
 Content-Type: {{contentType}}
 
 ### マイクロポスト一覧を取得（検索機能）
-GET {{baseUrl}}/microposts?search=ｍｍ
+GET {{baseUrl}}/microposts?search=abc
 Content-Type: {{contentType}}
 
+### マイクロポスト一覧を取得（ソート機能）いいねの多い順に表示
+GET {{baseUrl}}/microposts?sortBy=likes
+Content-Type: {{contentType}}
+
+### マイクロポスト一覧を取得（ソート機能）mostViewの多い順に表示
+GET {{baseUrl}}/microposts?sortBy=mostView
+Content-Type: {{contentType}}
 
 ### マイクロポスト詳細を取得
 GET {{baseUrl}}/microposts/28
@@ -335,3 +367,19 @@ Content-Type: image/jpeg
 GET {{baseUrl}}/admin/ranking
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### MostViewのランキングを取得
+GET {{baseUrl}}/admin/ranking/most-view
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### カテゴリランキングを取得
+GET {{baseUrl}}/admin/ranking/category
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+### ユーザー一覧をCSVでダウンロード
+GET {{baseUrl}}/users/export-csv
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+

@@ -1,18 +1,18 @@
 'use client';
 
-import { ClientSideApiService } from '@/services/clientSideApiService';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Category } from '@/types/micropost';
-import AddCategoryModal from './AddCategoryModal';
+import CreateCategoryModal from './CreateCategoryModal';
 
-interface CreatePostModalProps {
+interface createMicroPostModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
+const createMicroPostModal: React.FC<createMicroPostModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -22,7 +22,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
+  const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -65,7 +65,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
       formData.append('image', selectedImage);
       formData.append('categoryIds', JSON.stringify(selectedCategories));
 
-      await ClientSideApiService.createPost(formData);
+      await ClientSideApiService.createMicroPost(formData);
       setTitle('');
       setSelectedImage(null);
       setPreviewUrl(null);
@@ -136,7 +136,7 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
                 </button>
               ))}
               <button
-                onClick={() => setIsAddCategoryModalOpen(true)}
+                onClick={() => setIsCreateCategoryModalOpen(true)}
                 className="px-3 py-1 rounded-full text-sm bg-green-500 text-white"
               >
                 + Add Category
@@ -203,13 +203,13 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) =>
         )}
       </div>
 
-      <AddCategoryModal
-        isOpen={isAddCategoryModalOpen}
-        onClose={() => setIsAddCategoryModalOpen(false)}
+      <CreateCategoryModal
+        isOpen={isCreateCategoryModalOpen}
+        onClose={() => setIsCreateCategoryModalOpen(false)}
         onSubmit={handleAddCategory}
       />
     </div>
   );
 };
 
-export default CreatePostModal;
+export default createMicroPostModal;

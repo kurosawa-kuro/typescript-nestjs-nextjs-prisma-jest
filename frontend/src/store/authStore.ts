@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { AuthState,  UserInfo    } from '../types/user';
-import { ClientSideApiService } from '../services/clientSideApiService';
+import { ClientSideApiService } from '../services/ClientSideApiService';
 import { useFlashMessageStore } from './flashMessageStore';
 
 const initialState: Omit<AuthState, 'resetStore' | 'login' | 'logout'> = {

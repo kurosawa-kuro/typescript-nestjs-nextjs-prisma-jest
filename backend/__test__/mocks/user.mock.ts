@@ -20,7 +20,7 @@ export const mockCreatedUser: UserDetails = {
   createdAt: new Date(),
   updatedAt: new Date(),
   userRoles: ["general"],
-  profile: { avatarPath: 'default.png' },
+  profile: { avatarPath: 'default_avatar.png' },
   isFollowing: false,
 };
 

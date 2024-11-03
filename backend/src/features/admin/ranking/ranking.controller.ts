@@ -10,4 +10,16 @@ export class RankingController {
   getMicropostRanking() {
     return this.rankingService.getMicropostRanking();
   }
+
+  // MostViewのランキングを取得
+  @Get('most-view')
+  getMostViewRanking() {
+    return this.rankingService.getMostViewRanking();
+  }
+
+  // カテゴリランキングを取得
+  @Get('category')
+  getCategoryRanking() {
+    return this.rankingService.getCategoryRanking();
+  }
 }

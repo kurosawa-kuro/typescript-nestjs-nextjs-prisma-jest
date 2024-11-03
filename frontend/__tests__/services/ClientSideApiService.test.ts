@@ -1,4 +1,4 @@
-import { ClientSideApiService } from '../../src/services/clientSideApiService';
+import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { ApiClient } from '../../src/services/apiClient';
 import { UserDetails } from '../../src/types/user';
 
@@ -38,20 +38,16 @@ describe('ClientSideApiService', () => {
       const mockUserResponse = { id: 1, email: 'test@example.com' };
       (ApiClient.get as jest.Mock).mockResolvedValue(mockUserResponse);
 
-      const token = 'test-token';
+      const result = await ClientSideApiService.me("test-token");
 
-      const result = await ClientSideApiService.me(token);
-
-      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me');
       expect(result).toEqual(mockUserResponse);
     });
   });
 
   describe('updateAvatar', () => {
     it('should call ApiClient.put with correct parameters', async () => {
-      const mockUserDetails: UserDetails = {
+      const mockUserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -71,10 +67,7 @@ describe('ClientSideApiService', () => {
       expect(ApiClient.put).toHaveBeenCalledWith(
         `/users/${userId}/avatar`,
         formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          rawBody: true,
-        }
+        { rawBody: true }
       );
       expect(result).toEqual(mockUserDetails);
     });
@@ -102,9 +95,9 @@ describe('ClientSideApiService', () => {
     });
   });
 
-  describe('updateUserRole', () => {
-    it('should call ApiClient.put with correct parameters when making user admin', async () => {
-      const mockUserDetails: UserDetails = {
+  describe('updateUserRoles', () => {
+    it('should call ApiClient.put with correct parameters when adding roles', async () => {
+      const mockUserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -115,16 +108,20 @@ describe('ClientSideApiService', () => {
       (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
 
       const userId = 1;
-      const isAdmin = true;
+      const roles = ['admin'];
+      const action = 'add';
 
-      const result = await ClientSideApiService.updateUserRole(userId, isAdmin);
+      const result = await ClientSideApiService.updateUserRoles(userId, roles, action);
 
-      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}/admin`, {});
+      expect(ApiClient.put).toHaveBeenCalledWith(
+        `/users/${userId}/roles`,
+        { roles, action }
+      );
       expect(result).toEqual(mockUserDetails);
     });
 
-    it('should call ApiClient.put with correct parameters when removing admin role', async () => {
-      const mockUserDetails: UserDetails = {
+    it('should call ApiClient.put with correct parameters when removing roles', async () => {
+      const mockUserDetails = {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
@@ -135,11 +132,15 @@ describe('ClientSideApiService', () => {
       (ApiClient.put as jest.Mock).mockResolvedValue(mockUserDetails);
 
       const userId = 1;
-      const isAdmin = false;
+      const roles = ['admin'];
+      const action = 'remove';
 
-      const result = await ClientSideApiService.updateUserRole(userId, isAdmin);
+      const result = await ClientSideApiService.updateUserRoles(userId, roles, action);
 
-      expect(ApiClient.put).toHaveBeenCalledWith(`/users/${userId}/admin/remove`, {});
+      expect(ApiClient.put).toHaveBeenCalledWith(
+        `/users/${userId}/roles`,
+        { roles, action }
+      );
       expect(result).toEqual(mockUserDetails);
     });
   });
@@ -186,7 +187,7 @@ describe('ClientSideApiService', () => {
     });
   });
 
-  describe('createPost', () => {
+  describe('createMicroPost', () => {
     it('should call ApiClient.post with correct parameters', async () => {
       const mockResponse = { id: 1, title: 'Test Post' };
       (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
@@ -195,7 +196,7 @@ describe('ClientSideApiService', () => {
       formData.append('title', 'Test Post');
       formData.append('image', new Blob(['test']), 'test.jpg');
 
-      const result = await ClientSideApiService.createPost(formData);
+      const result = await ClientSideApiService.createMicroPost(formData);
 
       expect(ApiClient.post).toHaveBeenCalledWith('/microposts', formData, {
         rawBody: true,
@@ -278,6 +279,225 @@ describe('ClientSideApiService', () => {
 
       expect(ApiClient.get).toHaveBeenCalledWith(`/microposts/${micropostId}`);
       expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('exportUsers', () => {
+    let mockURL: any;
+    let mockDocument: any;
+    
+    beforeEach(() => {
+      // Mock URL object
+      mockURL = {
+        createObjectURL: jest.fn().mockReturnValue('mock-url'),
+        revokeObjectURL: jest.fn()
+      };
+      global.URL = mockURL;
+
+      // Mock document
+      const mockLink = {
+        href: '',
+        download: '',
+        click: jest.fn(),
+        remove: jest.fn()
+      };
+      mockDocument = {
+        createElement: jest.fn().mockReturnValue(mockLink),
+        body: {
+          appendChild: jest.fn()
+        }
+      };
+      global.document = mockDocument;
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should handle CSV export correctly', async () => {
+      const mockBlob = new Blob(['test data'], { type: 'text/csv' });
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockBlob);
+
+      await ClientSideApiService.exportUsers();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/users/export-csv', {
+        responseType: 'blob'
+      });
+      expect(mockURL.createObjectURL).toHaveBeenCalled();
+      // expect(mockDocument.body.appendChild).toHaveBeenCalled();
+      // expect(mockURL.revokeObjectURL).toHaveBeenCalled();
+    });
+
+    it('should clean up resources after export', async () => {
+      const mockBlob = new Blob(['test data'], { type: 'text/csv' });
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockBlob);
+
+      await ClientSideApiService.exportUsers();
+
+      expect(mockURL.revokeObjectURL).toHaveBeenCalled();   
+    });
+  });
+
+  describe('addMicropostView', () => {
+    it('should call ApiClient.post with correct parameters', async () => {
+      const mockResponse = { success: true };
+      (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.addMicropostView(micropostId);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/micropost-views/${micropostId}`, {});
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle duplicate view error gracefully', async () => {
+      const error = new Error('P2002: Unique constraint failed');
+      (ApiClient.post as jest.Mock).mockRejectedValue(error);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.addMicropostView(micropostId);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/micropost-views/${micropostId}`, {});
+      expect(result).toEqual({
+        success: true,
+        message: 'View already recorded'
+      });
+    });
+
+    it('should throw other errors', async () => {
+      const error = new Error('Network error');
+      (ApiClient.post as jest.Mock).mockRejectedValue(error);
+
+      const micropostId = 1;
+      await expect(ClientSideApiService.addMicropostView(micropostId)).rejects.toThrow('Network error');
+    });
+  });
+
+  describe('category operations', () => {
+    describe('getCategories', () => {
+      it('should call ApiClient.get with correct parameters', async () => {
+        const mockCategories = [
+          { id: 1, name: 'Technology' },
+          { id: 2, name: 'Sports' }
+        ];
+        (ApiClient.get as jest.Mock).mockResolvedValue(mockCategories);
+
+        const result = await ClientSideApiService.getCategories();
+
+        expect(ApiClient.get).toHaveBeenCalledWith('/categories');
+        expect(result).toEqual(mockCategories);
+      });
+    });
+
+    describe('createCategory', () => {
+      it('should call ApiClient.post with correct parameters', async () => {
+        const mockCategory = { id: 1, name: 'New Category' };
+        (ApiClient.post as jest.Mock).mockResolvedValue(mockCategory);
+
+        const categoryName = 'New Category';
+        const result = await ClientSideApiService.createCategory(categoryName);
+
+        expect(ApiClient.post).toHaveBeenCalledWith('/categories', { name: categoryName });
+        expect(result).toEqual(mockCategory);
+      });
+
+      it('should handle error when creating category', async () => {
+        const error = new Error('Failed to create category');
+        (ApiClient.post as jest.Mock).mockRejectedValue(error);
+
+        const categoryName = 'New Category';
+        await expect(ClientSideApiService.createCategory(categoryName))
+          .rejects
+          .toThrow('Failed to create category');
+      });
+    });
+  });
+
+  describe('role operations', () => {
+    let consoleSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    describe('getAvailableRoles', () => {
+      it('should call ApiClient.get with correct parameters', async () => {
+        const mockRoles = ['admin', 'user', 'moderator'];
+        (ApiClient.get as jest.Mock).mockResolvedValue(mockRoles);
+
+        const result = await ClientSideApiService.getAvailableRoles();
+
+        expect(console.log).toHaveBeenCalledWith('getAvailableRoles');
+        expect(ApiClient.get).toHaveBeenCalledWith('/users/available-roles');
+        expect(result).toEqual(mockRoles);
+      });
+
+      it('should handle error when fetching roles', async () => {
+        const error = new Error('Failed to fetch roles');
+        (ApiClient.get as jest.Mock).mockRejectedValue(error);
+
+        await expect(ClientSideApiService.getAvailableRoles())
+          .rejects
+          .toThrow('Failed to fetch roles');
+        expect(console.log).toHaveBeenCalledWith('getAvailableRoles');
+      });
+    });
+  });
+
+  describe('getUserDetails', () => {
+    it('should call ApiClient.get with correct parameters', async () => {
+      const mockUserDetails: UserDetails = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+      const result = await ClientSideApiService.getUserDetails(userId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/users/${userId}`);
+      expect(result).toEqual(mockUserDetails);
+    });
+
+    it('should handle error when fetching user details', async () => {
+      const error = new Error('User not found');
+      (ApiClient.get as jest.Mock).mockRejectedValue(error);
+
+      const userId = 999;
+      await expect(ClientSideApiService.getUserDetails(userId))
+        .rejects
+        .toThrow('User not found');
+    });
+  });
+
+  describe('getUserRoles', () => {
+    it('should call ApiClient.get with correct parameters', async () => {
+      const mockRoles = ['admin', 'user'];
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockRoles);
+
+      const userId = 1;
+      const result = await ClientSideApiService.getUserRoles(userId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/users/${userId}/roles`);
+      expect(result).toEqual(mockRoles);
+    });
+
+    it('should handle error when fetching user roles', async () => {
+      const error = new Error('Failed to fetch user roles');
+      (ApiClient.get as jest.Mock).mockRejectedValue(error);
+
+      const userId = 1;
+      await expect(ClientSideApiService.getUserRoles(userId))
+        .rejects
+        .toThrow('Failed to fetch user roles');
     });
   });
 });

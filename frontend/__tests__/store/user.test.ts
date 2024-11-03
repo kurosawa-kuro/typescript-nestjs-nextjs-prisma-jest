@@ -41,30 +41,44 @@ describe('UserStore', () => {
     expect(useUserStore.getState().users).toEqual(mockUsers);
   });
 
-  // updateUserRoleのテスト
-  test('updateUserRole should update role for specific user', () => {
+  // updateUserのテスト
+  test('updateUser should update user roles correctly', () => {
     // 初期ユーザーを設定
-    const { setUsers, updateUserRole } = useUserStore.getState();
+    const { setUsers, updateUser } = useUserStore.getState();
     setUsers(mockUsers);
 
     // User 1のロールを更新
-    const newRole = 'admin';
-    updateUserRole(1, newRole);
+    const updatedUser = {
+      ...mockUsers[0],
+      userRoles: ['admin']
+    };
+    updateUser(updatedUser);
 
     // 更新された状態を検証
     const updatedUsers = useUserStore.getState().users;
-    expect(updatedUsers[0].userRoles).toEqual([newRole]);
+    expect(updatedUsers[0].userRoles).toEqual(['admin']);
     // 他のユーザーは変更されていないことを確認
     expect(updatedUsers[1].userRoles).toEqual(['user']);
   });
 
-  // 存在しないユーザーのupdateUserRoleのテスト
-  test('updateUserRole should not affect users when userId does not exist', () => {
-    const { setUsers, updateUserRole } = useUserStore.getState();
+  // 存在しないユーザーのupdateUserのテスト
+  test('updateUser should not affect users when userId does not exist', () => {
+    const { setUsers, updateUser } = useUserStore.getState();
     setUsers(mockUsers);
 
-    // 存在しないユーザーIDでロール更新を試みる
-    updateUserRole(999, 'admin');
+    // 存在しないユーザーIDで更新を試みる
+    const nonExistentUser: UserDetails = {
+      id: 999,
+      name: 'Non Existent',
+      email: 'nonexistent@example.com',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userRoles: ['admin'],
+      profile: {
+        avatarPath: '/avatar.jpg',
+      }
+    };
+    updateUser(nonExistentUser);
 
     // ユーザー一覧が変更されていないことを確認
     expect(useUserStore.getState().users).toEqual(mockUsers);

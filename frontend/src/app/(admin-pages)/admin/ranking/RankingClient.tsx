@@ -1,7 +1,7 @@
 'use client';
 
 import { Micropost } from '@/types/micropost';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +10,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
 import Image from 'next/image';
 
@@ -20,54 +21,153 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
+
+interface CategoryRanking {
+  id: number;
+  name: string;
+  postCount: number;
+  recentPosts: Array<{
+    id: number;
+    title: string;
+    imagePath: string;
+    createdAt: string;
+    user: {
+      id: number;
+      name: string;
+      profile: {
+        avatarPath: string;
+      };
+    };
+  }>;
+}
+
+interface MostViewRanking {
+  id: number;
+  title: string;
+  imagePath: string;
+  createdAt: string;
+  user: {
+    id: number;
+    name: string;
+    profile: {
+      avatarPath: string;
+    };
+  };
+  viewCount: number;
+}
 
 interface RankingClientProps {
   rankingData: Micropost[];
+  categoryRanking: CategoryRanking[];
+  mostViewRanking: MostViewRanking[];
 }
 
-export default function RankingClient({ rankingData }: RankingClientProps) {
-  // チャートのオプション
-  const options = {
+// チャートの共通オプションを作成
+const createChartOptions = (title: string, yAxisLabel: string) => ({
+  responsive: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: title,
+      font: {
+        size: 20,
+      },
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: yAxisLabel,
+      },
+    },
+    x: {
+      title: {
+        display: true,
+        text: '投稿タイトル',
+      },
+    },
+  },
+});
+
+export default function RankingClient({ rankingData, categoryRanking, mostViewRanking }: RankingClientProps) {
+  const likeOptions = createChartOptions('いいね数ランキング', 'いいね数');
+  const mostViewOptions = createChartOptions('閲覧数ランキング', '閲覧数');
+  
+  const categoryOptions = {
     responsive: true,
     plugins: {
       legend: {
-        display: false,
+        position: 'right' as const,
       },
       title: {
         display: true,
-        text: 'いいね数ランキング',
+        text: 'カテゴリ別投稿数',
         font: {
           size: 20,
         },
       },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'いいね数',
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: '投稿タイトル',
-        },
-      },
-    },
   };
 
-  // チャートのデータ
-  const chartData = {
-    labels: rankingData.map(post => post.title),
+  const createBarChartData = (labels: string[], data: number[], color: string) => ({
+    labels,
+    datasets: [{
+      data,
+      backgroundColor: `rgba(${color}, 0.5)`,
+      borderColor: `rgba(${color}, 1)`,
+      borderWidth: 1,
+    }],
+  });
+
+  const chartData = createBarChartData(
+    rankingData.map(post => post.title),
+    rankingData.map(post => post.likesCount),
+    '54, 162, 235'
+  );
+
+  const mostViewChartData = createBarChartData(
+    mostViewRanking.map(post => post.title),
+    mostViewRanking.map(post => post.viewCount),
+    '75, 192, 192'
+  );
+
+  const categoryChartData = {
+    labels: categoryRanking.map(category => category.name),
     datasets: [
       {
-        data: rankingData.map(post => post.likesCount),
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        borderColor: 'rgb(53, 162, 235)',
+        data: categoryRanking.map(category => category.postCount),
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.5)',
+          'rgba(54, 162, 235, 0.5)',
+          'rgba(255, 206, 86, 0.5)',
+          'rgba(75, 192, 192, 0.5)',
+          'rgba(153, 102, 255, 0.5)',
+          'rgba(255, 159, 64, 0.5)',
+          'rgba(199, 199, 199, 0.5)',
+          'rgba(83, 102, 255, 0.5)',
+          'rgba(40, 159, 64, 0.5)',
+          'rgba(210, 199, 199, 0.5)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(199, 199, 199, 1)',
+          'rgba(83, 102, 255, 1)',
+          'rgba(40, 159, 64, 1)',
+          'rgba(210, 199, 199, 1)',
+        ],
         borderWidth: 1,
       },
     ],
@@ -75,48 +175,20 @@ export default function RankingClient({ rankingData }: RankingClientProps) {
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8">マイクロポストランキング</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* チャートセクション */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* いいねランキングチャート */}
         <div className="p-4 bg-white rounded-lg shadow">
-          <Bar options={options} data={chartData} />
+          <Bar options={likeOptions} data={chartData} />
         </div>
 
-        {/* リストセクション */}
-        <div className="space-y-4 max-h-[600px] overflow-y-auto">
-          {rankingData.map((post, index) => (
-            <div 
-              key={post.id} 
-              className="border p-4 rounded-lg shadow bg-white hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex items-center justify-center w-12 h-12 bg-blue-500 text-white rounded-full">
-                  <span className="text-xl font-bold">#{index + 1}</span>
-                </div>
-                <div className="flex-grow">
-                  <h2 className="font-semibold text-lg">{post.title}</h2>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span>投稿者: {post.user.name}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <span>👍</span>
-                      <span>{post.likesCount}</span>
-                    </span>
-                  </div>
-                </div>
-                {post.imagePath && (
-                  <div className="flex-shrink-0">
-                    <img
-                      src={`http://localhost:3001/uploads/${post.imagePath}`}
-                      alt={post.title}
-                      className="w-20 h-20 rounded-lg object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+        {/* 最も閲覧された投稿ランキングチャート */}
+        <div className="p-4 bg-white rounded-lg shadow">
+          <Bar options={mostViewOptions} data={mostViewChartData} />
+        </div>
+
+        {/* カテゴリランキングチャート */}
+        <div className="p-4 bg-white rounded-lg shadow">
+          <Pie options={categoryOptions} data={categoryChartData} />
         </div>
       </div>
     </div>

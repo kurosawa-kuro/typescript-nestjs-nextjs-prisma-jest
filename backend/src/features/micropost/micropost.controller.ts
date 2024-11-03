@@ -43,10 +43,14 @@ export class MicropostController {
     });
   }
 
+  // マイクロポスト一覧取得  search デフォルトは作成日時、ソートでいいね、mostViewの多い順に表示依頼
   @OptionalAuth()
   @Get()
-  async findAll(@Query('search') search?: string): Promise<DetailedMicropost[]> {
-    return this.micropostService.all(search);
+  async findAll(
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy: 'likes' | 'mostView' | 'date' = 'date'
+  ): Promise<DetailedMicropost[]> {
+    return this.micropostService.all(search, sortBy);
   }
 
   @OptionalAuth()

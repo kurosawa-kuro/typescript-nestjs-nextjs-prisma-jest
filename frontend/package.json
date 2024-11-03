@@ -11,7 +11,8 @@
     "playwright": "playwright test",
     "playwright:ui": "playwright test --ui",
     "playwright:report": "playwright show-report",
-    "playwright:codegen": "playwright codegen http://localhost:3000"
+    "playwright:codegen": "playwright codegen http://localhost:3000",
+    "clean": "if exist .next rd /s /q .next && if exist node_modules rd /s /q node_modules"
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
@@ -26,7 +27,7 @@
     "react-dom": "^18",
     "react-icons": "^5.3.0",
     "sharp": "^0.33.5",
-    "zustand": "^5.0.0-rc.2"
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.25.4",

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { ClientSideApiService } from './services/clientSideApiService'
+import { ClientSideApiService } from './services/ClientSideApiService'
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('jwt')?.value;
@@ -16,7 +16,9 @@ export async function middleware(request: NextRequest) {
 
   try {
     const userData = await ClientSideApiService.me(token);
-    const requestHeaders = new Headers(request.headers);
+    const requestHeaders = new Headers();
+    // Copy over existing headers if needed
+    request.headers.forEach((value, key) => requestHeaders.set(key, value));
     requestHeaders.set('x-user-data', JSON.stringify(userData));
 
     if (request.nextUrl.pathname.startsWith('/admin') && !userData.userRoles.includes('admin')) {
@@ -28,7 +30,6 @@ export async function middleware(request: NextRequest) {
       request: { headers: requestHeaders },
     });
   } catch (error) {
-    console.error('Error in middleware:', error);
     // In case of an error, delete the cookie and redirect to login
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.delete('jwt');

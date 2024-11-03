@@ -1,10 +1,10 @@
 import React from 'react';
 import { getMicropostDetails } from '@/app/actions/micropost';
 import { notFound } from 'next/navigation';
-import MicropostDetails from '@/components/MicropostDetails';
-import CategoryList from '@/components/CategoryList';
+import MicropostDetails from '@/components/Micropost/MicropostDetails';
+import CategoryList from '@/components/Micropost/CategoryList';
 import { getCategories } from '@/app/actions/category';
-import TimelineLayout from '@/components/TimelineLayout';
+import TimelineLayout from '@/components/Micropost/TimelineLayout';
 
 interface MicropostDetailsPageProps {
   params: {

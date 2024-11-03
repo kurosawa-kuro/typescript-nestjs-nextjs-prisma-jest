@@ -1,6 +1,6 @@
 import React from 'react';
 import { Comment } from '@/types/micropost';
-import CommentItem from '@/components/CommentItem';
+import CommentItem from '@/components/Micropost/CommentItem';
 
 interface CommentListProps {
   comments: Comment[];

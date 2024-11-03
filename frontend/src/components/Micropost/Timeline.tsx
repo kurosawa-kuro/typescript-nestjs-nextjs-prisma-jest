@@ -1,34 +1,34 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import MicropostCard from '@/components/MicropostCard';
+import MicropostCard from '@/components/Micropost/MicropostCard';
 import Link from 'next/link';
 import { TimelineProps } from '@/types/micropost';
-import CreatePostModal from './CreatePostModal';
+import CreateMicroPostModal from './CreateMicroPostModal';
 import { useAuthStore } from '@/store/authStore';
 import { useSearchParams } from 'next/navigation';
-
-const POSTS_PER_PAGE = 6;
 
 const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('');
   const { user } = useAuthStore();
   const searchParams = useSearchParams();
   
   const currentSearchQuery = searchParams.get('search') || '';
+  const currentSortBy = searchParams.get('sortBy') || '';
 
   useEffect(() => {
     setSearchQuery(currentSearchQuery);
-  }, [currentSearchQuery]);
+    setSortBy(currentSortBy);
+  }, [currentSearchQuery, currentSortBy]);
 
   const getPageUrl = (page: number) => {
     const params = new URLSearchParams();
-    params.set('page', page.toString());
-    if (currentSearchQuery) {
-      params.set('search', currentSearchQuery);
-    }
-    return `/timeline?${params.toString()}`;
+    if (searchQuery) params.set('search', searchQuery);
+    if (sortBy) params.set('sortBy', sortBy);
+    if (page > 1) params.set('page', page.toString());
+    return `?${params.toString()}`;
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,29 +38,37 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 mb-6">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex gap-4 items-center w-full sm:w-auto">
           <input
             type="text"
+            placeholder="Search posts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search posts..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            className="px-4 py-2 border rounded-lg w-full sm:w-auto"
           />
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 border rounded-lg"
           >
-            Search
-          </button>
-        </form>
-
+            <option value="">Latest</option>
+            <option value="likes">Most Liked</option>
+            <option value="mostView">Most Viewed</option>
+          </select>
+          <Link
+            href={getPageUrl(1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            Apply
+          </Link>
+        </div>
         {user && (
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap"
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 w-full sm:w-auto"
           >
-            Create New Post
+            Create Post
           </button>
         )}
       </div>
@@ -103,7 +111,7 @@ const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages
         </nav>
       </div>
 
-      <CreatePostModal
+      <CreateMicroPostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />

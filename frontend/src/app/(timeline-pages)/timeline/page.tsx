@@ -1,11 +1,11 @@
 import React from 'react';
 import { getMicroposts } from '../../actions/micropost';
 import { getCategories } from '../../actions/category';
-import Timeline from '@/components/Timeline';
-import CategoryList from '@/components/CategoryList';
-import TimelineLayout from '@/components/TimelineLayout';
+import Timeline from '@/components/Micropost/Timeline';
+import CategoryList from '@/components/Micropost/CategoryList';
+import TimelineLayout from '@/components/Micropost/TimelineLayout';
 
-const POSTS_PER_PAGE = 6;
+const POSTS_PER_PAGE = 4;
 
 export default async function TimelinePage({ 
   searchParams 
@@ -14,6 +14,7 @@ export default async function TimelinePage({
     page?: string;
     search?: string;
     category?: string;
+    sortBy?: string;
   } 
 }) {
   const currentPage = Number(searchParams.page) || 1;
@@ -22,7 +23,7 @@ export default async function TimelinePage({
 
   // 並行してデータを取得
   const [allMicroposts, categories] = await Promise.all([
-    getMicroposts(searchQuery),
+    getMicroposts(searchQuery, searchParams.sortBy),
     getCategories()
   ]);
   

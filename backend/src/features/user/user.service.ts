@@ -123,7 +123,7 @@ export class UserService extends BaseService<
       .then((users) =>
         users.map((user) => ({
           ...user,
-          profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+          profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
           userRoles: user.userRoles.map((ur) => ur.role.name),
         })),
       );
@@ -210,7 +210,7 @@ export class UserService extends BaseService<
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         userRoles: user.userRoles.map((ur) => ur.role.name),
-        profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+        profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
         isFollowing: user.followers.length > 0,
       }),
     );
@@ -244,47 +244,78 @@ export class UserService extends BaseService<
     });
   }
 
-  async updateUserRole(
-    id: number,
-    action: 'add' | 'remove',
-    roleName: string = 'admin',
+  async updateUserRoles(
+    userId: number,
+    roleNames: string[],
+    action: 'add' | 'remove'
   ): Promise<UserDetails> {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id: userId },
       include: {
         userRoles: {
-          where: { role: { name: roleName } },
-          include: { role: true },
-        },
-      },
+          include: { role: true }
+        }
+      }
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id },
-      data: {
-        userRoles:
-          action === 'add'
-            ? { create: { role: { connect: { name: roleName } } } }
-            : { deleteMany: { roleId: user.userRoles[0].role.id, userId: id } },
-      },
-      include: {
-        userRoles: {
-          include: { role: true },
-        },
-      },
+    // 指定された名前のロールが存在するか確認
+    const roles = await this.prisma.role.findMany({
+      where: { name: { in: roleNames } }
     });
 
-    // Map the updatedUser to match UserWithRoleObjects structure
-    const mappedUser: UserWithoutPassword & { userRoles: Role[] } = {
-      ...updatedUser,
-      userRoles: updatedUser.userRoles.map((ur) => ur.role),
-    };
+    if (roles.length !== roleNames.length) {
+      throw new BadRequestException('One or more roles do not exist');
+    }
 
-    return this.mapUserToUserInfo(mappedUser);
+    if (action === 'add') {
+      // 新しい権限を追加
+      await Promise.all(
+        roles.map(role =>
+          this.prisma.userRole.upsert({
+            where: {
+              userId_roleId: { userId, roleId: role.id }
+            },
+            create: { userId, roleId: role.id },
+            update: {}
+          })
+        )
+      );
+    } else {
+      // 指定された権限を削除
+      await this.prisma.userRole.deleteMany({
+        where: {
+          userId,
+          roleId: { in: roles.map(r => r.id) }
+        }
+      });
+    }
+
+    return this.findByIdWithRelationsAndFollowStatus(userId, null);
+  }
+
+  async getUserRoles(userId: number): Promise<string[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        userRoles: {
+          include: { role: true }
+        }
+      }
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.userRoles.map(ur => ur.role.name);
+  }
+
+  async getAvailableRoles(): Promise<Role[]> {
+    return this.prisma.role.findMany();
   }
 
   // フォロー関連
@@ -400,7 +431,7 @@ export class UserService extends BaseService<
         updatedAt: follow.follower.updatedAt,
         userRoles: follow.follower.userRoles.map((ur) => ur.role.name),
         profile: {
-          avatarPath: follow.follower.profile?.avatarPath || 'default.png',
+          avatarPath: follow.follower.profile?.avatarPath || 'default_avatar.png',
         },
         isFollowing: followedByCurrentUserSet.has(follow.follower.id),
       }),
@@ -446,7 +477,7 @@ export class UserService extends BaseService<
         updatedAt: follow.following.updatedAt,
         userRoles: follow.following.userRoles.map((ur) => ur.role.name),
         profile: {
-          avatarPath: follow.following.profile?.avatarPath || 'default.png',
+          avatarPath: follow.following.profile?.avatarPath || 'default_avatar.png',
         },
         isFollowing: true, // フォローしているユーザーのリストなので、常にtrueになります
       }),
@@ -485,7 +516,7 @@ export class UserService extends BaseService<
       id: user.id,
       name: user.name,
       email: user.email,
-      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
+      profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
       userRoles: user.userRoles.map((role) => role.name),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -495,7 +526,7 @@ export class UserService extends BaseService<
 
   async findByIdWithRelationsAndFollowStatus(
     id: number,
-    currentUserId: number,
+    currentUserId?: number,  // nullableに変更
   ): Promise<UserDetails> {
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -514,11 +545,14 @@ export class UserService extends BaseService<
             avatarPath: true,
           },
         },
-        followers: {
-          where: {
-            followerId: currentUserId,
+        // currentUserIdが存在する場合のみfollowersを含める
+        ...(currentUserId && {
+          followers: {
+            where: {
+              followerId: currentUserId,
+            },
           },
-        },
+        }),
       },
     });
 
@@ -530,8 +564,9 @@ export class UserService extends BaseService<
     return {
       ...userWithoutPassword,
       userRoles: user.userRoles.map((ur) => ur.role.name),
-      profile: { avatarPath: user.profile?.avatarPath || 'default.png' },
-      isFollowing: user.followers.length > 0,
+      profile: { avatarPath: user.profile?.avatarPath || 'default_avatar.png' },
+      // followersが存在する場合のみチェック
+      isFollowing: user.followers ? user.followers.length > 0 : false,
     };
   }
 }
