@@ -71,11 +71,11 @@ export default function UserProfileClient({
         {/* ヘッダーセクション */}
         <div className="w-full">
           {/* ヘッダー: グラデーションを単色に */}
-          <div className="bg-gray-100 h-32 w-full" />
+          <div className="bg-gray-100 h-1 w-full" />
           
           {/* プロフィール情報 */}
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="-mt-16 relative">
+            <div className="-mt-8 relative">
               {/* プロフィール画像: シンプル白背景に */}
               <div className="bg-white p-1 rounded-full inline-block">
                 <Image
