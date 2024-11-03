@@ -147,9 +147,38 @@ describe('ApiClient', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'http://localhost:3001/test-endpoint',
-        expect.any(Object)
+        expect.objectContaining({
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          cache: 'no-store',
+        })
       );
       expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle blob response type', async () => {
+      const mockBlob = new Blob(['test'], { type: 'text/plain' });
+      const mockFetchPromise = Promise.resolve({
+        ok: true,
+        blob: () => Promise.resolve(mockBlob),
+      });
+      (global.fetch as jest.Mock).mockImplementation(() => mockFetchPromise);
+
+      const endpoint = '/test-endpoint';
+      const result = await ApiClient.get(endpoint, { responseType: 'blob' });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.objectContaining({
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toBeInstanceOf(Blob);
+      expect(result).toBe(mockBlob);
     });
   });
 

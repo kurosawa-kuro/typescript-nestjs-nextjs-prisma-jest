@@ -40,7 +40,10 @@ async function request<T>(method: string, endpoint: string, options?: RequestOpt
         searchParams.append(key, value);
       }
     });
-    url += `?${searchParams.toString()}`;
+    const queryString = searchParams.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
   }
 
   const defaultOptions: RequestInit = {
