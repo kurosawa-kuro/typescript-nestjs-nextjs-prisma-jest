@@ -15,11 +15,7 @@ import Link from 'next/link';
 import { Micropost } from '@/types/micropost';
 import Image from 'next/image';
 // react-icons
-import { FiEye } from "react-icons/fi";
-import { FiHeart } from "react-icons/fi";
-import { FiMessageCircle } from "react-icons/fi";
-import { FiCamera } from "react-icons/fi";
-import { FiEdit2 } from "react-icons/fi";
+import { FiEye, FiHeart, FiMessageCircle, FiCamera, FiEdit2, FiUsers } from "react-icons/fi";
 
 interface UserProfileClientProps {
   initialUserDetails: UserDetails;
@@ -108,13 +104,13 @@ export default function UserProfileClient({
                   <div className="flex space-x-2">
                     <button
                       onClick={handleSave}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm"
                     >
                       Save
                     </button>
                     <button
                       onClick={handleCancel}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm"
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm"
                     >
                       Cancel
                     </button>
@@ -158,23 +154,22 @@ export default function UserProfileClient({
               </div>
 
               {/* フォロー情報 */}
-              <div className="mt-4 flex space-x-4">
-                <Link href={`/users/${user.id}/followers`} className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                </svg>
-                <span>Followers</span>
+              <div className="mt-4 flex space-x-6">
+                <Link 
+                  href={`/users/${user.id}/followers`} 
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <FiUsers className="w-4 h-4" />
+                  <span className="text-gray-500">Followers</span>
                 </Link>
-                <Link href={`/users/${user.id}/following`} className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                </svg>
-                <span>Following</span>
+                <Link 
+                  href={`/users/${user.id}/following`} 
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <FiUsers className="w-4 h-4" />
+                  <span className="text-gray-500">Following</span>
                 </Link>
               </div>
-
-              {/* 編集ボタン */}
-
             </div>
           </div>
 
@@ -198,18 +193,20 @@ export default function UserProfileClient({
                   <h3 className="font-medium text-gray-900 text-sm">{post.title}</h3>
                   
                   {/* 統計情報 */}
-                  <div className="mt-2 flex items-center space-x-4 text-gray-500 text-sm">
-                    <div className="flex items-center space-x-1">
-                      <FiEye className="w-4 h-4" />
-                      <span>{post.viewsCount}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <FiHeart className="w-4 h-4" />
-                      <span>{post.likesCount}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <FiMessageCircle className="w-4 h-4" />
-                      <span>{post.comments.length}</span>
+                  <div className="mt-2 flex items-center justify-between text-gray-500 text-sm">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-1">
+                        <FiEye className="w-4 h-4" />
+                        <span>{post.viewsCount}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <FiHeart className="w-4 h-4" />
+                        <span>{post.likesCount}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <FiMessageCircle className="w-4 h-4" />
+                        <span>{post.comments.length}</span>
+                      </div>
                     </div>
                   </div>
 
