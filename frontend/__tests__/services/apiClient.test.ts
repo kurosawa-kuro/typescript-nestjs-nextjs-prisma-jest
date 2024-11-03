@@ -110,6 +110,47 @@ describe('ApiClient', () => {
       );
       expect(result).toEqual(mockResponse);
     });
+
+    it('should handle URL params correctly', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const params = {
+        filter: 'active',
+        search: 'test',
+        empty: undefined
+      };
+
+      const result = await ApiClient.get(endpoint, { params });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint?filter=active&search=test',
+        expect.objectContaining({
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle empty params object', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const params = {};
+
+      const result = await ApiClient.get(endpoint, { params });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.any(Object)
+      );
+      expect(result).toEqual(mockResponse);
+    });
   });
 
   describe('PUT requests', () => {
