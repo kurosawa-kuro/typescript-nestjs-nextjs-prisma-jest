@@ -14,6 +14,7 @@ export default async function TimelinePage({
     page?: string;
     search?: string;
     category?: string;
+    sortBy?: string;
   } 
 }) {
   const currentPage = Number(searchParams.page) || 1;
@@ -22,7 +23,7 @@ export default async function TimelinePage({
 
   // 並行してデータを取得
   const [allMicroposts, categories] = await Promise.all([
-    getMicroposts(searchQuery),
+    getMicroposts(searchQuery, searchParams.sortBy),
     getCategories()
   ]);
   

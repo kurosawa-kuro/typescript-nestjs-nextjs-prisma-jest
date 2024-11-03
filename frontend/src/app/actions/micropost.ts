@@ -4,12 +4,16 @@ import { Micropost, MostViewRanking, Comment, CategoryRanking } from '@/types/mi
 import { ApiClient } from '@/services/apiClient';
 import { handleRequest } from './utils/handleRequest';
 
-export async function getMicroposts(searchQuery?: string): Promise<Micropost[]> {
+export async function getMicroposts(searchQuery?: string, sortBy?: string): Promise<Micropost[]> {
   return handleRequest(
     () => ApiClient.get<Micropost[]>('/microposts', {
-      params: { search: searchQuery },
+      params: { 
+        search: searchQuery,
+        sortBy: sortBy 
+      },
     }),
-    'Error fetching microposts'
+    'Error fetching microposts',
+    []
   );
 }
 
