@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { FiEye } from "react-icons/fi";
 import { FiHeart } from "react-icons/fi";
 import { FiMessageCircle } from "react-icons/fi";
+import { FiCamera } from "react-icons/fi";
 
 interface UserProfileClientProps {
   initialUserDetails: UserDetails;
@@ -77,14 +78,29 @@ export default function UserProfileClient({
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="-mt-8 relative">
               {/* プロフィール画像: シンプル白背景に */}
-              <div className="bg-white p-1 rounded-full inline-block">
+              <div 
+                className="bg-white p-1 rounded-full inline-block cursor-pointer relative"
+                onClick={handleAvatarClick}
+              >
                 <Image
                   src={`http://localhost:3001/uploads/${user.profile?.avatarPath}`}
                   alt="Profile"
                   width={96}
                   height={96}
-                  className="rounded-full"
+                  className="rounded-full hover:opacity-80 transition-opacity"
                 />
+                {/* 非表示のファイル入力 */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                />
+                {/* オーバーレイアイコン */}
+                <div className="absolute inset-0 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors">
+                  <FiCamera className="w-6 h-6 text-white opacity-0 hover:opacity-100 transition-opacity" />
+                </div>
               </div>
 
               {/* ユーザー情報 */}
