@@ -378,3 +378,8 @@ GET {{baseUrl}}/admin/ranking/category
 Content-Type: {{contentType}}
 Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
 
+### ユーザー一覧をCSVでダウンロード
+GET {{baseUrl}}/users/export-csv
+Content-Type: {{contentType}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
