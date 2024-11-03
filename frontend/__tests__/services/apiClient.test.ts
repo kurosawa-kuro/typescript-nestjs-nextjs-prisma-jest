@@ -312,6 +312,72 @@ describe('ApiClient', () => {
       );
     });
   });
+
+  describe('DELETE requests', () => {
+    it('should make a successful DELETE request', async () => {
+      const mockResponse = { data: 'deleted data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const result = await ApiClient.delete(endpoint);
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.objectContaining({
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle DELETE request with query parameters', async () => {
+      const mockResponse = { data: 'deleted data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const params = {
+        id: '123',
+        confirm: 'true'
+      };
+
+      const result = await ApiClient.delete(endpoint, { params });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint?id=123&confirm=true',
+        expect.objectContaining({
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle DELETE request with skipAuth option', async () => {
+      const mockResponse = { data: 'deleted data' };
+      setupMockFetch(mockResponse);
+
+      const endpoint = '/test-endpoint';
+      const result = await ApiClient.delete(endpoint, { skipAuth: true });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'http://localhost:3001/test-endpoint',
+        expect.objectContaining({
+          method: 'DELETE',
+          headers: expect.not.objectContaining({
+            'Authorization': expect.any(String),
+          }),
+          credentials: 'include',
+          cache: 'no-store',
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
 });
 
 describe('serverRequest', () => {
