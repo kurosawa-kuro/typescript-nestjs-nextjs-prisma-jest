@@ -5,8 +5,8 @@ import { useUserStore } from '@/store/userStore';
 import { UserTableHeader } from './components/UserTableHeader';
 import { UserTableRow } from './components/UserTableRow';
 import RoleChangeModal from './RoleChangeModal';
-import { ApiClient } from '@/services/apiClient';
-import { ClientSideApiService } from '@/services/clientSideApiService';
+// import { ApiClient } from '@/services/ApiClient';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 
 interface UsersClientProps {
   initialUsers: UserDetails[];
