@@ -337,4 +337,39 @@ describe('ClientSideApiService', () => {
       expect(mockURL.revokeObjectURL).toHaveBeenCalled();   
     });
   });
+
+  describe('addMicropostView', () => {
+    it('should call ApiClient.post with correct parameters', async () => {
+      const mockResponse = { success: true };
+      (ApiClient.post as jest.Mock).mockResolvedValue(mockResponse);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.addMicropostView(micropostId);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/micropost-views/${micropostId}`, {});
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should handle duplicate view error gracefully', async () => {
+      const error = new Error('P2002: Unique constraint failed');
+      (ApiClient.post as jest.Mock).mockRejectedValue(error);
+
+      const micropostId = 1;
+      const result = await ClientSideApiService.addMicropostView(micropostId);
+
+      expect(ApiClient.post).toHaveBeenCalledWith(`/micropost-views/${micropostId}`, {});
+      expect(result).toEqual({
+        success: true,
+        message: 'View already recorded'
+      });
+    });
+
+    it('should throw other errors', async () => {
+      const error = new Error('Network error');
+      (ApiClient.post as jest.Mock).mockRejectedValue(error);
+
+      const micropostId = 1;
+      await expect(ClientSideApiService.addMicropostView(micropostId)).rejects.toThrow('Network error');
+    });
+  });
 });
