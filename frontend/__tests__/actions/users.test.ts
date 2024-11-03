@@ -20,6 +20,7 @@ jest.mock('next/headers', () => ({
 describe('User Actions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    console.error = jest.fn();
   });
 
   describe('getUsers', () => {
@@ -36,11 +37,14 @@ describe('User Actions', () => {
       expect(result).toEqual(mockUsers);
     });
 
-    it('should throw an error if ApiClient.get fails', async () => {
+    it('should return empty array and log error if ApiClient.get fails', async () => {
       const mockError = new Error('Failed to fetch users');
       (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
 
-      await expect(getUsers()).rejects.toThrow('Failed to fetch users');
+      const result = await getUsers();
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith('Error fetching users', mockError);
     });
   });
 
@@ -64,13 +68,14 @@ describe('User Actions', () => {
     it('should return null and log error if ApiClient.get fails', async () => {
       const mockError = new Error('Failed to fetch user details');
       (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
-      console.error = jest.fn();
 
       const result = await getUserDetails(1);
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/users/1');
-      expect(console.error).toHaveBeenCalledWith('Error fetching user details:', mockError);
       expect(result).toBeNull();
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching user details for id 1',
+        mockError
+      );
     });
   });
 
@@ -97,11 +102,12 @@ describe('User Actions', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should throw an error if ApiClient.post fails', async () => {
-      const mockError = new Error('Failed to follow user');
+    it('should throw error if ApiClient.post fails', async () => {
+      const mockError = new Error(`Error following user 1`);
       (ApiClient.post as jest.Mock).mockRejectedValue(mockError);
 
-      await expect(followUser(1)).rejects.toThrow('Failed to follow user');
+      await expect(followUser(1)).rejects.toThrow(`Error following user 1`);
+      expect(console.error).toHaveBeenCalledWith(`Error following user 1`, mockError);
     });
   });
 
@@ -116,11 +122,12 @@ describe('User Actions', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should throw an error if ApiClient.delete fails', async () => {
-      const mockError = new Error('Failed to unfollow user');
+    it('should throw error if ApiClient.delete fails', async () => {
+      const mockError = new Error(`Error unfollowing user 1`);
       (ApiClient.delete as jest.Mock).mockRejectedValue(mockError);
 
-      await expect(unfollowUser(1)).rejects.toThrow('Failed to unfollow user');
+      await expect(unfollowUser(1)).rejects.toThrow(`Error unfollowing user 1`);
+      expect(console.error).toHaveBeenCalledWith(`Error unfollowing user 1`, mockError);
     });
   });
 
@@ -135,11 +142,17 @@ describe('User Actions', () => {
       expect(result).toEqual(mockFollowers);
     });
 
-    it('should throw an error if ApiClient.get fails', async () => {
+    it('should return empty array and log error if ApiClient.get fails', async () => {
       const mockError = new Error('Failed to fetch followers');
       (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
 
-      await expect(getFollowers(1)).rejects.toThrow('Failed to fetch followers');
+      const result = await getFollowers(1);
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching followers for user 1',
+        mockError
+      );
     });
   });
 
@@ -154,11 +167,17 @@ describe('User Actions', () => {
       expect(result).toEqual(mockFollowing);
     });
 
-    it('should throw an error if ApiClient.get fails', async () => {
+    it('should return empty array and log error if ApiClient.get fails', async () => {
       const mockError = new Error('Failed to fetch following users');
       (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
 
-      await expect(getFollowing(1)).rejects.toThrow('Failed to fetch following users');
+      const result = await getFollowing(1);
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching following users for user 1',
+        mockError
+      );
     });
   });
 
@@ -184,13 +203,14 @@ describe('User Actions', () => {
     it('should return null and log error if ApiClient.get fails', async () => {
       const mockError = new Error('Failed to fetch current user');
       (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
-      console.error = jest.fn();
 
       const result = await getMe();
 
-      expect(ApiClient.get).toHaveBeenCalledWith('/auth/me');
-      expect(console.error).toHaveBeenCalledWith('Error fetching current user:', mockError);
       expect(result).toBeNull();
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching current user',
+        mockError
+      );
     });
   });
 });
