@@ -132,8 +132,8 @@ export default function UserProfileClient({
                       <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
                       <div className="flex items-center text-sm text-gray-500 space-x-4">
                         <span>💬 {post.comments.length}</span>
-                        <span>❤️ {post.likesCount}</span>
-                        <span>👁️ {post.viewsCount}</span>
+                        <span>♥ {post.likesCount}</span>
+                        <span>👁 {post.viewsCount}</span>
                       </div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {post.categories.map((category) => (
