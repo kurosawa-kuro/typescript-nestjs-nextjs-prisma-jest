@@ -3,9 +3,35 @@ import { ApiClient, serverRequest } from '../../src/services/apiClient';
 // Mock the global fetch function
 global.fetch = jest.fn();
 
+// next/headers のモックを修正
+const mockGet = jest.fn((name) => name === 'jwt' ? { value: 'server-token' } : undefined);
+const mockCookies = jest.fn(() => ({
+  get: mockGet
+}));
+
+jest.mock('next/headers', () => ({
+  cookies: mockCookies
+}));
+
 describe('ApiClient', () => {
+  let originalWindow: any;
+
+  beforeAll(() => {
+    originalWindow = global.window;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset mocks
+    mockGet.mockImplementation((name) => name === 'jwt' ? { value: 'server-token' } : undefined);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    global.window = originalWindow;
   });
 
   const setupMockFetch = (mockResponse: any) => {
@@ -144,6 +170,111 @@ describe('ApiClient', () => {
     const endpoint = '/test-endpoint';
 
     await expect(ApiClient.get(endpoint)).rejects.toThrow('HTTP error! status: 404');
+  });
+
+  describe('Authentication', () => {
+    describe('Server-side', () => {
+      beforeEach(() => {
+        // サーバーサイド環境をセットアップ
+        global.window = undefined as any;
+        jest.resetModules(); // モジュールキャッシュをクリア
+      });
+
+      it('should get auth token from server-side cookies', async () => {
+        const mockResponse = { data: 'test data' };
+        setupMockFetch(mockResponse);
+
+        // サーバーサイドの認証トークンを設定
+        mockGet.mockImplementation((name) => 
+          name === 'jwt' ? { value: 'server-token' } : undefined
+        );
+
+        await ApiClient.get('/test-endpoint');
+
+        // 認証ヘッダーの検証を修正
+        const calls = (global.fetch as jest.Mock).mock.calls;
+        const headers = calls[0][1].headers;
+        expect(headers).toEqual({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer server-token'
+        });
+      });
+    });
+
+    describe('Client-side', () => {
+      beforeEach(() => {
+        // クライアントサイド環境をセットアップ
+        global.window = {
+          document: {
+            cookie: 'jwt=client-token; other=value',
+          },
+        } as any;
+      });
+
+      it('should get auth token from client-side cookies', async () => {
+        const mockResponse = { data: 'test data' };
+        setupMockFetch(mockResponse);
+
+        await ApiClient.get('/test-endpoint');
+
+        // 認証ヘッダーの検証を修正
+        const calls = (global.fetch as jest.Mock).mock.calls;
+        expect(calls[0][1].headers).toEqual({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer client-token'
+        });
+      });
+
+      it('should handle missing jwt cookie', async () => {
+        global.window.document.cookie = 'other=value';
+        const mockResponse = { data: 'test data' };
+        setupMockFetch(mockResponse);
+
+        await ApiClient.get('/test-endpoint');
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            headers: expect.not.objectContaining({
+              'Authorization': expect.any(String),
+            }),
+          })
+        );
+      });
+
+      it('should handle empty cookie string', async () => {
+        global.window.document.cookie = '';
+        const mockResponse = { data: 'test data' };
+        setupMockFetch(mockResponse);
+
+        await ApiClient.get('/test-endpoint');
+
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            headers: expect.not.objectContaining({
+              'Authorization': expect.any(String),
+            }),
+          })
+        );
+      });
+    });
+
+    it('should skip auth token when skipAuth option is true', async () => {
+      const mockResponse = { data: 'test data' };
+      setupMockFetch(mockResponse);
+
+      await ApiClient.get('/test-endpoint', { skipAuth: true });
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.not.objectContaining({
+            'Authorization': expect.any(String),
+          }),
+        })
+      );
+    });
   });
 });
 

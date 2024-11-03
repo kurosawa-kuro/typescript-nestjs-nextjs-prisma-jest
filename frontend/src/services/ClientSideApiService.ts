@@ -8,7 +8,7 @@ export const ClientSideApiService = {
 
   logout: () => ApiClient.post('/auth/logout', {}),
 
-  me: () => ApiClient.get<UserDetails>('/auth/me'),
+  me: (token: string) => ApiClient.get<UserDetails>('/auth/me'),
 
   updateAvatar: (userId: number, formData: FormData) => 
     ApiClient.put<UserDetails>(`/users/${userId}/avatar`, formData, {
