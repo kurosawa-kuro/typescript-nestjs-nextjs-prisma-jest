@@ -108,14 +108,41 @@ export class MicropostService {
     return this.transformToDetailedMicropost(micropost);
   }
 
-  async all(search?: string): Promise<DetailedMicropost[]> {
-    const microposts = await this.prisma.micropost.findMany({
+  async all(
+    search?: string, 
+    sortBy: 'likes' | 'mostView' | 'date' = 'date'
+  ): Promise<DetailedMicropost[]> {
+    let microposts = await this.prisma.micropost.findMany({
       where: search ? {
         title: { contains: search, mode: 'insensitive' }
       } : undefined,
       include: this.micropostInclude,
-      orderBy: { createdAt: 'desc' },
+      orderBy: (() => {
+        switch (sortBy) {
+          case 'likes':
+            return {
+              likes: {
+                _count: 'desc'
+              }
+            };
+          case 'mostView':
+            return {
+              views: {
+                _count: 'desc'
+              }
+            };
+          default:
+            return { createdAt: 'desc' };
+        }
+      })(),
     });
+
+    // データベースでのソートが機能しない場合のフォールバック
+    if (sortBy === 'likes') {
+      microposts = microposts.sort((a, b) => b._count.likes - a._count.likes);
+    } else if (sortBy === 'mostView') {
+      microposts = microposts.sort((a, b) => b._count.views - a._count.views);
+    }
 
     return microposts.map(micropost => this.transformToDetailedMicropost(micropost));
   }

@@ -184,6 +184,13 @@ Content-Type: {{contentType}}
 GET {{baseUrl}}/microposts?search=abc
 Content-Type: {{contentType}}
 
+### マイクロポスト一覧を取得（ソート機能）いいねの多い順に表示
+GET {{baseUrl}}/microposts?sortBy=likes
+Content-Type: {{contentType}}
+
+### マイクロポスト一覧を取得（ソート機能）mostViewの多い順に表示
+GET {{baseUrl}}/microposts?sortBy=mostView
+Content-Type: {{contentType}}
 
 ### マイクロポスト詳細を取得
 GET {{baseUrl}}/microposts/28
