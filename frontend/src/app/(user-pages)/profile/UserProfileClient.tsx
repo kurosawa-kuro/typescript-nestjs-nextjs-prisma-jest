@@ -213,7 +213,7 @@ export default function UserProfileClient({
                     {post.categories.map((category) => (
                       <span
                         key={category.id}
-                        className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-md"
+                        className="inline-block px-3 py-1.5 bg-blue-50 text-blue-600 text-xs rounded-md border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer"
                       >
                         {category.name}
                       </span>
