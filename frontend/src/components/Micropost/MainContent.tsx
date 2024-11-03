@@ -7,42 +7,37 @@ interface MainContentProps {
   metaInfo: React.ReactNode;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ micropost, apiUrl, metaInfo }) => (
-  <div className="flex-1 min-w-0">
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">{micropost.title}</h1>
-        {metaInfo}
-        
-        {/* Categories */}
-        {micropost.categories && micropost.categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {micropost.categories.map(category => (
-              <span
-                key={category.id}
-                className="px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-full"
-              >
-                {category.name}
-              </span>
-            ))}
-          </div>
-        )}
+const MainContent: React.FC<MainContentProps> = ({ micropost, apiUrl, metaInfo }) => {
+  return (
+    <div className="flex-1 bg-white rounded-lg shadow-sm p-6">
+      <h1 className="text-2xl font-bold mb-4">{micropost.title}</h1>
+      {metaInfo}
+      
+      {/* 画像コンテナのサイズ調整 */}
+      <div className="relative w-full aspect-[4/3] mb-4">
+        <Image
+          src={`${apiUrl}/uploads/${micropost.imagePath}`}
+          alt={micropost.title}
+          fill
+          className="object-contain rounded-lg"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority
+        />
       </div>
-
-      {/* Main Image */}
-      <div className="border-t border-gray-100">
-        <div className="max-h-[600px] overflow-hidden">
-          <Image
-            src={`${apiUrl}/uploads/${micropost.imagePath}`}
-            alt={micropost.title}
-            width={1200}
-            height={800}
-            className="w-full object-contain"
-          />
-        </div>
+      
+      {/* カテゴリータグ */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {micropost.categories.map((category) => (
+          <span
+            key={category.id}
+            className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full"
+          >
+            {category.name}
+          </span>
+        ))}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default MainContent; 
