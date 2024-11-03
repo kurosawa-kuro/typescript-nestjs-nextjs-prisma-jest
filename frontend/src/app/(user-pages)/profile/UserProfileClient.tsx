@@ -14,7 +14,6 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
 import { Micropost } from '@/types/micropost';
 import Image from 'next/image';
-// react-icons
 import { FiEye, FiHeart, FiMessageCircle, FiCamera, FiEdit2, FiUsers } from "react-icons/fi";
 
 interface UserProfileClientProps {
