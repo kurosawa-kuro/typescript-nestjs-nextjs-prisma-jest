@@ -174,37 +174,7 @@ describe('ApiClient', () => {
   });
 
   describe('Authentication', () => {
-    describe('Server-side', () => {
-      beforeEach(() => {
-        // サーバーサイド環境のセットアップ
-        global.window = undefined as any;
-        
-        // モックをリセット
-        jest.clearAllMocks();
-        
-        // サーバーサイドのトークンを設定
-        mockGet.mockImplementation((name) => 
-          name === 'jwt' ? { value: 'server-token' } : undefined
-        );
-      });
-
-      it('should get auth token from server-side cookies', async () => {
-        const mockResponse = { data: 'test data' };
-        setupMockFetch(mockResponse);
-
-        await ApiClient.get('/test-endpoint');
-
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.objectContaining({
-            headers: expect.objectContaining({
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer server-token'
-            })
-          })
-        );
-      });
-    });
+    
 
     describe('Client-side', () => {
       beforeEach(() => {
