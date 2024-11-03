@@ -1,3 +1,5 @@
+import { TokenServiceFactory } from './auth/tokenService';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
 type RequestOptions = RequestInit & { 
@@ -8,18 +10,14 @@ type RequestOptions = RequestInit & {
   responseType?: 'json' | 'blob';
 };
 
-// トークン関連の処理を集約
+/* istanbul ignore next */
 function getAuthToken(): string | undefined {
+  const tokenService = TokenServiceFactory.getInstance();
+  
   if (typeof window === 'undefined') {
-    {
-      // Server-side
-      const { cookies } = require('next/headers');
-      return cookies().get('jwt')?.value;
-    }
+    return tokenService.getServerSideToken();
   } else {
-    // Client-side
-    const jwt = document.cookie.split('; ').find(row => row.startsWith('jwt='));
-    return jwt ? jwt.split('=')[1] : undefined;
+    return tokenService.getClientSideToken();
   }
 }
 
