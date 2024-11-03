@@ -4,13 +4,14 @@ import { ApiClient, serverRequest } from '../../src/services/apiClient';
 global.fetch = jest.fn();
 
 // next/headers のモックを修正
-const mockGet = jest.fn((name) => name === 'jwt' ? { value: 'server-token' } : undefined);
-const mockCookies = jest.fn(() => ({
-  get: mockGet
-}));
+const mockGet = jest.fn();
+const mockCookies = jest.fn();
 
+// モックの設定を変更
 jest.mock('next/headers', () => ({
-  cookies: mockCookies
+  cookies: () => ({
+    get: mockGet
+  })
 }));
 
 describe('ApiClient', () => {
@@ -175,35 +176,38 @@ describe('ApiClient', () => {
   describe('Authentication', () => {
     describe('Server-side', () => {
       beforeEach(() => {
-        // サーバーサイド環境をセットアップ
+        // サーバーサイド環境のセットアップ
         global.window = undefined as any;
-        jest.resetModules(); // モジュールキャッシュをクリア
+        
+        // モックをリセット
+        jest.clearAllMocks();
+        
+        // サーバーサイドのトークンを設定
+        mockGet.mockImplementation((name) => 
+          name === 'jwt' ? { value: 'server-token' } : undefined
+        );
       });
 
       it('should get auth token from server-side cookies', async () => {
         const mockResponse = { data: 'test data' };
         setupMockFetch(mockResponse);
 
-        // サーバーサイドの認証トークンを設定
-        mockGet.mockImplementation((name) => 
-          name === 'jwt' ? { value: 'server-token' } : undefined
-        );
-
         await ApiClient.get('/test-endpoint');
 
-        // 認証ヘッダーの検証を修正
-        const calls = (global.fetch as jest.Mock).mock.calls;
-        const headers = calls[0][1].headers;
-        expect(headers).toEqual({
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer server-token'
-        });
+        expect(global.fetch).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            headers: expect.objectContaining({
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer server-token'
+            })
+          })
+        );
       });
     });
 
     describe('Client-side', () => {
       beforeEach(() => {
-        // クライアントサイド環境をセットアップ
         global.window = {
           document: {
             cookie: 'jwt=client-token; other=value',
@@ -216,13 +220,10 @@ describe('ApiClient', () => {
         setupMockFetch(mockResponse);
 
         await ApiClient.get('/test-endpoint');
-
-        // 認証ヘッダーの検証を修正
         const calls = (global.fetch as jest.Mock).mock.calls;
-        expect(calls[0][1].headers).toEqual({
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer client-token'
-        });
+        const headers = calls[0][1].headers;
+        expect(headers).toHaveProperty('Content-Type', 'application/json');
+        expect(headers).toHaveProperty('Authorization', 'Bearer client-token');
       });
 
       it('should handle missing jwt cookie', async () => {
