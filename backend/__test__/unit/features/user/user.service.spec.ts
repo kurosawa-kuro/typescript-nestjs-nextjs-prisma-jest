@@ -36,6 +36,19 @@ describe('UserService', () => {
             },
             role: {
               findMany: jest.fn(),
+              create: jest.fn(),
+              findUnique: jest.fn(),
+              update: jest.fn(),
+              delete: jest.fn(),
+            },
+            userRole: {
+              create: jest.fn(),
+              findMany: jest.fn(),
+              findUnique: jest.fn(),
+              update: jest.fn(),
+              delete: jest.fn(),
+              upsert: jest.fn(),
+              deleteMany: jest.fn(),
             },
           },
         },
@@ -285,11 +298,28 @@ describe('UserService', () => {
         updatedAt: new Date(),
       };
 
+      // Mock the role that will be added
+      const mockRole = { id: 2, name: 'admin' };
+
+      // Important: Mock role.findMany to return the requested role
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prismaService.user.update as jest.Mock).mockResolvedValue({
+      (prismaService.role.findMany as jest.Mock).mockResolvedValue([mockRole]); // This line is crucial
+      
+      // Mock the userRole creation
+      (prismaService.userRole.upsert as jest.Mock).mockResolvedValue({
+        userId: 1,
+        roleId: 2,
+      });
+
+      // Mock the final user lookup
+      const mockUpdatedUser = {
         ...mockUser,
         userRoles: [{ role: { name: 'admin' } }],
-      });
+        profile: { avatarPath: null },
+      };
+      (prismaService.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce(mockUser)
+        .mockResolvedValueOnce(mockUpdatedUser);
 
       const result = await userService.updateUserRoles(1, ['admin'], 'add');
 
@@ -297,9 +327,7 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        profile: {
-          avatarPath: 'default_avatar.png',
-        },
+        profile: { avatarPath: 'default_avatar.png' },
         userRoles: ['admin'],
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
@@ -313,16 +341,30 @@ describe('UserService', () => {
         name: 'Test User',
         email: 'test@example.com',
         profile: { avatarPath: null },
-        userRoles: [{ role: { id: 2, name: 'admin' } }],
+        userRoles: [{ role: { name: 'admin' } }],
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
+      // Mock the role that will be removed
+      const mockRole = { id: 2, name: 'admin' };
+
+      // Important: Mock role.findMany to return the requested role
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prismaService.user.update as jest.Mock).mockResolvedValue({
+      (prismaService.role.findMany as jest.Mock).mockResolvedValue([mockRole]); // This line is crucial
+
+      // Mock the userRole deletion
+      (prismaService.userRole.deleteMany as jest.Mock).mockResolvedValue({ count: 1 });
+
+      // Mock the final user lookup
+      const mockUpdatedUser = {
         ...mockUser,
         userRoles: [],
-      });
+        profile: { avatarPath: null },
+      };
+      (prismaService.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce(mockUser)
+        .mockResolvedValueOnce(mockUpdatedUser);
 
       const result = await userService.updateUserRoles(1, ['admin'], 'remove');
 
@@ -330,9 +372,7 @@ describe('UserService', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        profile: {
-          avatarPath: 'default_avatar.png',
-        },
+        profile: { avatarPath: 'default_avatar.png' },
         userRoles: [],
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
