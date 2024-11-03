@@ -16,7 +16,6 @@ export default async function AdminPage() {
       return <div>User details not found</div>;
     }
 
-    console.log('userDetails', userDetails);
     if (!userDetails.userRoles.includes('admin')) {
       return <div>Access denied. Admin privileges required.</div>;
     }

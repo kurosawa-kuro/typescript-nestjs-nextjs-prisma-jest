@@ -1,6 +1,6 @@
 'use client';
 
-import { ClientSideApiService } from '@/services/clientSideApiService';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';

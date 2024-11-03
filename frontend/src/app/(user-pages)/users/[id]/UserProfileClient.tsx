@@ -7,7 +7,7 @@ import { UserDetails } from '@/types/user';
 import { useUserProfileStore } from '@/store/UserProfileStore';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import Link from 'next/link';
-import { ClientSideApiService } from '@/services/clientSideApiService';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 import { AvatarSection } from '@/components/profile/AvatarSection';
 
 // Add this custom hook at the top of the file

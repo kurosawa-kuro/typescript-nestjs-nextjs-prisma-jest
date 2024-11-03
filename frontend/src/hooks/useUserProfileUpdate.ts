@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { UserDetails } from '@/types/user';
-import { ClientSideApiService } from '@/services/clientSideApiService';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 
 export function useUserProfileUpdate(
   user: UserDetails | null,

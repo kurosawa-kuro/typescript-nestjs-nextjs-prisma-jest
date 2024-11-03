@@ -18,7 +18,7 @@ export default function RoleChangeModal({ user, isOpen, onClose }: RoleChangeMod
     const fetchRoles = async () => {
       try {
         const roles = await ApiClient.get<Role[]>('/users/available-roles');
-        console.log('Fetched roles:', roles);
+        
         setAvailableRoles(roles);
       } catch (error) {
         console.error('Failed to fetch roles:', error);

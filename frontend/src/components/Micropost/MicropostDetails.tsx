@@ -7,7 +7,7 @@ import { FaHeart, FaRegHeart, FaEye, FaClock } from 'react-icons/fa';
 import CreateCommentModal from '@/components/Micropost/CreateCommentModal';
 import { useAuthStore } from '@/store/authStore';
 import Image from 'next/image';
-import { ClientSideApiService } from '@/services/clientSideApiService';
+import { ClientSideApiService } from '@/services/ClientSideApiService';
 import UserAvatar from './UserAvatar';
 import TimeStamp from './TimeStamp';
 import ViewCount from './ViewCount';

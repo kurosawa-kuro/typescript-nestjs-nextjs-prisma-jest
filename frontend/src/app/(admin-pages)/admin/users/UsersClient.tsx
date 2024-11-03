@@ -71,7 +71,7 @@ export default function UsersClient({ initialUsers }: UsersClientProps) {
         <table className="min-w-full divide-y divide-gray-200">
           <UserTableHeader />
           <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
+            {users.map((user: UserDetails) => (
               <UserTableRow
                 key={user.id}
                 user={user}

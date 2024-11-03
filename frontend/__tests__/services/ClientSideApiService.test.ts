@@ -1,4 +1,4 @@
-import { ClientSideApiService } from '../../src/services/clientSideApiService';
+import { ClientSideApiService } from '../../src/services/ClientSideApiService';
 import { ApiClient } from '../../src/services/apiClient';
 import { UserDetails } from '../../src/types/user';
 
@@ -38,7 +38,7 @@ describe('ClientSideApiService', () => {
       const mockUserResponse = { id: 1, email: 'test@example.com' };
       (ApiClient.get as jest.Mock).mockResolvedValue(mockUserResponse);
 
-      const result = await ClientSideApiService.me();
+      const result = await ClientSideApiService.me("test-token");
 
       expect(ApiClient.get).toHaveBeenCalledWith('/auth/me');
       expect(result).toEqual(mockUserResponse);
