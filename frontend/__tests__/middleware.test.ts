@@ -73,7 +73,6 @@ describe('Middleware', () => {
       setupRequest('/some-protected-route', 'valid-token', ['user']);
       const result = await middleware(mockRequest);
       expect(result.type).toBe('next');
-      // expect(result.headers).toBeDefined();
     });
   });
 
@@ -89,18 +88,6 @@ describe('Middleware', () => {
       setupRequest('/admin/some-route', 'valid-token', ['admin']);
       const result = await middleware(mockRequest);
       expect(result.type).toBe('next');
-      // expect(result.headers).toBeDefined();
     });
   });
-
-  // describe('Error handling', () => {
-  //   test('redirects to login and deletes jwt cookie when an error occurs', async () => {
-  //     setupRequest('/some-protected-route', 'valid-token');
-  //     (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('API Error'));
-  //     const result = await middleware(mockRequest);
-  //     expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', mockRequest.url));
-  //     expect(result.type).toBe('redirect');
-  //     expect(result.cookies.delete).toHaveBeenCalledWith('jwt');
-  //   });
-  // });
 });
