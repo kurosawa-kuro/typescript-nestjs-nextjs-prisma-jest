@@ -11,7 +11,6 @@ type RequestOptions = RequestInit & {
 // トークン関連の処理を集約
 function getAuthToken(): string | undefined {
   if (typeof window === 'undefined') {
-    /* istanbul ignore next */
     {
       // Server-side
       const { cookies } = require('next/headers');
@@ -19,7 +18,6 @@ function getAuthToken(): string | undefined {
     }
   } else {
     // Client-side
-    /* istanbul ignore next */
     const jwt = document.cookie.split('; ').find(row => row.startsWith('jwt='));
     return jwt ? jwt.split('=')[1] : undefined;
   }
