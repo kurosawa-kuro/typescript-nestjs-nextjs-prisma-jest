@@ -18,11 +18,27 @@ export const ClientSideApiService = {
   updateUserProfile: (userId: number, updatedFields: Partial<UserDetails>) => 
     ApiClient.put<UserDetails>(`/users/${userId}`, updatedFields),
 
-  followUser: (userId: number) => 
-    ApiClient.post<UserDetails[]>(`/follow/${userId}`, {}),
+  followUser: async (userId: number) => {
+    const response = await fetch(`/api/users/${userId}/follow`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) throw new Error('Failed to follow user');
+    return response.json();
+  },
 
-  unfollowUser: (userId: number) => 
-    ApiClient.delete<UserDetails[]>(`/follow/${userId}`),
+  unfollowUser: async (userId: number) => {
+    const response = await fetch(`/api/users/${userId}/unfollow`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) throw new Error('Failed to unfollow user');
+    return response.json();
+  },
 
   createMicroPost: (formData: FormData) => 
     ApiClient.post<NewMicropost>('/microposts', formData, {

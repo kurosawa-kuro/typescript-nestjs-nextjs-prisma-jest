@@ -30,7 +30,7 @@ function useCurrentUser(): CurrentUser {
 // Add this type at the top of the file
 type CurrentUser = { id: number } | null;
 
-export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails & { microposts: Micropost[] } }) {
+export default function UserProfileClient({ initialUserDetails }: { initialUserDetails: UserDetails & { microposts: Micropost[] } } ) {
   const { user, setUser } = useUserProfileStore();
   const router = useRouter();
   const currentUser = useCurrentUser();
@@ -67,13 +67,13 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
                   />
                 </div>
 
-                {/* フォローボタン (現在のユーザーと異なる場合のみ表示) */}
-                {currentUser && currentUser.id !== user.id && (
-                  <FollowButton 
-                    userId={user.id} 
-                    isFollowing={user.isFollowing ?? false} 
-                  />
-                )}
+                {/* シンプルなUnfollowボタン */}
+                <button
+                  onClick={() => ClientSideApiService.unfollowUser(user.id)}
+                  className="px-4 py-2 rounded-md text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+                >
+                  Unfollow
+                </button>
               </div>
 
               {/* ユーザー情報 */}
@@ -190,7 +190,7 @@ function FollowButton({ userId, isFollowing }: { userId: number; isFollowing: bo
         ${loading ? 'opacity-50 cursor-not-allowed' : ''}
         ${followStatus 
           ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          : 'bg-blue-500 text-white hover:bg-blue-600'
         }
       `}
     >
@@ -200,17 +200,7 @@ function FollowButton({ userId, isFollowing }: { userId: number; isFollowing: bo
           <span>{followStatus ? 'Unfollowing...' : 'Following...'}</span>
         </div>
       ) : (
-        <>
-          {followStatus ? (
-            <>
-              <span>Unfollow</span>
-            </>
-          ) : (
-            <>
-              <span>Follow</span>
-            </>
-          )}
-        </>
+        <span>{followStatus ? 'Unfollow' : 'Follow'}</span>
       )}
     </button>
   );
