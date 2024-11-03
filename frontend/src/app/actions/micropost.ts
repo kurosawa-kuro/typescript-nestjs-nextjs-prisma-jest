@@ -56,3 +56,11 @@ export async function getMostViewRanking(): Promise<MostViewRanking[]> {
     []
   );
 }
+
+export async function getUserMicroposts(userId: number): Promise<Micropost[]> {
+  return handleRequest(
+    () => ApiClient.get<Micropost[]>(`/microposts/user/${userId}`),
+    `Error fetching microposts for user ${userId}`,
+    []
+  );
+}

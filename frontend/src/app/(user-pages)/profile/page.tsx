@@ -1,4 +1,5 @@
 import { getUserDetails } from '@/app/actions/users';
+import { getUserMicroposts } from '@/app/actions/micropost';
 import UserProfileClient from './UserProfileClient';
 import { headers } from 'next/headers';
 
@@ -10,15 +11,21 @@ export default async function UserProfilePage() {
   }
 
   try {
-    const userDetails = await getUserDetails(userId);
+    const [userDetails, userMicroposts] = await Promise.all([
+      getUserDetails(userId),
+      getUserMicroposts(userId)
+    ]);
 
     if (!userDetails) {
       return <div>User details not found</div>;
     }
-    return <UserProfileClient initialUserDetails={userDetails} />;
+    return <UserProfileClient 
+      initialUserDetails={userDetails} 
+      initialMicroposts={userMicroposts}
+    />;
   } catch (error) {
-    console.error('Error fetching user details:', error);
-    return <div>Error loading user details</div>;
+    console.error('Error fetching user data:', error);
+    return <div>Error loading user data</div>;
   }
 }
 
