@@ -77,4 +77,21 @@ export const ClientSideApiService = {
 
   getUserRoles: (userId: number) =>
     ApiClient.get<string[]>(`/users/${userId}/roles`),
+
+  exportUsers: async () => {
+    const blob = await ApiClient.get<Blob>('/users/export-csv', {
+      responseType: 'blob'
+    });
+    
+    // ダウンロードリンクを作成
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().split('T')[0];
+    link.setAttribute('download', `users_${date}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };

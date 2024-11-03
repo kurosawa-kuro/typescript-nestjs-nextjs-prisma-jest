@@ -4,7 +4,8 @@ type RequestOptions = RequestInit & {
   useCache?: boolean; 
   rawBody?: boolean; 
   params?: Record<string, string | undefined>;
-  skipAuth?: boolean; // 認証をスキップするオプションを追加
+  skipAuth?: boolean;
+  responseType?: 'json' | 'blob';
 };
 
 // トークン関連の処理を集約
@@ -64,9 +65,15 @@ async function request<T>(method: string, endpoint: string, options?: RequestOpt
   }
 
   const response = await fetch(url, mergedOptions as RequestInit);
+  
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  if (options?.responseType === 'blob') {
+    return response.blob() as Promise<T>;
+  }
+  
   return response.json();
 }
 
