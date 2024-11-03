@@ -1,6 +1,6 @@
-import { getMicroposts, getMicropostDetails, getMicropostComments } from '../../src/app/actions/micropost';
+import { getMicroposts, getMicropostDetails, getMicropostComments, getMicropostRanking, getCategoryRanking, getMostViewRanking } from '../../src/app/actions/micropost';
 import { ApiClient } from '../../src/services/apiClient';
-import { Micropost, Comment } from '../../src/types/micropost';
+import { Micropost, Comment, CategoryRanking, MostViewRanking } from '../../src/types/micropost';
 
 jest.mock('../../src/services/apiClient', () => ({
   ApiClient: {
@@ -156,6 +156,128 @@ describe('Micropost Actions', () => {
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith(
         'Error fetching comments for micropost 1',
+        mockError
+      );
+    });
+  });
+
+  describe('getMicropostRanking', () => {
+    it('should return micropost ranking when API call is successful', async () => {
+      const mockRanking: Micropost[] = [
+        {
+          id: 1,
+          title: 'Popular Post',
+          imagePath: 'path/to/image.jpg',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          user: {
+            id: 1,
+            name: 'Test User',
+            profile: { avatarPath: 'path/to/avatar.jpg' }
+          },
+          comments: [],
+          likesCount: 100,
+          isLiked: false,
+          viewsCount: 200,
+          categories: []
+        }
+      ];
+
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockRanking);
+
+      const result = await getMicropostRanking();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/admin/ranking');
+      expect(result).toEqual(mockRanking);
+    });
+
+    it('should return empty array when API call fails', async () => {
+      const mockError = new Error('Failed to fetch ranking');
+      (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
+
+      const result = await getMicropostRanking();
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching micropost ranking',
+        mockError
+      );
+    });
+  });
+
+  describe('getCategoryRanking', () => {
+    it('should return category ranking when API call is successful', async () => {
+      const mockRanking: CategoryRanking[] = [{
+        id: 1,
+        name: 'Popular Category',
+        postCount: 50,
+        recentPosts: [{
+          id: 1,
+          title: 'Recent Post',
+          imagePath: 'path/to/image.jpg',
+          createdAt: new Date().toISOString(),
+          user: {
+            id: 1,
+            name: 'Test User',
+            profile: { avatarPath: 'path/to/avatar.jpg' }
+          }
+        }]
+      }];
+
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockRanking);
+
+      const result = await getCategoryRanking();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/admin/ranking/category');
+      expect(result).toEqual(mockRanking);
+    });
+
+    it('should return empty array when API call fails', async () => {
+      const mockError = new Error('Failed to fetch category ranking');
+      (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
+
+      const result = await getCategoryRanking();
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching category ranking',
+        mockError
+      );
+    });
+  });
+
+  describe('getMostViewRanking', () => {
+    it('should return most view ranking when API call is successful', async () => {
+      const mockRanking: MostViewRanking[] = [{
+        id: 1,
+        title: 'Most Viewed Post',
+        imagePath: 'path/to/image.jpg',
+        viewCount: 1000,
+        createdAt: new Date().toISOString(),
+        user: {
+          id: 1,
+          name: 'Test User',
+          profile: { avatarPath: 'path/to/avatar.jpg' }
+        }
+      }];
+
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockRanking);
+
+      const result = await getMostViewRanking();
+
+      expect(ApiClient.get).toHaveBeenCalledWith('/admin/ranking/most-view');
+      expect(result).toEqual(mockRanking);
+    });
+
+    it('should return empty array when API call fails', async () => {
+      const mockError = new Error('Failed to fetch most view ranking');
+      (ApiClient.get as jest.Mock).mockRejectedValue(mockError);
+
+      const result = await getMostViewRanking();
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith(
+        'Error fetching most view ranking',
         mockError
       );
     });
