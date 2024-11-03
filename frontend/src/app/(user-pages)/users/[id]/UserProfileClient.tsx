@@ -69,7 +69,6 @@ export default function UserProfileClient({ initialUserDetails }: { initialUserD
 
                 {/* シンプルなUnfollowボタン */}
                 <button
-                  onClick={() => ClientSideApiService.unfollowUser(user.id)}
                   className="px-4 py-2 rounded-md text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
                 >
                   Unfollow
@@ -166,14 +165,14 @@ function FollowButton({ userId, isFollowing }: { userId: number; isFollowing: bo
 
   const handleFollowAction = async () => {
     try {
-      setLoading(true);
-      if (followStatus) {
-        await ClientSideApiService.unfollowUser(userId);
-      } else {
-        await ClientSideApiService.followUser(userId);
-      }
-      setFollowStatus(!followStatus);
-      router.refresh(); // UIを更新
+      // setLoading(true);
+      // if (followStatus) {
+      //   await ClientSideApiService.unfollowUser(userId);
+      // } else {
+      //   await ClientSideApiService.followUser(userId);
+      // }
+      // setFollowStatus(!followStatus);
+      // router.refresh(); // UIを更新
     } catch (error) {
       console.error('Follow action failed:', error);
     } finally {
