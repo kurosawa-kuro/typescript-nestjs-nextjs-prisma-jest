@@ -65,4 +65,11 @@ export class MicropostController {
     }
     return micropost;
   }
+
+  // 特定のユーザーのマイクロポスト一覧取得
+  @OptionalAuth()
+  @Get('user/:userId')
+  async findByUserId(@Param('userId') userId: string): Promise<DetailedMicropost[]> {
+    return this.micropostService.findByUserId(+userId);
+  }
 }
