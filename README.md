@@ -1,7 +1,5 @@
 # typescript-nestjs-prisma-jest
 
-
-ログインユーザーからフォローリスト表示消えるバグ
 動画を撮ってみる
 
 
