@@ -1,13 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { Micropost } from '@/types/micropost';
-import { FaHeart } from 'react-icons/fa'; // アイコンをインポート
+import { FaEye, FaHeart } from 'react-icons/fa'; // アイコンをインポート
 
 interface MicropostCardProps {
   micropost: Micropost & { likesCount: number };
 }
 
 const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
+  // 閲覧回数を表示
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
       <Link href={`/timeline/${micropost.id}`}>
@@ -24,9 +25,14 @@ const MicropostCard: React.FC<MicropostCardProps> = ({ micropost }) => {
           <p>
             Posted by {micropost.user?.name || `User ${micropost.user?.id}`} on {new Date(micropost.createdAt).toLocaleDateString()}
           </p>
-          <span className="flex items-center">
-            <FaHeart className="text-red-500 mr-1" /> {micropost.likesCount}
-          </span>
+          <div className="flex gap-3">
+            <span className="flex items-center">
+              <FaHeart className="text-red-500 mr-1" /> {micropost.likesCount}
+            </span>
+            <span className="flex items-center">
+              <FaEye className="text-blue-500 mr-1" /> {micropost.viewsCount}
+            </span>
+          </div>
         </div>
       </Link>
     </div>

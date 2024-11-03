@@ -8,8 +8,6 @@ import CreateMicroPostModal from './CreateMicroPostModal';
 import { useAuthStore } from '@/store/authStore';
 import { useSearchParams } from 'next/navigation';
 
-const POSTS_PER_PAGE = 6;
-
 const Timeline: React.FC<TimelineProps> = ({ microposts, currentPage, totalPages }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

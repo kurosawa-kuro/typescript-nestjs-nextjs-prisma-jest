@@ -5,7 +5,7 @@ import Timeline from '@/components/Micropost/Timeline';
 import CategoryList from '@/components/Micropost/CategoryList';
 import TimelineLayout from '@/components/Micropost/TimelineLayout';
 
-const POSTS_PER_PAGE = 6;
+const POSTS_PER_PAGE = 4;
 
 export default async function TimelinePage({ 
   searchParams 
