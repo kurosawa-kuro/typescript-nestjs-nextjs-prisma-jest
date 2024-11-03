@@ -372,4 +372,132 @@ describe('ClientSideApiService', () => {
       await expect(ClientSideApiService.addMicropostView(micropostId)).rejects.toThrow('Network error');
     });
   });
+
+  describe('category operations', () => {
+    describe('getCategories', () => {
+      it('should call ApiClient.get with correct parameters', async () => {
+        const mockCategories = [
+          { id: 1, name: 'Technology' },
+          { id: 2, name: 'Sports' }
+        ];
+        (ApiClient.get as jest.Mock).mockResolvedValue(mockCategories);
+
+        const result = await ClientSideApiService.getCategories();
+
+        expect(ApiClient.get).toHaveBeenCalledWith('/categories');
+        expect(result).toEqual(mockCategories);
+      });
+    });
+
+    describe('createCategory', () => {
+      it('should call ApiClient.post with correct parameters', async () => {
+        const mockCategory = { id: 1, name: 'New Category' };
+        (ApiClient.post as jest.Mock).mockResolvedValue(mockCategory);
+
+        const categoryName = 'New Category';
+        const result = await ClientSideApiService.createCategory(categoryName);
+
+        expect(ApiClient.post).toHaveBeenCalledWith('/categories', { name: categoryName });
+        expect(result).toEqual(mockCategory);
+      });
+
+      it('should handle error when creating category', async () => {
+        const error = new Error('Failed to create category');
+        (ApiClient.post as jest.Mock).mockRejectedValue(error);
+
+        const categoryName = 'New Category';
+        await expect(ClientSideApiService.createCategory(categoryName))
+          .rejects
+          .toThrow('Failed to create category');
+      });
+    });
+  });
+
+  describe('role operations', () => {
+    let consoleSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    });
+
+    afterEach(() => {
+      consoleSpy.mockRestore();
+    });
+
+    describe('getAvailableRoles', () => {
+      it('should call ApiClient.get with correct parameters', async () => {
+        const mockRoles = ['admin', 'user', 'moderator'];
+        (ApiClient.get as jest.Mock).mockResolvedValue(mockRoles);
+
+        const result = await ClientSideApiService.getAvailableRoles();
+
+        expect(console.log).toHaveBeenCalledWith('getAvailableRoles');
+        expect(ApiClient.get).toHaveBeenCalledWith('/users/available-roles');
+        expect(result).toEqual(mockRoles);
+      });
+
+      it('should handle error when fetching roles', async () => {
+        const error = new Error('Failed to fetch roles');
+        (ApiClient.get as jest.Mock).mockRejectedValue(error);
+
+        await expect(ClientSideApiService.getAvailableRoles())
+          .rejects
+          .toThrow('Failed to fetch roles');
+        expect(console.log).toHaveBeenCalledWith('getAvailableRoles');
+      });
+    });
+  });
+
+  describe('getUserDetails', () => {
+    it('should call ApiClient.get with correct parameters', async () => {
+      const mockUserDetails: UserDetails = {
+        id: 1,
+        name: 'Test User',
+        email: 'test@example.com',
+        userRoles: ['user'],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockUserDetails);
+
+      const userId = 1;
+      const result = await ClientSideApiService.getUserDetails(userId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/users/${userId}`);
+      expect(result).toEqual(mockUserDetails);
+    });
+
+    it('should handle error when fetching user details', async () => {
+      const error = new Error('User not found');
+      (ApiClient.get as jest.Mock).mockRejectedValue(error);
+
+      const userId = 999;
+      await expect(ClientSideApiService.getUserDetails(userId))
+        .rejects
+        .toThrow('User not found');
+    });
+  });
+
+  describe('getUserRoles', () => {
+    it('should call ApiClient.get with correct parameters', async () => {
+      const mockRoles = ['admin', 'user'];
+      (ApiClient.get as jest.Mock).mockResolvedValue(mockRoles);
+
+      const userId = 1;
+      const result = await ClientSideApiService.getUserRoles(userId);
+
+      expect(ApiClient.get).toHaveBeenCalledWith(`/users/${userId}/roles`);
+      expect(result).toEqual(mockRoles);
+    });
+
+    it('should handle error when fetching user roles', async () => {
+      const error = new Error('Failed to fetch user roles');
+      (ApiClient.get as jest.Mock).mockRejectedValue(error);
+
+      const userId = 1;
+      await expect(ClientSideApiService.getUserRoles(userId))
+        .rejects
+        .toThrow('Failed to fetch user roles');
+    });
+  });
 });

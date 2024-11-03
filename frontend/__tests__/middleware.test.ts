@@ -90,4 +90,18 @@ describe('Middleware', () => {
       expect(result.type).toBe('next');
     });
   });
+
+  describe('Error handling', () => {
+    test('redirects to login and deletes jwt cookie when API call fails', async () => {
+      setupRequest('/some-protected-route', 'valid-token');
+      (ClientSideApiService.me as jest.Mock).mockRejectedValue(new Error('API Error'));
+      
+      const result = await middleware(mockRequest);
+      const expectedUrl = new URL('/login', mockRequest.url);
+      
+      expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);
+      expect(result.cookies.delete).toHaveBeenCalledWith('jwt');
+      expect(result.type).toBe('redirect');
+    });
+  });
 });

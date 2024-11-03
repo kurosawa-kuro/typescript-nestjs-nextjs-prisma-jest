@@ -30,7 +30,6 @@ export async function middleware(request: NextRequest) {
       request: { headers: requestHeaders },
     });
   } catch (error) {
-    console.error('Error in middleware:', error);
     // In case of an error, delete the cookie and redirect to login
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.delete('jwt');
