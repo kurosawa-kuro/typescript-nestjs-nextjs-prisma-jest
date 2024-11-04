@@ -13,3 +13,4 @@
 ![2024-11-04_16h43_29](https://github.com/user-attachments/assets/b815b054-d758-4e1b-ad73-945c0c23341d)
 ![2024-11-04_16h43_52](https://github.com/user-attachments/assets/54522232-1755-47d0-9886-a16024f2eb04)
 ![2024-11-04_16h44_02](https://github.com/user-attachments/assets/cb2503a1-59d2-4db4-801c-83363d3b7590)
+![2024-11-04_16h46_59](https://github.com/user-attachments/assets/8cabe2ab-5566-436e-9a6d-8575b3db4613)
