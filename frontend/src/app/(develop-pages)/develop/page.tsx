@@ -35,7 +35,6 @@ export default function DevelopPage() {
     const zustandState = {
       auth: { user, isLoading, error },
       flashMessage: { message: flashMessage },
-      useUserProfileStore: { user }
     };
     setZustandInfo(JSON.stringify(zustandState, null, 2));
   }, [user, isLoading, error, flashMessage]);
